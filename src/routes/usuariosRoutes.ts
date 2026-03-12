@@ -1,6 +1,7 @@
 import { Router } from 'express';
 // Asegúrate de importar también 'crearUsuario'
 import { loginUsuario, modificarUsuario, crearUsuario, listarUsuarios } from '../controllers/usuariosController.js';
+import { validarToken } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.post('/crear', crearUsuario);
 router.post('/login', loginUsuario);
 
 // 3. Modificar Perfil
-router.put('/modificar/:id', modificarUsuario);
+router.put('/modificar/:id', validarToken, modificarUsuario);
 
 router.get('/listar', validarToken, listarUsuarios);
 
