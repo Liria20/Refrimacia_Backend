@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_refri
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: RefriMancia
+    ports:
+      - "3307:3306"
+    volumes:
+      # ESTA LÍNEA ES CLAVE: Carga tu script automáticamente al iniciar
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: node_refri
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=admin
+      - DB_NAME=RefriMancia
+    depends_on:
+      - db
+
+volumes:
+  db_data:
