@@ -42,8 +42,8 @@ export const crearReceta = async (req: Request, res: Response) => {
         return res.status(400).json({ status: "error", message: "Faltan campos obligatorios" });
     }
 
-    // 1️⃣ CAMBIO AQUÍ: La imagen ya no viene del body, viene de Multer (req.file)
-    const imagen_final = req.file ? `/uploads/recetas/${req.file.filename}` : null;
+    // 🚀 CAMBIO CLOUDINARY: Guardamos directamente la URL pública que nos da la nube
+    const imagen_final = req.file ? req.file.path : null;
 
     try {
         const query = `
@@ -56,14 +56,15 @@ export const crearReceta = async (req: Request, res: Response) => {
             descripcion || null, 
             ingredientes, 
             tipo_receta || 'General', 
-            imagen_final, // Usamos la ruta del archivo
+            imagen_final, 
             id_usuario_token 
         ]);
 
         res.status(201).json({
             status: "success",
             message: "¡Receta publicada con éxito!",
-            id_receta: result.insertId
+            id_receta: result.insertId,
+            foto: imagen_final // Añadido para que lo veas directamente en Postman
         });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
@@ -81,7 +82,8 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(403).json({ status: "error", message: "No tienes permiso o no existe" });
         }
 
-        const imagen_final = req.file ? `/uploads/recetas/${req.file.filename}` : imagen_receta;
+        // 🚀 CAMBIO CLOUDINARY: Usamos req.file.path si suben foto nueva, si no, mantenemos la anterior
+        const imagen_final = req.file ? req.file.path : imagen_receta;
 
         const query = `
             UPDATE TReceta 
@@ -89,7 +91,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
             WHERE id_receta = ?`;
 
         await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta, imagen_final, id]);
-        res.json({ status: "success", message: "Receta actualizada correctamente" });
+        res.json({ status: "success", message: "Receta actualizada correctamente", foto: imagen_final });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
     }

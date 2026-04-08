@@ -23,10 +23,8 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     } = req.body;
 
     try {
-        // 1️⃣ LÓGICA DE IMAGEN:
-        // Si hay un archivo nuevo (req.file), usamos esa ruta.
-        // Si no, mantenemos la que ya tenía (imagen_perfil que viene en el body).
-        const imagenFinal = req.file ? `/uploads/recetas/${req.file.filename}` : imagen_perfil;
+        // 🚀 CAMBIO CLOUDINARY: Usamos la URL pública (req.file.path)
+        const imagenFinal = req.file ? req.file.path : imagen_perfil;
 
         const query = `
             UPDATE TUsuario 
@@ -39,7 +37,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
 
         const [result]: any = await db.query(query, [
             nombre_usuario,
-            imagenFinal, // <--- Usamos la imagen procesada
+            imagenFinal, 
             nombre_completo,
             fecha_nac,
             correo_electronico,
@@ -77,9 +75,8 @@ export const crearUsuario = async (req: Request, res: Response) => {
         });
     }
 
-    // 2️⃣ LÓGICA DE IMAGEN (REGISTRO):
-    // Si el usuario sube una foto al registrarse, la guardamos.
-    const rutaImagen = req.file ? `/uploads/recetas/${req.file.filename}` : null;
+    // 🚀 CAMBIO CLOUDINARY: Guardamos la URL de la nube si el usuario sube foto
+    const rutaImagen = req.file ? req.file.path : null;
 
     try {
         const salt = await bcrypt.genSalt(10);
@@ -96,7 +93,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
             correo_electronico,
             nombre_completo,
             fecha_nac,
-            rutaImagen // <--- Guardamos la ruta del archivo real
+            rutaImagen 
         ]);
 
         res.status(201).json({
@@ -117,7 +114,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
     }
 };
 
-// --- EL RESTO DE FUNCIONES (Login, Listar, Recuperar) NO CAMBIAN ---
+// --- EL RESTO DE FUNCIONES NO CAMBIAN ---
 
 export const loginUsuario = async (req: Request, res: Response) => {
     const { correo_electronico, contrasena } = req.body;
@@ -175,7 +172,7 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
         const codigo = Math.floor(100000 + Math.random() * 900000).toString();
         await db.query('UPDATE TUsuario SET codigo_verificacion = ? WHERE correo_electronico = ?', [codigo, correo_electronico]);
 
-        // (Lógica de envío de Brevo omitida para brevedad, pero mantenla en tu código real)
+        // (Lógica de envío de Brevo omitida para brevedad)
         res.json({ status: "success", message: "Código enviado" });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
