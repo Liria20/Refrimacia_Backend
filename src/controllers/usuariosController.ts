@@ -160,11 +160,40 @@ export const logoutUsuario = async (req: Request, res: Response) => {
 };
 
 export const listarUsuarios = async (req: Request, res: Response) => {
+    // 1. Atrapamos los parámetros de paginación (Página 1 y 10 usuarios por defecto)
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-        const [rows]: any = await db.query('SELECT id_usuario, nombre_usuario, imagen_perfil, nombre_completo, fecha_nac, correo_electronico FROM TUsuario');
-        res.json({ status: "success", count: rows.length, data: rows });
+        // 2. Contamos cuántos usuarios hay en total en la base de datos
+        const [totalRows]: any = await db.query('SELECT COUNT(*) as total FROM TUsuario');
+        const totalUsuarios = totalRows[0].total;
+        const totalPages = Math.ceil(totalUsuarios / limit);
+
+        // 3. Consultamos los usuarios aplicando el límite y el offset
+        const query = `
+            SELECT id_usuario, nombre_usuario, imagen_perfil, nombre_completo, fecha_nac, correo_electronico 
+            FROM TUsuario 
+            ORDER BY id_usuario DESC 
+            LIMIT ? OFFSET ?`;
+            
+        const [rows]: any = await db.query(query, [limit, offset]);
+
+        // 4. Devolvemos los datos junto con el bloque de paginación
+        res.json({ 
+            status: "success", 
+            data: rows,
+            paginacion: {
+                total_usuarios: totalUsuarios,
+                total_paginas: totalPages,
+                pagina_actual: page,
+                usuarios_por_pagina: limit
+            }
+        });
     } catch (error: any) {
-        res.status(500).json({ status: "error", message: "Error al listar" });
+        console.error("Error en listarUsuarios:", error);
+        res.status(500).json({ status: "error", message: "Error al listar usuarios" });
     }
 };
 
