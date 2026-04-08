@@ -2,16 +2,46 @@ import { Request, Response } from 'express';
 import db from '../../db.js';
 
 export const listarRecetas = async (req: Request, res: Response) => {
+    // 1. Atrapamos los parámetros de la URL. 
+    // Si no los envían, por defecto será la página 1 y mostraremos 10 recetas.
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    // 2. Calculamos desde qué receta empezamos a buscar (OFFSET)
+    // Ejemplo: Si estoy en la página 2 y el límite es 10, me salto las primeras 10.
+    const offset = (page - 1) * limit;
+
     try {
+        // 3. (Opcional pero muy Pro) Contamos el total de recetas que existen
+        // Esto ayuda al Frontend a saber si hay más páginas para seguir haciendo scroll
+        const [totalRows]: any = await db.query('SELECT COUNT(*) as total FROM TReceta');
+        const totalRecetas = totalRows[0].total;
+        const totalPages = Math.ceil(totalRecetas / limit);
+
+        // 4. Hacemos la consulta normal, pero añadiendo los límites al final
         const query = `
             SELECT r.*, u.nombre_usuario 
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
-            ORDER BY r.id_receta DESC`;
+            ORDER BY r.id_receta DESC
+            LIMIT ? OFFSET ?`;
             
-        const [rows] = await db.query(query);
-        res.json({ status: "success", data: rows });
+        // Pasamos los números a la consulta
+        const [rows] = await db.query(query, [limit, offset]);
+
+        // 5. Devolvemos los datos junto con la información de paginación
+        res.json({ 
+            status: "success", 
+            data: rows,
+            paginacion: {
+                total_recetas: totalRecetas,
+                total_paginas: totalPages,
+                pagina_actual: page,
+                recetas_por_pagina: limit
+            }
+        });
     } catch (error: any) {
+        console.error(error); // Para ver en la consola si algo falla
         res.status(500).json({ status: "error", message: "Error al obtener recetas" });
     }
 };
