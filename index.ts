@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path'; 
 import { fileURLToPath } from 'url';
+import fs from 'fs'; // <--- AÑADIDO PARA LEER EL DISCO DURO
 
 // Importar las rutas
 import usuariosRoutes from './src/routes/usuariosRoutes.js';
@@ -29,6 +30,19 @@ app.use('/uploads', express.static(uploadsPath));
 
 // Log para que veas en la consola de Render si la ruta es correcta
 console.log("📂 Servidor buscando archivos en:", uploadsPath);
+
+// --- 🕵️‍♂️ RUTA CHIVATA PARA DEBUGGEAR (NUEVO) ---
+app.get('/api/debug', (req, res) => {
+    const recetasDir = path.join(uploadsPath, 'recetas');
+    
+    res.json({
+        directorio_raiz: process.cwd(),
+        existe_uploads: fs.existsSync(uploadsPath),
+        contenido_uploads: fs.existsSync(uploadsPath) ? fs.readdirSync(uploadsPath) : "Carpeta no encontrada",
+        existe_recetas: fs.existsSync(recetasDir),
+        contenido_recetas: fs.existsSync(recetasDir) ? fs.readdirSync(recetasDir) : "Carpeta no encontrada"
+    });
+});
 
 // --- DEFINIR RUTAS ---
 app.use('/api/usuarios', usuariosRoutes);
