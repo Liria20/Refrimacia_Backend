@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path'; // Es buena práctica importar path para las rutas de archivos
+import path from 'path';
+import { fileURLToPath } from 'url'; // Necesario para obtener la ruta en ES Modules
 
 // Importar las rutas
 import usuariosRoutes from './src/routes/usuariosRoutes.js';
@@ -11,15 +12,20 @@ import valoracionesRoutes from './src/routes/valoracionesRoutes.js';
 
 dotenv.config();
 
+// --- CONFIGURACIÓN DE RUTAS ABSOLUTAS ---
+// Esto sustituye al __dirname tradicional que no existe en import/export
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
-// --- ESTO ES LO QUE TIENES QUE AÑADIR ---
-// Hace que la carpeta 'uploads' sea accesible desde el navegador/móvil
-app.use('/uploads', express.static('uploads')); 
+// --- SERVIR ARCHIVOS ESTÁTICOS ---
+// Usamos path.join para que funcione igual en Windows (tu PC) y en Linux (Render)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
 
 // --- DEFINIR RUTAS ---
 app.use('/api/usuarios', usuariosRoutes);
