@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { 
     loginUsuario, 
+    logoutUsuario, // <--- 1. Importamos la nueva función
     modificarUsuario, 
     crearUsuario, 
     listarUsuarios, 
@@ -13,7 +14,7 @@ import { validarToken } from '../middlewares/auth.js';
 import { validarRegistro } from '../middlewares/validaciones/usuario/validarRegistro.js';
 import { validarLogin } from '../middlewares/validaciones/usuario/validarLogin.js';
 import { validarUsuarioModificar } from '../middlewares/validaciones/usuario/validarUsuarioModificar.js';
-import { upload } from '../middlewares/upload.js'; // <--- 1. Importamos el middleware
+import { upload } from '../middlewares/upload.js';
 
 const router = Router();
 
@@ -21,7 +22,6 @@ const router = Router();
 
 /**
  * 2. Registro con Foto de Perfil
- * He añadido upload.single('imagen_perfil')
  * El orden es: Primero procesamos la imagen, luego validamos los textos.
  */
 router.post(
@@ -34,9 +34,12 @@ router.post(
 // Login (Sigue igual, no necesita archivos)
 router.post('/login', validarLogin, loginUsuario);
 
+// --- NUEVA RUTA DE LOGOUT ---
+// Usamos POST y validarToken para saber de qué usuario borrar el token en MySQL
+router.post('/logout', validarToken, logoutUsuario);
+
 /**
  * 3. Modificar Perfil con Foto
- * Si el usuario quiere cambiar su avatar, necesita Multer aquí también.
  */
 router.put(
     '/modificar/:id', 

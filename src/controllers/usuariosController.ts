@@ -37,7 +37,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
 
         const [result]: any = await db.query(query, [
             nombre_usuario,
-            imagenFinal, 
+            imagenFinal,
             nombre_completo,
             fecha_nac,
             correo_electronico,
@@ -48,10 +48,10 @@ export const modificarUsuario = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             message: "Datos de usuario actualizados correctamente",
-            foto: imagenFinal 
+            foto: imagenFinal
         });
     } catch (error: any) {
         console.error("❌ Error SQL:", error);
@@ -93,7 +93,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
             correo_electronico,
             nombre_completo,
             fecha_nac,
-            rutaImagen 
+            rutaImagen
         ]);
 
         res.status(201).json({
@@ -138,6 +138,24 @@ export const loginUsuario = async (req: Request, res: Response) => {
         }
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
+    }
+};
+
+export const logoutUsuario = async (req: Request, res: Response) => {
+    // Como esta ruta estará protegida por tu middleware, 
+    // ya sabes qué usuario es gracias a (req as any).user
+    const idUsuarioToken = (req as any).user.id_usuario;
+
+    try {
+        // Ponemos el token a NULL en la base de datos
+        await db.query('UPDATE TUsuario SET ultimo_token = NULL WHERE id_usuario = ?', [idUsuarioToken]);
+
+        res.json({
+            status: "success",
+            message: "Sesión cerrada correctamente"
+        });
+    } catch (error: any) {
+        res.status(500).json({ status: "error", message: "Error al cerrar sesión" });
     }
 };
 
