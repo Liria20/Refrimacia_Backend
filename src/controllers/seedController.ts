@@ -7,9 +7,8 @@ import pool from '../../db.js';
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
 
-    // 🛡️ SEGURIDAD: Si no mandan la clave correcta, los echamos
     if (clave_secreta !== 'Sembrar2026!') {
-        return res.status(403).json({ status: "error", message: "Acceso denegado. Clave incorrecta." });
+        return res.status(403).json({ status: "error", message: "Clave incorrecta." });
     }
 
     try {
@@ -18,13 +17,16 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
         // --- 1. USUARIOS ---
         for (let i = 0; i < 50; i++) {
+            // Creamos un correo que podamos identificar luego fácilmente
+            const emailFicticio = `test_${faker.string.alphanumeric(10)}@refrimancia.test`;
+
             const [result]: any = await db.query(
                 `INSERT INTO TUsuario (nombre_usuario, contrasena, correo_electronico, nombre_completo, fecha_nac, imagen_perfil) 
                  VALUES (?, ?, ?, ?, ?, ?)`,
                 [
                     faker.internet.username(),
                     passwordHashed,
-                    faker.internet.email(),
+                    emailFicticio, // <-- Marcador
                     faker.person.fullName(),
                     faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
                     `https://api.dicebear.com/7.x/avataaars/svg?seed=${faker.string.uuid()}`
@@ -52,43 +54,45 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             );
         }
 
-        res.json({ status: "success", message: "¡Base de datos sembrada con 100 registros nuevos!" });
+        res.json({ status: "success", message: "¡Siembra quirúrgica completada!" });
     } catch (error: any) {
-        console.error("Error en seed:", error);
-        res.status(500).json({ status: "error", message: "Falló la siembra de datos." });
+        console.error(error);
+        res.status(500).json({ status: "error", message: "Error en la siembra." });
     }
 };
 
 export const limpiarTablas = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
 
-    // 🛡️ Misma seguridad que el seeder
     if (clave_secreta !== 'Sembrar2026!') {
         return res.status(403).json({ status: "error", message: "Clave incorrecta." });
     }
 
     try {
-        // 1. Borramos primero las recetas (por la relación de ID_USUARIO)
-        console.log("🧹 Vaciando recetas...");
-        await pool.query('DELETE FROM TReceta');
-        
-        // 2. Opcional: Si quieres reiniciar el contador de ID a 1
-        await pool.query('ALTER TABLE TReceta AUTO_INCREMENT = 1');
+        // 1. Identificamos primero a los usuarios que queremos borrar
+        const [usuariosFicticios]: any = await db.query(
+            'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE "%@refrimancia.test"'
+        );
 
-        // 3. Borramos los usuarios
-        console.log("🧹 Vaciando usuarios...");
-        // CUIDADO: Aquí podrías querer borrar solo los 'ficticios'. 
-        // Este comando borra TODO. Si quieres mantener tu usuario administrador,
-        // podrías poner: WHERE id_usuario != 1
-        await pool.query('DELETE FROM TUsuario WHERE id_usuario != 1');
-        await pool.query('ALTER TABLE TUsuario AUTO_INCREMENT = 2');
+        if (usuariosFicticios.length === 0) {
+            return res.json({ status: "success", message: "No había datos ficticios que borrar." });
+        }
+
+        const idsParaBorrar = usuariosFicticios.map((u: any) => u.id_usuario);
+
+        // 2. Borramos las recetas que pertenecen SOLO a esos usuarios
+        // Usamos IN (?) para pasarle la lista de IDs
+        await db.query('DELETE FROM TReceta WHERE id_usuario IN (?)', [idsParaBorrar]);
+
+        // 3. Borramos los usuarios que coinciden con nuestro dominio de test
+        await db.query('DELETE FROM TUsuario WHERE id_usuario IN (?)', [idsParaBorrar]);
 
         res.json({ 
             status: "success", 
-            message: "Tablas limpias. Se han mantenido los usuarios administradores." 
+            message: `Se han eliminado exactamente ${idsParaBorrar.length} usuarios ficticios y sus recetas.` 
         });
     } catch (error: any) {
-        console.error("Error al limpiar:", error);
-        res.status(500).json({ status: "error", message: "Error al vaciar las tablas." });
+        console.error(error);
+        res.status(500).json({ status: "error", message: "Error al limpiar datos ficticios." });
     }
 };
