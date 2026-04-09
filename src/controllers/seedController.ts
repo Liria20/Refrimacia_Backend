@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../../db.js'; // Aquí sí funciona el import normal
 import bcrypt from 'bcryptjs';
 import { faker } from '@faker-js/faker';
+import pool from '../../db.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
@@ -55,5 +56,39 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error("Error en seed:", error);
         res.status(500).json({ status: "error", message: "Falló la siembra de datos." });
+    }
+};
+
+export const limpiarTablas = async (req: Request, res: Response) => {
+    const { clave_secreta } = req.body;
+
+    // 🛡️ Misma seguridad que el seeder
+    if (clave_secreta !== 'Sembrar2026!') {
+        return res.status(403).json({ status: "error", message: "Clave incorrecta." });
+    }
+
+    try {
+        // 1. Borramos primero las recetas (por la relación de ID_USUARIO)
+        console.log("🧹 Vaciando recetas...");
+        await pool.query('DELETE FROM TReceta');
+        
+        // 2. Opcional: Si quieres reiniciar el contador de ID a 1
+        await pool.query('ALTER TABLE TReceta AUTO_INCREMENT = 1');
+
+        // 3. Borramos los usuarios
+        console.log("🧹 Vaciando usuarios...");
+        // CUIDADO: Aquí podrías querer borrar solo los 'ficticios'. 
+        // Este comando borra TODO. Si quieres mantener tu usuario administrador,
+        // podrías poner: WHERE id_usuario != 1
+        await pool.query('DELETE FROM TUsuario WHERE id_usuario != 1');
+        await pool.query('ALTER TABLE TUsuario AUTO_INCREMENT = 2');
+
+        res.json({ 
+            status: "success", 
+            message: "Tablas limpias. Se han mantenido los usuarios administradores." 
+        });
+    } catch (error: any) {
+        console.error("Error al limpiar:", error);
+        res.status(500).json({ status: "error", message: "Error al vaciar las tablas." });
     }
 };
