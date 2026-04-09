@@ -10,6 +10,7 @@ import usuariosRoutes from './src/routes/usuariosRoutes.js';
 import recetasRoutes from './src/routes/recetasRoutes.js';
 import comentariosRoutes from './src/routes/comentariosRoutes.js';
 import valoracionesRoutes from './src/routes/valoracionesRoutes.js';
+import seedRoutes from './src/routes/seedRoutes.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/recetas', recetasRoutes);
 app.use('/api/comentarios', comentariosRoutes);
 app.use('/api/valoraciones', valoracionesRoutes);
+app.use('/api/seed', seedRoutes);
 
 const PORT = process.env.PORT || 3000;
 

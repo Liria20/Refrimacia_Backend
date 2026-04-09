@@ -10,6 +10,6 @@
     "outDir": "./dist",
     "rootDir": "./"
   },
-  "include": ["**/*.ts", "uploads/recetas/.gitkeep"],
+  "include": ["**/*.ts", "uploads/recetas/.gitkeep", "src/seed.js"],
   "exclude": ["node_modules"]
 }
