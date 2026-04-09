@@ -69,30 +69,43 @@ export const limpiarTablas = async (req: Request, res: Response) => {
     }
 
     try {
-        // 1. Identificamos primero a los usuarios que queremos borrar
-        const [usuariosFicticios]: any = await db.query(
-            'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE "%@refrimancia.test"'
+        // 1. Buscamos los IDs de los usuarios ficticios
+        const [usuarios]: any = await db.query(
+            'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?',
+            ['%@refrimancia.test']
         );
 
-        if (usuariosFicticios.length === 0) {
-            return res.json({ status: "success", message: "No había datos ficticios que borrar." });
+        // Si no hay usuarios que borrar, salimos con éxito pero sin hacer nada
+        if (!usuarios || usuarios.length === 0) {
+            return res.json({ 
+                status: "success", 
+                message: "No se encontraron datos ficticios para borrar." 
+            });
         }
 
-        const idsParaBorrar = usuariosFicticios.map((u: any) => u.id_usuario);
+        // Extraemos solo los números de ID en un array: [12, 13, 14...]
+        const idsParaBorrar = usuarios.map((u: any) => u.id_usuario);
 
-        // 2. Borramos las recetas que pertenecen SOLO a esos usuarios
-        // Usamos IN (?) para pasarle la lista de IDs
+        console.log(`🧹 Borrando datos de ${idsParaBorrar.length} usuarios...`);
+
+        // 2. Borramos las recetas asociadas a esos IDs
+        // IMPORTANTE: En mysql2, para el operador IN, pasamos el array dentro de otro array [[ids]]
         await db.query('DELETE FROM TReceta WHERE id_usuario IN (?)', [idsParaBorrar]);
 
-        // 3. Borramos los usuarios que coinciden con nuestro dominio de test
+        // 3. Borramos los usuarios
         await db.query('DELETE FROM TUsuario WHERE id_usuario IN (?)', [idsParaBorrar]);
 
         res.json({ 
             status: "success", 
-            message: `Se han eliminado exactamente ${idsParaBorrar.length} usuarios ficticios y sus recetas.` 
+            message: `Limpieza completada: se eliminaron ${idsParaBorrar.length} usuarios de prueba.` 
         });
+
     } catch (error: any) {
-        console.error(error);
-        res.status(500).json({ status: "error", message: "Error al limpiar datos ficticios." });
+        console.error("❌ Error detallado:", error);
+        res.status(500).json({ 
+            status: "error", 
+            message: "Error interno al limpiar datos.",
+            detalle: error.message // Esto te ayudará a ver qué pasa en Postman
+        });
     }
 };
