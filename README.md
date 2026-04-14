@@ -11,7 +11,7 @@ Backend modular para la gestión de recetas y usuarios de la aplicación **Refri
 
 ## 🚀 Despliegue con Docker
 
-Para levantar el servidor y la base de datos (con tablas automáticas):
+Para levantar el servidor y la base de datos (con tablas automáticas) asdad:
 
 ```bash
 Instalaciones:
