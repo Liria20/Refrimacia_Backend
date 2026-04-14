@@ -2,34 +2,26 @@ import { Request, Response } from 'express';
 import db from '../../db.js';
 
 export const listarRecetas = async (req: Request, res: Response) => {
-    // 1. Atrapamos los parámetros de la URL. 
-    // Si no los envían, por defecto será la página 1 y mostraremos 10 recetas.
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-
-    // 2. Calculamos desde qué receta empezamos a buscar (OFFSET)
-    // Ejemplo: Si estoy en la página 2 y el límite es 10, me salto las primeras 10.
     const offset = (page - 1) * limit;
 
     try {
-        // 3. (Opcional pero muy Pro) Contamos el total de recetas que existen
-        // Esto ayuda al Frontend a saber si hay más páginas para seguir haciendo scroll
         const [totalRows]: any = await db.query('SELECT COUNT(*) as total FROM TReceta');
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // 4. Hacemos la consulta normal, pero añadiendo los límites al final
+        // Añadimos una subconsulta para traer la media de estrellas en el listado
         const query = `
-            SELECT r.*, u.nombre_usuario 
+            SELECT r.*, u.nombre_usuario,
+            (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
             
-        // Pasamos los números a la consulta
         const [rows] = await db.query(query, [limit, offset]);
 
-        // 5. Devolvemos los datos junto con la información de paginación
         res.json({ 
             status: "success", 
             data: rows,
@@ -41,7 +33,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
             }
         });
     } catch (error: any) {
-        console.error(error); // Para ver en la consola si algo falla
+        console.error(error);
         res.status(500).json({ status: "error", message: "Error al obtener recetas" });
     }
 };
@@ -49,16 +41,36 @@ export const listarRecetas = async (req: Request, res: Response) => {
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        const query = `
-            SELECT r.*, u.nombre_usuario as autor 
+        // 1. Obtenemos los datos de la receta y la media de estrellas
+        const queryReceta = `
+            SELECT r.*, u.nombre_usuario as autor,
+            (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             LEFT JOIN TUsuario u ON r.id_usuario = u.id_usuario
             WHERE r.id_receta = ?`;
-        const [rows]: any = await db.query(query, [id]);
-        if (rows.length === 0) {
+            
+        const [recetaRows]: any = await db.query(queryReceta, [id]);
+        
+        if (recetaRows.length === 0) {
             return res.status(404).json({ status: "error", message: "La receta no existe." });
         }
-        res.json({ status: "success", data: rows[0] });
+
+        // 2. Obtenemos los comentarios de esta receta
+        const [comentarios]: any = await db.query(
+            `SELECT c.*, u.nombre_usuario, u.imagen_perfil 
+             FROM TComentario c 
+             JOIN TUsuario u ON c.id_usuario = u.id_usuario 
+             WHERE c.id_receta = ? ORDER BY c.fecha_comentario DESC`, 
+            [id]
+        );
+
+        res.json({ 
+            status: "success", 
+            data: {
+                ...recetaRows[0],
+                comentarios: comentarios
+            }
+        });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: "Error al obtener los detalles." });
     }
@@ -66,35 +78,35 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
 
 export const crearReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
-    const { titulo_receta, descripcion, ingredientes, tipo_receta } = req.body;
+    // Recuperamos tiempo_preparacion del body
+    const { titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion } = req.body;
 
     if (!titulo_receta || !ingredientes) {
         return res.status(400).json({ status: "error", message: "Faltan campos obligatorios" });
     }
 
-    // 🚀 CAMBIO CLOUDINARY: Guardamos directamente la URL pública que nos da la nube
     const imagen_final = req.file ? req.file.path : null;
 
     try {
         const query = `
             INSERT INTO TReceta 
-            (titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, id_usuario) 
-            VALUES (?, ?, ?, ?, ?, ?)`;
+            (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
         const [result]: any = await db.query(query, [
             titulo_receta, 
             descripcion || null, 
             ingredientes, 
             tipo_receta || 'General', 
+            tiempo_preparacion || 0,
             imagen_final, 
             id_usuario_token 
         ]);
 
         res.status(201).json({
             status: "success",
-            message: "¡Receta publicada con éxito!",
             id_receta: result.insertId,
-            foto: imagen_final // Añadido para que lo veas directamente en Postman
+            foto: imagen_final
         });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
@@ -104,7 +116,7 @@ export const crearReceta = async (req: Request, res: Response) => {
 export const modificarReceta = async (req: Request, res: Response) => {
     const { id } = req.params;
     const id_usuario_token = (req as any).user.id_usuario;
-    const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta } = req.body;
+    const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, tiempo_preparacion } = req.body;
 
     try {
         const [receta]: any = await db.query('SELECT id_usuario FROM TReceta WHERE id_receta = ?', [id]);
@@ -112,16 +124,15 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(403).json({ status: "error", message: "No tienes permiso o no existe" });
         }
 
-        // 🚀 CAMBIO CLOUDINARY: Usamos req.file.path si suben foto nueva, si no, mantenemos la anterior
         const imagen_final = req.file ? req.file.path : imagen_receta;
 
         const query = `
             UPDATE TReceta 
-            SET titulo_receta = ?, descripcion = ?, ingredientes = ?, tipo_receta = ?, imagen_receta = ? 
+            SET titulo_receta = ?, descripcion = ?, ingredientes = ?, tipo_receta = ?, imagen_receta = ?, tiempo_preparacion = ? 
             WHERE id_receta = ?`;
 
-        await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta, imagen_final, id]);
-        res.json({ status: "success", message: "Receta actualizada correctamente", foto: imagen_final });
+        await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta, imagen_final, tiempo_preparacion || 0, id]);
+        res.json({ status: "success", message: "Receta actualizada correctamente" });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });
     }

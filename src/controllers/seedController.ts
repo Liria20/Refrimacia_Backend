@@ -13,7 +13,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
     }
 
     try {
-        // --- 0. AUTO-LIMPIEZA (Borrar solo lo generado por el seed anteriormente) ---
+        // --- 0. AUTO-LIMPIEZA ---
         console.log("🧹 Buscando datos de prueba antiguos para limpiar...");
         const [usuariosViejos]: any = await db.query(
             'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?',
@@ -22,14 +22,11 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
         if (usuariosViejos.length > 0) {
             const idsViejos = usuariosViejos.map((u: any) => u.id_usuario);
-            
-            // Borramos en orden para no romper las claves foráneas
             await db.query('DELETE FROM TValoracion WHERE id_usuario IN (?) OR id_receta IN (SELECT id_receta FROM TReceta WHERE id_usuario IN (?))', [idsViejos, idsViejos]);
             await db.query('DELETE FROM TComentario WHERE id_usuario IN (?) OR id_receta IN (SELECT id_receta FROM TReceta WHERE id_usuario IN (?))', [idsViejos, idsViejos]);
             await db.query('DELETE FROM TReceta WHERE id_usuario IN (?)', [idsViejos]);
             await db.query('DELETE FROM TUsuario WHERE id_usuario IN (?)', [idsViejos]);
-            
-            console.log(`✅ Limpieza completada (${idsViejos.length} usuarios eliminados).`);
+            console.log(`✅ Limpieza completada.`);
         }
 
         // --- Configuración inicial ---
@@ -38,37 +35,34 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
         const recipeIds: number[] = [];
 
         // --- 1. GENERAR 50 USUARIOS ---
-        console.log("👤 Generando 50 usuarios...");
         for (let i = 0; i < 50; i++) {
             const email = `test_${faker.string.alphanumeric(8)}@refrimancia.test`;
             const [u]: any = await db.query(
                 `INSERT INTO TUsuario (nombre_usuario, contrasena, correo_electronico, nombre_completo, fecha_nac, imagen_perfil) 
                  VALUES (?, ?, ?, ?, ?, ?)`,
-                [
-                    faker.internet.username(), // userName con N mayúscula para versiones modernas de Faker
-                    passwordHashed,
-                    email,
-                    faker.person.fullName(),
-                    faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
-                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${faker.string.uuid()}`
-                ]
+                [faker.internet.username(), passwordHashed, email, faker.person.fullName(), faker.date.birthdate({ min: 18, max: 65, mode: 'age' }), `https://api.dicebear.com/7.x/avataaars/svg?seed=${faker.string.uuid()}`]
             );
             userIds.push(u.insertId);
         }
 
-        // --- 2. GENERAR 50 RECETAS ---
-        console.log("🥘 Generando 50 recetas...");
+        // --- 2. GENERAR 50 RECETAS (Actualizado con tiempo_preparacion) ---
+        console.log("🥘 Generando 50 recetas con tiempos...");
         const tipos = ['Desayuno', 'Almuerzo', 'Cena', 'Postre', 'Snack'];
         for (let i = 0; i < 50; i++) {
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
+            
+            // 🟢 NUEVO: Generamos un tiempo aleatorio entre 10 y 150 minutos
+            const tiempoAzar = faker.number.int({ min: 10, max: 150 });
+
             const [r]: any = await db.query(
-                `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, id_usuario) 
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`, // <-- Añadido un '?' extra
                 [
                     faker.food.dish(),
                     faker.food.description(),
-                    `${faker.food.ingredient()}, ${faker.food.ingredient()}, ${faker.food.ingredient()}`,
+                    `${faker.food.ingredient()}, ${faker.food.ingredient()}`,
                     tipos[Math.floor(Math.random() * tipos.length)],
+                    tiempoAzar, // 🟢 NUEVO: Pasamos el tiempo a la base de datos
                     `https://loremflickr.com/640/480/food?lock=${i}`,
                     idAutor
                 ]
@@ -76,38 +70,26 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             recipeIds.push(r.insertId);
         }
 
-        // --- 3. GENERAR VALORACIONES AL AZAR ---
-        console.log("⭐ Generando valoraciones...");
+        // --- 3. VALORACIONES ---
         for (const idReceta of recipeIds) {
             const numVotos = faker.number.int({ min: 1, max: 5 });
             for (let j = 0; j < numVotos; j++) {
                 const idVotante = userIds[Math.floor(Math.random() * userIds.length)];
-                await db.query(
-                    `INSERT IGNORE INTO TValoracion (id_receta, id_usuario, puntuacion) VALUES (?, ?, ?)`,
-                    [idReceta, idVotante, faker.number.int({ min: 1, max: 5 })]
-                );
+                await db.query(`INSERT IGNORE INTO TValoracion (id_receta, id_usuario, puntuacion) VALUES (?, ?, ?)`, [idReceta, idVotante, faker.number.int({ min: 1, max: 5 })]);
             }
         }
 
-        // --- 4. GENERAR COMENTARIOS AL AZAR ---
-        console.log("💬 Generando comentarios...");
-        const frases = ["¡Increíble receta!", "Me encantó el sabor.", "Fácil y muy rico.", "A mi familia le flipó.", "La repetiré seguro.", "Súper saludable."];
-        
+        // --- 4. COMENTARIOS ---
+        const frases = ["¡Increíble!", "Riquísimo.", "Fácil de hacer.", "A mi familia le encantó.", "La repetiré.", "Súper sana."];
         for (const idReceta of recipeIds) {
             const numComentarios = faker.number.int({ min: 0, max: 3 });
             for (let k = 0; k < numComentarios; k++) {
                 const idComentarista = userIds[Math.floor(Math.random() * userIds.length)];
-                await db.query(
-                    `INSERT INTO TComentario (id_receta, id_usuario, mensaje) VALUES (?, ?, ?)`,
-                    [idReceta, idComentarista, frases[Math.floor(Math.random() * frases.length)]]
-                );
+                await db.query(`INSERT INTO TComentario (id_receta, id_usuario, mensaje) VALUES (?, ?, ?)`, [idReceta, idComentarista, frases[Math.floor(Math.random() * frases.length)]]);
             }
         }
 
-        res.json({ 
-            status: "success", 
-            message: "Base de datos refrescada con éxito. Se borró lo anterior y se crearon 100 registros nuevos (50 usuarios + 50 recetas) con interacciones." 
-        });
+        res.json({ status: "success", message: "Base de datos reseteada con tiempos de preparación incluidos." });
 
     } catch (error: any) {
         console.error("❌ Error en el Seed:", error);

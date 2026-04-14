@@ -21,6 +21,7 @@ CREATE TABLE TReceta (
     ingredientes TEXT NOT NULL,
     tipo_receta VARCHAR(50) NOT NULL,
     fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tiempo_preparacion INT,
     id_usuario INT NOT NULL,
 
     CONSTRAINT fk_receta_usuario
