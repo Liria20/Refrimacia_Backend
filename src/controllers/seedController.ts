@@ -3,6 +3,7 @@ import db from '../../db.js';
 import bcrypt from 'bcryptjs';
 import { fakerES as faker } from '@faker-js/faker';
 import { getRandomReceta } from '../elementosGenerador/Recetas.js';
+import { getComentarioCongruente } from '../elementosGenerador/Comentarios.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
@@ -29,7 +30,9 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
         const passwordHashed = await bcrypt.hash('password123', 10);
         const userIds: number[] = [];
-        const recipeIds: number[] = [];
+        
+        // 🟢 CAMBIO: Guardamos el ID y el Título para luego saber qué comentarios poner
+        const recetasCreadas: { id: number, titulo: string }[] = [];
 
         // --- 1. GENERAR 50 USUARIOS ---
         for (let i = 0; i < 50; i++) {
@@ -49,7 +52,6 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
             const tiempoAzar = faker.number.int({ min: 10, max: 150 });
 
-            // 🟢 MAGIA: Cogemos UNA receta entera de nuestra librería externa
             const recetaPerfecta = getRandomReceta();
 
             const [r]: any = await db.query(
@@ -59,35 +61,42 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
                     recetaPerfecta.titulo,
                     recetaPerfecta.descripcion,
                     recetaPerfecta.ingredientes,
-                    recetaPerfecta.tipo,       // Ya sabe si es Desayuno, Postre, etc.
+                    recetaPerfecta.tipo,
                     tiempoAzar,
-                    recetaPerfecta.imagen,     // Imagen asignada a esta receta
+                    recetaPerfecta.imagen,
                     idAutor
                 ]
             );
-            recipeIds.push(r.insertId);
+            
+            // 🟢 CAMBIO: Metemos el objeto a nuestro array
+            recetasCreadas.push({ id: r.insertId, titulo: recetaPerfecta.titulo });
         }
 
         // --- 3. VALORACIONES ---
-        for (const idReceta of recipeIds) {
-            const numVotos = faker.number.int({ min: 1, max: 5 });
+        for (const receta of recetasCreadas) {
+            // 🟢 CAMBIO: Aumentadas las valoraciones (ahora entre 5 y 15 por receta)
+            const numVotos = faker.number.int({ min: 5, max: 15 });
             for (let j = 0; j < numVotos; j++) {
                 const idVotante = userIds[Math.floor(Math.random() * userIds.length)];
-                await db.query(`INSERT IGNORE INTO TValoracion (id_receta, id_usuario, puntuacion) VALUES (?, ?, ?)`, [idReceta, idVotante, faker.number.int({ min: 1, max: 5 })]);
+                await db.query(`INSERT IGNORE INTO TValoracion (id_receta, id_usuario, puntuacion) VALUES (?, ?, ?)`, [receta.id, idVotante, faker.number.int({ min: 1, max: 5 })]);
             }
         }
 
-        // --- 4. COMENTARIOS ---
-        const frases = ["¡Increíble!", "Riquísimo.", "Fácil de hacer.", "A mi familia le encantó.", "La repetiré.", "Súper sana."];
-        for (const idReceta of recipeIds) {
-            const numComentarios = faker.number.int({ min: 0, max: 3 });
+        // --- 4. COMENTARIOS CONGRUENTES ---
+        for (const receta of recetasCreadas) {
+            // Subimos un pelín los comentarios para que haya más actividad
+            const numComentarios = faker.number.int({ min: 1, max: 4 });
             for (let k = 0; k < numComentarios; k++) {
                 const idComentarista = userIds[Math.floor(Math.random() * userIds.length)];
-                await db.query(`INSERT INTO TComentario (id_receta, id_usuario, mensaje) VALUES (?, ?, ?)`, [idReceta, idComentarista, frases[Math.floor(Math.random() * frases.length)]]);
+                
+                // 🟢 CAMBIO: Usamos tu función inteligente
+                const comentarioElegido = getComentarioCongruente(receta.titulo);
+                
+                await db.query(`INSERT INTO TComentario (id_receta, id_usuario, mensaje) VALUES (?, ?, ?)`, [receta.id, idComentarista, comentarioElegido]);
             }
         }
 
-        res.json({ status: "success", message: "Base de datos reseteada con datos 100% en español." });
+        res.json({ status: "success", message: "Base de datos reseteada con datos 100% en español, congruentes y con más valoraciones." });
 
     } catch (error: any) {
         console.error("❌ Error en el Seed:", error);
