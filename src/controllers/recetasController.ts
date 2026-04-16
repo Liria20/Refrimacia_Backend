@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
 
+const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.png";
+
 // --- 🟢 NUEVO: Definimos los tipos válidos para que TypeScript y el Frontend lo sepan ---
 export type TipoReceta = 'Desayuno' | 'Almuerzo' | 'Comida' | 'Merienda' | 'Cena' | 'Postre' | 'Snack';
 export const TIPOS_VALIDOS: TipoReceta[] = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
@@ -97,7 +99,8 @@ export const crearReceta = async (req: Request, res: Response) => {
         });
     }
 
-    const imagen_final = req.file ? req.file.path : null;
+    // 🟢 CAMBIO: Usamos la imagen por defecto si no viene archivo
+    const imagen_final = req.file ? req.file.path : IMAGEN_POR_DEFECTO;
 
     try {
         const query = `
@@ -144,7 +147,8 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(403).json({ status: "error", message: "No tienes permiso o no existe" });
         }
 
-        const imagen_final = req.file ? req.file.path : imagen_receta;
+        // 🟢 CAMBIO: Si no hay archivo nuevo, usamos la imagen vieja, pero si es null, usamos la por defecto
+        const imagen_final = req.file ? req.file.path : (imagen_receta || IMAGEN_POR_DEFECTO);
 
         const query = `
             UPDATE TReceta 

@@ -3,6 +3,9 @@ import db from '../../db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+// 🟢 NUEVO: Definimos el avatar por defecto para los usuarios sin foto
+const IMAGEN_PERFIL_POR_DEFECTO = "https://images.icon-icons.com/1603/PNG/512/kitchen-coock-chef-hat_108594.png";
+
 export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idUsuarioToken = (req as any).user.id_usuario;
@@ -23,8 +26,9 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     } = req.body;
 
     try {
-        // 🚀 CAMBIO CLOUDINARY: Usamos la URL pública (req.file.path)
-        const imagenFinal = req.file ? req.file.path : imagen_perfil;
+        // 🚀 CAMBIO CLOUDINARY: Usamos la URL pública o la imagen que ya tenía. 
+        // 🟢 NUEVO: Si viene vacío/null, le ponemos la de por defecto.
+        const imagenFinal = req.file ? req.file.path : (imagen_perfil || IMAGEN_PERFIL_POR_DEFECTO);
 
         const query = `
             UPDATE TUsuario 
@@ -75,8 +79,9 @@ export const crearUsuario = async (req: Request, res: Response) => {
         });
     }
 
-    // 🚀 CAMBIO CLOUDINARY: Guardamos la URL de la nube si el usuario sube foto
-    const rutaImagen = req.file ? req.file.path : null;
+    // 🚀 CAMBIO CLOUDINARY: Guardamos la URL de la nube si el usuario sube foto.
+    // 🟢 NUEVO: Si no sube nada, le ponemos el avatar por defecto.
+    const rutaImagen = req.file ? req.file.path : IMAGEN_PERFIL_POR_DEFECTO;
 
     try {
         const salt = await bcrypt.genSalt(10);
