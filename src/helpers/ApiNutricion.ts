@@ -1,14 +1,18 @@
 // utils/apiNutricion.ts
+import translate from 'translate';
 
 const APP_ID = "cb651dec"; 
 const APP_KEY = "cf8c86d88edbffce4d9d5c4e1866ef22";
 
 export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoReceta: string) => {
     try {
-        // Preparamos los ingredientes separándolos por comas
-        const listaIngredientes = ingredientesStr.split(',').map(i => i.trim());
+        // 1. Traducimos los ingredientes del español al inglés al vuelo
+        const ingredientesEnIngles = await translate(ingredientesStr, { from: 'es', to: 'en' });
 
-        // Hacemos la llamada a la API de Edamam
+        // 2. Preparamos los ingredientes separándolos por comas (usando el texto ya traducido)
+        const listaIngredientes = ingredientesEnIngles.split(',').map(i => i.trim());
+
+        // 3. Hacemos la llamada a la API de Edamam con los datos en inglés
         const response = await fetch(`https://api.edamam.com/api/nutrition-details?app_id=${APP_ID}&app_key=${APP_KEY}`, {
             method: 'POST',
             headers: {
@@ -21,13 +25,14 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         });
 
         if (!response.ok) {
-            throw new Error("No se pudo calcular la nutrición con Edamam");
+            const errorText = await response.text();
+            throw new Error(`Error de Edamam: ${errorText}`);
         }
 
         const data = await response.json();
         const kcalTotales = data.calories || 0;
 
-        // Lógica sencilla de consumo
+        // 4. Lógica sencilla de consumo
         let consumo = "Consumo habitual (3-4 veces por semana)";
         if (kcalTotales > 600 || tipoReceta === 'Postre') {
             consumo = "Consumo moderado u ocasional";
@@ -41,8 +46,8 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         };
 
     } catch (error) {
-        console.error("Error en la API de nutrición:", error);
-        // Fallback por si falla internet
+        console.error("❌ Error en la API de nutrición:", error);
+        // Fallback por si falla el internet o la API
         return {
             calorias: 0,
             consumo_recomendado: "Información no disponible"
