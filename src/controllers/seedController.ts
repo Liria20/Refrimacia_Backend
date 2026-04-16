@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import db from '../../db.js';
 import bcrypt from 'bcryptjs';
 import { fakerES as faker } from '@faker-js/faker';
-import { getRandomReceta } from '../elementosGenerador/Recetas.js';
-import { getComentarioCongruente } from '../elementosGenerador/Comentarios.js';
+import { getRandomReceta } from '../helpers/elementosGenerador/Recetas.js';
+import { getComentarioCongruente } from '../helpers/elementosGenerador/Comentarios.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;

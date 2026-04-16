@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
+import { estimarNutricion } from '../helpers/CalculadoraNutricional.js';
 
 const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.png";
 
@@ -70,10 +71,16 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             [id]
         );
 
+        // 🟢 MAGIA AL VUELO: Calculamos la nutrición aquí mismo sin tocar la base de datos
+        const receta = recetaRows[0];
+        const datosNutricionales = estimarNutricion(receta.ingredientes, receta.tipo_receta);
+
         res.json({ 
             status: "success", 
             data: {
-                ...recetaRows[0],
+                ...receta,
+                calorias_estimadas: datosNutricionales.calorias,          // Campo extra inyectado
+                consumo_habitual: datosNutricionales.consumo_recomendado, // Campo extra inyectado
                 comentarios: comentarios
             }
         });
