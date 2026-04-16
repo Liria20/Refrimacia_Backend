@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
 
+// --- 🟢 NUEVO: Definimos los tipos válidos para que TypeScript y el Frontend lo sepan ---
+export type TipoReceta = 'Desayuno' | 'Almuerzo' | 'Comida' | 'Merienda' | 'Cena' | 'Postre' | 'Snack';
+export const TIPOS_VALIDOS: TipoReceta[] = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
+
 export const listarRecetas = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -85,6 +89,14 @@ export const crearReceta = async (req: Request, res: Response) => {
         return res.status(400).json({ status: "error", message: "Faltan campos obligatorios" });
     }
 
+    // --- 🟢 NUEVO: Validación estricta del tipo de receta ---
+    if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
+        return res.status(400).json({ 
+            status: "error", 
+            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}` 
+        });
+    }
+
     const imagen_final = req.file ? req.file.path : null;
 
     try {
@@ -97,7 +109,7 @@ export const crearReceta = async (req: Request, res: Response) => {
             titulo_receta, 
             descripcion || null, 
             ingredientes, 
-            tipo_receta || 'General', 
+            tipo_receta || 'Almuerzo', // Cambiado 'General' por 'Almuerzo' para respetar el ENUM
             tiempo_preparacion || 0,
             imagen_final, 
             id_usuario_token 
@@ -118,6 +130,14 @@ export const modificarReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
     const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, tiempo_preparacion } = req.body;
 
+    // --- 🟢 NUEVO: Validación estricta del tipo de receta al modificar ---
+    if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
+        return res.status(400).json({ 
+            status: "error", 
+            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}` 
+        });
+    }
+
     try {
         const [receta]: any = await db.query('SELECT id_usuario FROM TReceta WHERE id_receta = ?', [id]);
         if (receta.length === 0 || receta[0].id_usuario !== id_usuario_token) {
@@ -128,10 +148,10 @@ export const modificarReceta = async (req: Request, res: Response) => {
 
         const query = `
             UPDATE TReceta 
-            SET titulo_receta = ?, descripcion = ?, ingredientes = ?, tipo_receta = ?, imagen_receta = ?, tiempo_preparacion = ? 
+            SET titulo_receta = ?, descripcion = ?, ingredientes = ?, tipo_receta = IFNULL(?, tipo_receta), imagen_receta = ?, tiempo_preparacion = ? 
             WHERE id_receta = ?`;
 
-        await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta, imagen_final, tiempo_preparacion || 0, id]);
+        await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta || null, imagen_final, tiempo_preparacion || 0, id]);
         res.json({ status: "success", message: "Receta actualizada correctamente" });
     } catch (error: any) {
         res.status(500).json({ status: "error", message: error.message });

@@ -19,7 +19,7 @@ CREATE TABLE TReceta (
     titulo_receta VARCHAR(150) NOT NULL,
     descripcion TEXT NOT NULL,
     ingredientes TEXT NOT NULL,
-    tipo_receta VARCHAR(50) NOT NULL,
+    tipo_receta ENUM('Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack') NOT NULL,
     fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     tiempo_preparacion INT,
     id_usuario INT NOT NULL,
