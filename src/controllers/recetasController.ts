@@ -216,31 +216,50 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
 
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
-        // 1. Preparamos las consultas específicas para cada comida del día
-        const queryDesayuno = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Desayuno' ORDER BY RAND() LIMIT 1`);
-        const queryAlmuerzo = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Almuerzo' ORDER BY RAND() LIMIT 1`);
-        const queryCena = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Cena' ORDER BY RAND() LIMIT 1`);
+        // 1. La consulta base (con joins, medias de estrellas y al azar)
+        const baseQuery = `
+            SELECT r.*, u.nombre_usuario as autor,
+            (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
+            FROM TReceta r
+            JOIN TUsuario u ON r.id_usuario = u.id_usuario
+            WHERE r.tipo_receta = ?
+            ORDER BY RAND() LIMIT 1
+        `;
 
-        // 2. Ejecutamos todas las consultas a la vez (mucho más rápido que una a una)
-        const [[desayunos], [almuerzos], [cenas]]: any = await Promise.all([
-            queryDesayuno, 
-            queryAlmuerzo, 
-            queryCena
+        // 2. Disparamos las 7 consultas a la vez (en paralelo)
+        const [
+            [desayunos], 
+            [almuerzos], 
+            [comidas], 
+            [meriendas], 
+            [cenas], 
+            [postres], 
+            [snacks]
+        ]: any = await Promise.all([
+            db.query(baseQuery, ['Desayuno']),
+            db.query(baseQuery, ['Almuerzo']),
+            db.query(baseQuery, ['Comida']),
+            db.query(baseQuery, ['Merienda']),
+            db.query(baseQuery, ['Cena']),
+            db.query(baseQuery, ['Postre']),
+            db.query(baseQuery, ['Snack'])
         ]);
 
-        // 3. Devolvemos el menú. 
-        // He añadido el objeto completo para que Android pueda mostrar la foto y el ID si quiere.
+        // 3. Devolvemos el menú estructurado y ordenado exactamente como pediste
         res.json({
             status: "success",
             data: {
-                // Si hay receta, mandamos el título. Si no hay (ej. base de datos vacía), mandamos un aviso.
-                desayuno: desayunos.length > 0 ? desayunos[0].titulo_receta : "Aún no hay desayunos",
-                almuerzo: almuerzos.length > 0 ? almuerzos[0].titulo_receta : "Aún no hay almuerzos",
-                cena: cenas.length > 0 ? cenas[0].titulo_receta : "Aún no hay cenas"
+                desayuno: desayunos.length > 0 ? desayunos[0] : null,
+                almuerzo: almuerzos.length > 0 ? almuerzos[0] : null,
+                comida: comidas.length > 0 ? comidas[0] : null,
+                merienda: meriendas.length > 0 ? meriendas[0] : null,
+                cena: cenas.length > 0 ? cenas[0] : null,
+                postre: postres.length > 0 ? postres[0] : null,
+                snack: snacks.length > 0 ? snacks[0] : null
             }
         });
     } catch (error: any) {
-        console.error(error);
-        res.status(500).json({ status: "error", message: "Error al generar el oráculo culinario." });
+        console.error("Error en el Menú del Día completo:", error);
+        res.status(500).json({ status: "error", message: "Error al generar el menú del día." });
     }
 };
