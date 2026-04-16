@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import db from '../../db.js'; // Aquí sí funciona el import normal
 import bcrypt from 'bcryptjs';
-import { faker } from '@faker-js/faker';
+// 🟢 CAMBIO 1: Cambiamos { faker } por { fakerES as faker } para que todo salga en español
+import { fakerES as faker } from '@faker-js/faker'; 
 import pool from '../../db.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
@@ -47,11 +48,14 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
         // --- 2. GENERAR 50 RECETAS (Actualizado con tiempo_preparacion) ---
         console.log("🥘 Generando 50 recetas con tiempos...");
-        const tipos = ['Desayuno', 'Almuerzo', 'Cena', 'Postre', 'Snack'];
+        
+        // 🟢 CAMBIO 2: Añadimos la lista completa para que coja de todos los tipos
+        const tipos = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
+        
         for (let i = 0; i < 50; i++) {
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
             
-            // 🟢 NUEVO: Generamos un tiempo aleatorio entre 10 y 150 minutos
+            // Generamos un tiempo aleatorio entre 10 y 150 minutos
             const tiempoAzar = faker.number.int({ min: 10, max: 150 });
 
             const [r]: any = await db.query(
@@ -62,7 +66,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
                     faker.food.description(),
                     `${faker.food.ingredient()}, ${faker.food.ingredient()}`,
                     tipos[Math.floor(Math.random() * tipos.length)],
-                    tiempoAzar, // 🟢 NUEVO: Pasamos el tiempo a la base de datos
+                    tiempoAzar, // Pasamos el tiempo a la base de datos
                     `https://loremflickr.com/640/480/food?lock=${i}`,
                     idAutor
                 ]
@@ -89,7 +93,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             }
         }
 
-        res.json({ status: "success", message: "Base de datos reseteada con tiempos de preparación incluidos." });
+        res.json({ status: "success", message: "Base de datos reseteada con datos en español y todos los tipos de receta incluidos." });
 
     } catch (error: any) {
         console.error("❌ Error en el Seed:", error);
