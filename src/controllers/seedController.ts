@@ -1,20 +1,16 @@
 import { Request, Response } from 'express';
-import db from '../../db.js'; // Aquí sí funciona el import normal
+import db from '../../db.js';
 import bcrypt from 'bcryptjs';
-// 🟢 CAMBIO: Cargamos específicamente la versión en Español y la renombramos a "faker"
 import { fakerES as faker } from '@faker-js/faker'; 
-import pool from '../../db.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
 
-    // 🛡️ SEGURIDAD
     if (clave_secreta !== 'Sembrar2026!') {
         return res.status(403).json({ message: "Error de clave" });
     }
 
     try {
-        // --- 0. AUTO-LIMPIEZA ---
         console.log("🧹 Buscando datos de prueba antiguos para limpiar...");
         const [usuariosViejos]: any = await db.query(
             'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?',
@@ -30,7 +26,6 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             console.log(`✅ Limpieza completada.`);
         }
 
-        // --- Configuración inicial ---
         const passwordHashed = await bcrypt.hash('password123', 10);
         const userIds: number[] = [];
         const recipeIds: number[] = [];
@@ -46,27 +41,55 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             userIds.push(u.insertId);
         }
 
-        // --- 2. GENERAR 50 RECETAS (Actualizado con tiempo_preparacion) ---
-        console.log("🥘 Generando 50 recetas con tiempos...");
+        // --- DICCIONARIOS PROPIOS EN ESPAÑOL ---
+        const titulosPlatos = [
+            "Tortilla de Patatas", "Paella Valenciana", "Gazpacho Fresco", "Croquetas Caseras", 
+            "Lentejas con Chorizo", "Pollo al Horno", "Macarrones con Queso", "Ensalada Mixta", 
+            "Tacos al Pastor", "Sopa de Fideos", "Huevos Rotos con Jamón", "Salmón a la Plancha", 
+            "Tarta de Queso", "Bizcocho de Limón", "Tostadas de Aguacate", "Macedonia de Frutas"
+        ];
         
-        // Añadimos la lista completa para que coja de todos los tipos
+        const descripciones = [
+            "Una receta tradicional, llena de sabor y perfecta para disfrutar en familia.",
+            "Plato rápido y sencillo de preparar, ideal para cuando tienes poco tiempo.",
+            "Un clásico de la cocina casera. Te recordará a las comidas de tu abuela.",
+            "Receta saludable y ligera, perfecta para cuidarte sin perder el sabor.",
+            "Un plato contundente y delicioso, espectacular para mojar pan.",
+            "El toque dulce perfecto que dejará a todos tus invitados con ganas de más."
+        ];
+        
+        const listaIngredientes = [
+            "Tomate", "Cebolla", "Ajo", "Aceite de Oliva", "Sal", "Patatas", "Huevos", 
+            "Pimienta", "Pollo", "Queso", "Jamón", "Arroz", "Pasta", "Zanahoria", "Pimiento"
+        ];
+
+        // --- 2. GENERAR 50 RECETAS ---
+        console.log("🥘 Generando 50 recetas en riguroso español...");
         const tipos = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
         
         for (let i = 0; i < 50; i++) {
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
-            
-            // Generamos un tiempo aleatorio entre 10 y 150 minutos
             const tiempoAzar = faker.number.int({ min: 10, max: 150 });
+
+            // Seleccionamos datos aleatorios de nuestros diccionarios
+            const tituloAzar = titulosPlatos[Math.floor(Math.random() * titulosPlatos.length)];
+            const descAzar = descripciones[Math.floor(Math.random() * descripciones.length)];
+            
+            // Cogemos 3 ingredientes al azar y los juntamos
+            const ing1 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
+            const ing2 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
+            const ing3 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
+            const ingredientesAzar = `${ing1}, ${ing2}, ${ing3}`;
 
             const [r]: any = await db.query(
                 `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [
-                    faker.food.dish(),
-                    faker.food.description(),
-                    `${faker.food.ingredient()}, ${faker.food.ingredient()}`,
+                    tituloAzar,
+                    descAzar,
+                    ingredientesAzar,
                     tipos[Math.floor(Math.random() * tipos.length)],
-                    tiempoAzar, // Pasamos el tiempo a la base de datos
+                    tiempoAzar,
                     `https://loremflickr.com/640/480/food?lock=${i}`,
                     idAutor
                 ]
@@ -93,7 +116,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             }
         }
 
-        res.json({ status: "success", message: "Base de datos reseteada con datos en español y todos los tipos de receta incluidos." });
+        res.json({ status: "success", message: "Base de datos reseteada con datos 100% en español." });
 
     } catch (error: any) {
         console.error("❌ Error en el Seed:", error);
@@ -106,8 +129,6 @@ export const limpiarTablas = async (req: Request, res: Response) => {
     if (clave_secreta !== 'Sembrar2026!') return res.status(403).json({ message: "Clave incorrecta" });
 
     try {
-        // 1. Buscamos los IDs usando un marcador de posición '?'
-        // NOTA: Pasamos el valor en un array como segundo argumento
         const [usuarios]: any = await db.query(
             'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?', 
             ['%@refrimancia.test']
@@ -119,25 +140,13 @@ export const limpiarTablas = async (req: Request, res: Response) => {
 
         const ids = usuarios.map((u: any) => u.id_usuario);
 
-        // 2. BORRADO EN CASCADA
-        // Importante: En mysql2, para la cláusula IN, el array debe ir dentro de otro array: [ [1,2,3] ]
-        
         console.log(`🧹 Limpiando datos de ${ids.length} usuarios...`);
 
-        // A. Borrar valoraciones
         await db.query('DELETE FROM TValoracion WHERE id_usuario IN (?)', [ids]);
-        
-        // B. Borrar comentarios de esos usuarios
         await db.query('DELETE FROM TComentario WHERE id_usuario IN (?)', [ids]);
-        
-        // C. Borrar comentarios y valoraciones que otros hayan hecho en las RECETAS de estos usuarios
         await db.query('DELETE FROM TComentario WHERE id_receta IN (SELECT id_receta FROM TReceta WHERE id_usuario IN (?))', [ids]);
         await db.query('DELETE FROM TValoracion WHERE id_receta IN (SELECT id_receta FROM TReceta WHERE id_usuario IN (?))', [ids]);
-        
-        // D. Borrar las recetas de esos usuarios
         await db.query('DELETE FROM TReceta WHERE id_usuario IN (?)', [ids]);
-
-        // E. Finalmente, borrar los usuarios
         await db.query('DELETE FROM TUsuario WHERE id_usuario IN (?)', [ids]);
 
         res.json({ 
