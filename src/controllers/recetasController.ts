@@ -216,21 +216,31 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
 
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
-        const query = `SELECT * FROM TReceta ORDER BY RAND() LIMIT 2`;
-        const [recetas]: any = await db.query(query);
+        // 1. Preparamos las consultas específicas para cada comida del día
+        const queryDesayuno = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Desayuno' ORDER BY RAND() LIMIT 1`);
+        const queryAlmuerzo = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Almuerzo' ORDER BY RAND() LIMIT 1`);
+        const queryCena = db.query(`SELECT * FROM TReceta WHERE tipo_receta = 'Cena' ORDER BY RAND() LIMIT 1`);
 
-        if (recetas.length < 2) {
-            return res.status(404).json({ status: "error", message: "Faltan recetas." });
-        }
+        // 2. Ejecutamos todas las consultas a la vez (mucho más rápido que una a una)
+        const [[desayunos], [almuerzos], [cenas]]: any = await Promise.all([
+            queryDesayuno, 
+            queryAlmuerzo, 
+            queryCena
+        ]);
 
+        // 3. Devolvemos el menú. 
+        // He añadido el objeto completo para que Android pueda mostrar la foto y el ID si quiere.
         res.json({
             status: "success",
             data: {
-                almuerzo: recetas[0].titulo_receta,
-                cena: recetas[1].titulo_receta
+                // Si hay receta, mandamos el título. Si no hay (ej. base de datos vacía), mandamos un aviso.
+                desayuno: desayunos.length > 0 ? desayunos[0].titulo_receta : "Aún no hay desayunos",
+                almuerzo: almuerzos.length > 0 ? almuerzos[0].titulo_receta : "Aún no hay almuerzos",
+                cena: cenas.length > 0 ? cenas[0].titulo_receta : "Aún no hay cenas"
             }
         });
     } catch (error: any) {
-        res.status(500).json({ status: "error", message: "Error en el oráculo." });
+        console.error(error);
+        res.status(500).json({ status: "error", message: "Error al generar el oráculo culinario." });
     }
 };
