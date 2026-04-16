@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
-import { estimarNutricion } from '../helpers/CalculadoraNutricional.js';
+// 🟢 NUEVO: Importamos nuestra conexión a la API de Edamam
+import { obtenerNutricionDesdeAPI } from '../helpers/ApiNutricion.js';
 
 const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.png";
 
@@ -71,16 +72,18 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             [id]
         );
 
-        // 🟢 MAGIA AL VUELO: Calculamos la nutrición aquí mismo sin tocar la base de datos
         const receta = recetaRows[0];
-        const datosNutricionales = estimarNutricion(receta.ingredientes, receta.tipo_receta);
+
+        // 🟢 MAGIA: Llamamos a Edamam al vuelo para obtener la nutrición real
+        const datosNutricionales = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta);
 
         res.json({ 
             status: "success", 
             data: {
                 ...receta,
-                calorias_estimadas: datosNutricionales.calorias,          // Campo extra inyectado
-                consumo_habitual: datosNutricionales.consumo_recomendado, // Campo extra inyectado
+                // 🟢 Inyectamos lo que nos ha devuelto Edamam
+                calorias_estimadas: datosNutricionales.calorias,
+                consumo_habitual: datosNutricionales.consumo_recomendado,
                 comentarios: comentarios
             }
         });
