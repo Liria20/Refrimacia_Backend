@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../../db.js'; // Aquí sí funciona el import normal
 import bcrypt from 'bcryptjs';
-// 🟢 CAMBIO 1: Cambiamos { faker } por { fakerES as faker } para que todo salga en español
+// 🟢 CAMBIO: Cargamos específicamente la versión en Español y la renombramos a "faker"
 import { fakerES as faker } from '@faker-js/faker'; 
 import pool from '../../db.js';
 
@@ -49,7 +49,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
         // --- 2. GENERAR 50 RECETAS (Actualizado con tiempo_preparacion) ---
         console.log("🥘 Generando 50 recetas con tiempos...");
         
-        // 🟢 CAMBIO 2: Añadimos la lista completa para que coja de todos los tipos
+        // Añadimos la lista completa para que coja de todos los tipos
         const tipos = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
         
         for (let i = 0; i < 50; i++) {
@@ -60,7 +60,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
             const [r]: any = await db.query(
                 `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`, // <-- Añadido un '?' extra
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [
                     faker.food.dish(),
                     faker.food.description(),
