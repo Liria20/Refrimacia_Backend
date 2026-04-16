@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
 import bcrypt from 'bcryptjs';
-import { fakerES as faker } from '@faker-js/faker'; 
+import { fakerES as faker } from '@faker-js/faker';
+import { getRandomReceta } from '../elementosGenerador/Recetas.js';
 
 export const ejecutarSeed = async (req: Request, res: Response) => {
     const { clave_secreta } = req.body;
@@ -41,56 +42,26 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
             userIds.push(u.insertId);
         }
 
-        // --- DICCIONARIOS PROPIOS EN ESPAÑOL ---
-        const titulosPlatos = [
-            "Tortilla de Patatas", "Paella Valenciana", "Gazpacho Fresco", "Croquetas Caseras", 
-            "Lentejas con Chorizo", "Pollo al Horno", "Macarrones con Queso", "Ensalada Mixta", 
-            "Tacos al Pastor", "Sopa de Fideos", "Huevos Rotos con Jamón", "Salmón a la Plancha", 
-            "Tarta de Queso", "Bizcocho de Limón", "Tostadas de Aguacate", "Macedonia de Frutas"
-        ];
-        
-        const descripciones = [
-            "Una receta tradicional, llena de sabor y perfecta para disfrutar en familia.",
-            "Plato rápido y sencillo de preparar, ideal para cuando tienes poco tiempo.",
-            "Un clásico de la cocina casera. Te recordará a las comidas de tu abuela.",
-            "Receta saludable y ligera, perfecta para cuidarte sin perder el sabor.",
-            "Un plato contundente y delicioso, espectacular para mojar pan.",
-            "El toque dulce perfecto que dejará a todos tus invitados con ganas de más."
-        ];
-        
-        const listaIngredientes = [
-            "Tomate", "Cebolla", "Ajo", "Aceite de Oliva", "Sal", "Patatas", "Huevos", 
-            "Pimienta", "Pollo", "Queso", "Jamón", "Arroz", "Pasta", "Zanahoria", "Pimiento"
-        ];
-
         // --- 2. GENERAR 50 RECETAS ---
-        console.log("🥘 Generando 50 recetas en riguroso español...");
-        const tipos = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
-        
+        console.log("🥘 Generando 50 recetas con mis datos reales y coherentes...");
+
         for (let i = 0; i < 50; i++) {
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
             const tiempoAzar = faker.number.int({ min: 10, max: 150 });
 
-            // Seleccionamos datos aleatorios de nuestros diccionarios
-            const tituloAzar = titulosPlatos[Math.floor(Math.random() * titulosPlatos.length)];
-            const descAzar = descripciones[Math.floor(Math.random() * descripciones.length)];
-            
-            // Cogemos 3 ingredientes al azar y los juntamos
-            const ing1 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
-            const ing2 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
-            const ing3 = listaIngredientes[Math.floor(Math.random() * listaIngredientes.length)];
-            const ingredientesAzar = `${ing1}, ${ing2}, ${ing3}`;
+            // 🟢 MAGIA: Cogemos UNA receta entera de nuestra librería externa
+            const recetaPerfecta = getRandomReceta();
 
             const [r]: any = await db.query(
                 `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    tituloAzar,
-                    descAzar,
-                    ingredientesAzar,
-                    tipos[Math.floor(Math.random() * tipos.length)],
+                    recetaPerfecta.titulo,
+                    recetaPerfecta.descripcion,
+                    recetaPerfecta.ingredientes,
+                    recetaPerfecta.tipo,       // Ya sabe si es Desayuno, Postre, etc.
                     tiempoAzar,
-                    `https://loremflickr.com/640/480/food?lock=${i}`,
+                    recetaPerfecta.imagen,     // Imagen asignada a esta receta
                     idAutor
                 ]
             );
@@ -130,10 +101,10 @@ export const limpiarTablas = async (req: Request, res: Response) => {
 
     try {
         const [usuarios]: any = await db.query(
-            'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?', 
+            'SELECT id_usuario FROM TUsuario WHERE correo_electronico LIKE ?',
             ['%@refrimancia.test']
         );
-        
+
         if (!usuarios || usuarios.length === 0) {
             return res.json({ status: "success", message: "Nada que limpiar, no hay usuarios de prueba." });
         }
@@ -149,17 +120,17 @@ export const limpiarTablas = async (req: Request, res: Response) => {
         await db.query('DELETE FROM TReceta WHERE id_usuario IN (?)', [ids]);
         await db.query('DELETE FROM TUsuario WHERE id_usuario IN (?)', [ids]);
 
-        res.json({ 
-            status: "success", 
-            message: `Limpieza total realizada. Se eliminaron ${ids.length} usuarios y todo su contenido.` 
+        res.json({
+            status: "success",
+            message: `Limpieza total realizada. Se eliminaron ${ids.length} usuarios y todo su contenido.`
         });
 
     } catch (error: any) {
         console.error("Error en la limpieza:", error);
-        res.status(500).json({ 
-            status: "error", 
+        res.status(500).json({
+            status: "error",
             message: "No se pudo limpiar la base de datos.",
-            detalle: error.message 
+            detalle: error.message
         });
     }
 };
