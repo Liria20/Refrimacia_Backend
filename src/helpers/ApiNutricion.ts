@@ -54,7 +54,6 @@ const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem:
     if (['cucharada', 'cda'].includes(u)) return n * 15;
     if (['cucharadita', 'cdta'].includes(u)) return n * 5;
     if (['taza'].includes(u)) return n * 200;
-    if (['diente', 'dientes'].includes(u)) return n * 5;
 
     return n * pesoPorUnidad;
 };
@@ -64,10 +63,11 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         let kcalTotales = 0;
         let advertencias = new Set<string>();
 
-        const textoParaFritura = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
-        const esFritura = /(frit|freir|freír|rebozad|empanad|tempura)/i.test(textoParaFritura);
+        const textoCompleto = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
+        
+        // 🟢 MEJORA: Detección de fritura mucho más amplia (incluye frie, frito, fritura, friendo)
+        const esFritura = /(frit|frie|frii|freir|rebozad|empanad|tempura)/i.test(textoCompleto);
 
-        // 🟢 FIX RACIONES: Solo si dice explícitamente "para X". Así 200g no cuenta como 200 personas.
         let numRaciones = 1;
         const matchRaciones = ingredientesStr.match(/para\s+(\d+)/i);
         if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
@@ -83,9 +83,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
 
             const nombreLimpio = normalizar(match[3] || "");
 
-            // 🟢 EL GRAN FIX DEL ACEITE: 
-            // Si es una fritura e indica más de 50ml de aceite, ignoramos el ingrediente 
-            // porque sumaremos la absorción (grasas) al final del proceso.
+            // 🟢 EL FIX DEL ACEITE: Si detectamos fritura en cualquier parte, ignoramos volúmenes grandes de aceite
             if (esFritura && nombreLimpio.includes('aceite')) {
                 const cantidadDetectada = parseFloat(match[1] || "0");
                 if (cantidadDetectada > 50) continue; 
@@ -103,7 +101,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             }
         }
 
-        // 🟢 ABSORCIÓN DE ACEITE EN FRITURA (Factor realista 1.30)
+        // 🟢 ABSORCIÓN DE ACEITE: Si es frito, sumamos un 30% extra de energía al total de los ingredientes
         if (esFritura) {
             kcalTotales *= 1.30; 
             advertencias.add("Fritura profunda");
