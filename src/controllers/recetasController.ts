@@ -10,6 +10,8 @@ export type TipoReceta = 'Desayuno' | 'Almuerzo' | 'Comida' | 'Merienda' | 'Cena
 export const TIPOS_VALIDOS: TipoReceta[] = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
 
 
+// controllers/recetaController.ts
+
 export const listarRecetas = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -20,35 +22,43 @@ export const listarRecetas = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
+        // 1. En la SQL seguimos pidiendo ingredientes y descripción 
+        // porque el motor obtenerNutricionDesdeAPI los necesita para calcular el color.
         const query = `
-            SELECT r.*, u.nombre_usuario,
+            SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
+                   r.tipo_receta, r.ingredientes, r.descripcion, u.nombre_usuario,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
-
+            
         const [rows]: any = await db.query(query, [limit, offset]);
 
-        // 🟢 MAGIA: Procesamos cada receta de la lista para añadirle la nutrición
-        // Usamos Promise.all para que todas las consultas al motor se hagan a la vez y no una por una
         const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
             const nutricion = await obtenerNutricionDesdeAPI(
-                receta.ingredientes,
-                receta.tipo_receta,
+                receta.ingredientes, 
+                receta.tipo_receta, 
                 receta.descripcion
             );
 
+            // 2. 🟢 AQUÍ ESTÁ EL TRUCO: Construimos el objeto de retorno 
+            // omitiendo los campos pesados (ingredientes y descripción)
             return {
-                ...receta,
+                id_receta: receta.id_receta,
+                titulo_receta: receta.titulo_receta,
+                imagen_receta: receta.imagen_receta,
+                tiempo_preparacion: receta.tiempo_preparacion,
+                nombre_usuario: receta.nombre_usuario,
+                media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
                 consumo_habitual: nutricion.consumo_recomendado,
                 semaforo: nutricion.semaforo
             };
         }));
 
-        res.json({
-            status: "success",
-            data: recetasProcesadas, // Enviamos las recetas con el semáforo inyectado
+        res.json({ 
+            status: "success", 
+            data: recetasProcesadas,
             paginacion: {
                 total_recetas: totalRecetas,
                 total_paginas: totalPages,
@@ -196,10 +206,11 @@ export const eliminarReceta = async (req: Request, res: Response) => {
     }
 };
 
+// controllers/recetaController.ts
+
 export const buscarPorIngredientes = async (req: Request, res: Response) => {
     const { ingredientes } = req.query;
 
-    // 1. Parámetros de paginación (por defecto página 1, límite 10)
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
@@ -208,7 +219,6 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
         let whereClause = "";
         const params: any[] = [];
 
-        // 2. Construcción dinámica de la condición de búsqueda
         if (ingredientes) {
             const palabras = (ingredientes as string)
                 .toLowerCase()
@@ -223,25 +233,24 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
             }
         }
 
-        // 3. Consulta para obtener el TOTAL de resultados (necesario para la paginación)
         const countQuery = `SELECT COUNT(*) as total FROM TReceta r ${whereClause}`;
         const [totalRows]: any = await db.query(countQuery, params);
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // 4. Consulta principal con LIMIT y OFFSET
+        // 1. Pedimos los datos necesarios para el motor, pero limitamos los campos de la tabla
         let query = `
-            SELECT r.*, u.nombre_usuario as autor 
+            SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
+                   r.ingredientes, r.descripcion, r.tipo_receta, u.nombre_usuario as autor 
             FROM TReceta r 
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ${whereClause}
             ORDER BY r.fecha_publicacion DESC
             LIMIT ? OFFSET ?`;
 
-        // Añadimos limit y offset al array de parámetros
         const [rows]: any = await db.query(query, [...params, limit, offset]);
 
-        // 5. Inyectamos la nutrición (Semáforo) en cada resultado encontrado
+        // 2. Procesamos la nutrición y LIMPIAMOS los objetos (Lightweight)
         const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
             const nutricion = await obtenerNutricionDesdeAPI(
                 receta.ingredientes,
@@ -249,8 +258,13 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
                 receta.descripcion
             );
 
+            // Devolvemos solo lo necesario para la lista de búsqueda
             return {
-                ...receta,
+                id_receta: receta.id_receta,
+                titulo_receta: receta.titulo_receta,
+                imagen_receta: receta.imagen_receta,
+                tiempo_preparacion: receta.tiempo_preparacion,
+                autor: receta.autor,
                 consumo_habitual: nutricion.consumo_recomendado,
                 semaforo: nutricion.semaforo
             };
@@ -295,12 +309,13 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
     }
 };
 
-// controllers/recetaController.ts
-
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
+        // 1. La consulta sigue pidiendo ingredientes/descripción para el motor, 
+        // pero solo traeremos lo justo de la tabla.
         const baseQuery = `
-            SELECT r.*, u.nombre_usuario as autor,
+            SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
+                   r.ingredientes, r.descripcion, r.tipo_receta, u.nombre_usuario,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -308,7 +323,7 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             ORDER BY RAND() LIMIT 1
         `;
 
-        // 1. Disparamos las 7 consultas a la base de datos
+        // Ejecutamos las 7 consultas en paralelo
         const [
             [desayunos], [almuerzos], [comidas], [meriendas], [cenas], [postres], [snacks]
         ]: any = await Promise.all([
@@ -321,35 +336,43 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             db.query(baseQuery, ['Snack'])
         ]);
 
-        // 2. Función interna para procesar la nutrición si la receta existe
-        const enriquecerReceta = async (lista: any[]) => {
+        // 2. 🟢 Función para limpiar y enriquecer la receta
+        const enriquecerRecetaLigera = async (lista: any[]) => {
             if (!lista || lista.length === 0) return null;
             const receta = lista[0];
             
+            // Calculamos la nutrición internamente
             const nutricion = await obtenerNutricionDesdeAPI(
                 receta.ingredientes, 
                 receta.tipo_receta, 
                 receta.descripcion
             );
 
+            // Devolvemos SOLO los campos necesarios para la card del móvil
             return {
-                ...receta,
+                id_receta: receta.id_receta,
+                titulo_receta: receta.titulo_receta,
+                imagen_receta: receta.imagen_receta,
+                tiempo_preparacion: receta.tiempo_preparacion,
+                nombre_usuario: receta.nombre_usuario,
+                media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
                 consumo_habitual: nutricion.consumo_recomendado,
                 semaforo: nutricion.semaforo
             };
         };
 
-        // 3. Procesamos las 7 recetas en paralelo para ir a la velocidad del rayo
+        // 3. Procesamos las 7 categorías en paralelo
         const [
-            menuDesayuno, menuAlmuerzo, menuComida, menuMerienda, menuCena, menuPostre, menuSnack
+            menuDesayuno, menuAlmuerzo, menuComida, 
+            menuMerienda, menuCena, menuPostre, menuSnack
         ] = await Promise.all([
-            enriquecerReceta(desayunos),
-            enriquecerReceta(almuerzos),
-            enriquecerReceta(comidas),
-            enriquecerReceta(meriendas),
-            enriquecerReceta(cenas),
-            enriquecerReceta(postres),
-            enriquecerReceta(snacks)
+            enriquecerRecetaLigera(desayunos),
+            enriquecerRecetaLigera(almuerzos),
+            enriquecerRecetaLigera(comidas),
+            enriquecerRecetaLigera(meriendas),
+            enriquecerRecetaLigera(cenas),
+            enriquecerRecetaLigera(postres),
+            enriquecerRecetaLigera(snacks)
         ]);
 
         res.json({
