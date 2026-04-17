@@ -2,20 +2,21 @@
 
 interface IngredienteDB {
     palabras: string[];
-    categoria: 'Sano' | 'Moderado' | 'Procesado';
+    puntos: number; // Sano: +2, Moderado: +1, Procesado: -2
 }
 
 const BASE_DATOS_INGREDIENTES: IngredienteDB[] = [
-    { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena', 'verdura'], categoria: 'Sano' },
-    { palabras: ['manzana', 'platano', 'naranja', 'pera', 'fresa', 'limon', 'uva', 'pina', 'fruta', 'arandano', 'frambuesa', 'mora', 'kiwi'], categoria: 'Sano' },
-    { palabras: ['pollo', 'pavo', 'pechuga', 'merluza', 'bacalao', 'pulpo', 'sepia', 'clara'], categoria: 'Sano' },
-    { palabras: ['arroz', 'pasta', 'quinoa', 'avena', 'legumbre', 'lenteja', 'garbanzo', 'judia'], categoria: 'Sano' },
-    { palabras: ['aceite', 'aguacate', 'nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], categoria: 'Moderado' },
-    { palabras: ['huevo', 'huevos', 'salmon', 'atun', 'sardina', 'ternera', 'cerdo', 'cordero'], categoria: 'Moderado' },
-    { palabras: ['pan', 'baguette', 'barra', 'tostada', 'queso', 'leche', 'yogur', 'kefir'], categoria: 'Moderado' },
-    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope', 'caramelo'], categoria: 'Procesado' },
-    { palabras: ['chorizo', 'panceta', 'bacon', 'salchicha', 'morcilla', 'salami', 'fuet', 'hamburguesa'], categoria: 'Procesado' },
-    { palabras: ['mantequilla', 'margarina', 'nata', 'manteca'], categoria: 'Procesado' }
+    // +2 PUNTOS: Superalimentos y bases sanas
+    { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena', 'verdura', 'manzana', 'platano', 'naranja', 'pera', 'fresa', 'limon', 'uva', 'pina', 'fruta', 'arandano', 'frambuesa', 'mora', 'kiwi'], puntos: 2 },
+    
+    // +1 PUNTO: Proteínas y carbohidratos complejos
+    { palabras: ['pollo', 'pavo', 'pechuga', 'merluza', 'bacalao', 'pulpo', 'sepia', 'clara', 'arroz', 'pasta', 'quinoa', 'avena', 'legumbre', 'lenteja', 'garbanzo', 'judia', 'huevo', 'huevos', 'salmon', 'atun', 'sardina'], puntos: 1 },
+    
+    // 0 PUNTOS: Alimentos neutros o que requieren control (grasas/panes)
+    { palabras: ['aceite', 'aguacate', 'nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces', 'ternera', 'cerdo', 'cordero', 'pan', 'baguette', 'barra', 'tostada', 'queso', 'leche', 'yogur', 'kefir'], puntos: 0 },
+
+    // -2 PUNTOS: Procesados o azúcares
+    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope', 'caramelo', 'chorizo', 'panceta', 'bacon', 'salchicha', 'morcilla', 'salami', 'fuet', 'hamburguesa', 'mantequilla', 'margarina', 'nata', 'manteca'], puntos: -2 }
 ];
 
 const normalizar = (str: string) =>
@@ -28,8 +29,9 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         
         const listaIngredientes = ingredientesStr.split(/,| y /i).map(i => i.trim());
         
-        let conteoCategorias = { Sano: 0, Moderado: 0, Procesado: 0 };
+        let scoreTotal = 0;
         let ingredientesConCantidad = 0;
+        let totalDetectados = 0;
 
         listaIngredientes.forEach(item => {
             const itemNorm = normalizar(item);
@@ -40,29 +42,44 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             );
 
             if (alimento) {
-                conteoCategorias[alimento.categoria]++;
+                scoreTotal += alimento.puntos;
+                totalDetectados++;
                 if (tieneCantidad) ingredientesConCantidad++;
             }
         });
 
+        // 🟢 LÓGICA DE 5 COLORES + GRIS
         let consumo = "";
         let color = "";
 
+        // 1. Caso Gris (Falta información)
         if (ingredientesConCantidad === 0) {
-            consumo = "Indeterminado (Faltan cantidades)";
-            color = "gris";
+            return { consumo_recomendado: "Indeterminado (Faltan cantidades)", semaforo: "gris" };
+        }
+
+        // 2. Penalización por técnica (La fritura baja el score drásticamente)
+        if (esFritura) scoreTotal -= 5;
+
+        // 3. Clasificación por Score Final
+        if (scoreTotal >= 5) {
+            consumo = "Excelente (Consumo diario)";
+            color = "verde_oscuro";
         } 
-        else if (esFritura || conteoCategorias.Procesado > 0) {
-            consumo = "Consumo ocasional";
-            color = "rojo";
+        else if (scoreTotal >= 2) {
+            consumo = "Saludable (Consumo habitual)";
+            color = "verde_claro";
         } 
-        else if (conteoCategorias.Moderado > 2) {
-            consumo = "Consumo moderado";
+        else if (scoreTotal >= 0) {
+            consumo = "Equilibrado (Consumo moderado)";
             color = "amarillo";
         }
+        else if (scoreTotal >= -3) {
+            consumo = "Limitado (Consumo semanal)";
+            color = "naranja";
+        }
         else {
-            consumo = "Consumo habitual";
-            color = "verde";
+            consumo = "Ocasional (Consumo muy esporádico)";
+            color = "rojo";
         }
 
         return { consumo_recomendado: consumo, semaforo: color };
