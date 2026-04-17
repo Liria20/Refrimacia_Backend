@@ -1,3 +1,5 @@
+// helpers/ApiNutricion.ts
+
 interface IngredienteDB {
     palabras: string[];
     kcal100g: number;
@@ -49,7 +51,7 @@ const normalizar = (str: string) =>
         .toLowerCase()
         .trim();
 
-// 3. GRAMOS
+// 3. GRAMOS REALES
 const obtenerGramosReales = (
     cantidadStr: string,
     unidadStr: string,
@@ -83,7 +85,7 @@ const obtenerGramosReales = (
     return n * pesoPorUnidad;
 };
 
-// 4. FRITURA
+// 4. DETECCIÓN DE FRITURA
 const detectarFritura = (texto: string) =>
     /(frit|freir|freír|rebozad|empanad|tempura)/i.test(texto);
 
@@ -136,11 +138,12 @@ export const obtenerNutricionDesdeAPI = async (
                 continue;
             }
 
+            // ✅ FIX: usar pesoPorUnidad correctamente
             const gramos = obtenerGramosReales(
                 match[1] || "",
                 match[2] || "",
                 nombreLimpio,
-                alimentoDB.pesoPorUnidad   // ✅ FIX AQUÍ
+                alimentoDB.pesoPorUnidad
             );
 
             const kcalItem = (gramos / 100) * alimentoDB.kcal100g;
@@ -156,6 +159,7 @@ export const obtenerNutricionDesdeAPI = async (
             if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
         }
 
+        // 🔥 Fritura
         if (esFritura) {
             kcalTotales *= 1.30;
             advertencias.add("Fritura profunda");
