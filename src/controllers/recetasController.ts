@@ -27,15 +27,15 @@ export const listarRecetas = async (req: Request, res: Response) => {
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
-            
+
         const [rows]: any = await db.query(query, [limit, offset]);
 
         // 🟢 MAGIA: Procesamos cada receta de la lista para añadirle la nutrición
         // Usamos Promise.all para que todas las consultas al motor se hagan a la vez y no una por una
         const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
             const nutricion = await obtenerNutricionDesdeAPI(
-                receta.ingredientes, 
-                receta.tipo_receta, 
+                receta.ingredientes,
+                receta.tipo_receta,
                 receta.descripcion
             );
 
@@ -46,8 +46,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
             };
         }));
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             data: recetasProcesadas, // Enviamos las recetas con el semáforo inyectado
             paginacion: {
                 total_recetas: totalRecetas,
@@ -198,21 +198,76 @@ export const eliminarReceta = async (req: Request, res: Response) => {
 
 export const buscarPorIngredientes = async (req: Request, res: Response) => {
     const { ingredientes } = req.query;
+
+    // 1. Parámetros de paginación (por defecto página 1, límite 10)
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-        let query = `SELECT r.*, u.nombre_usuario as autor FROM TReceta r JOIN TUsuario u ON r.id_usuario = u.id_usuario`;
+        let whereClause = "";
         const params: any[] = [];
+
+        // 2. Construcción dinámica de la condición de búsqueda
         if (ingredientes) {
-            const palabras = (ingredientes as string).toLowerCase().replace(/,/g, ' ').split(/\s+/).filter(p => p.length > 2);
+            const palabras = (ingredientes as string)
+                .toLowerCase()
+                .replace(/,/g, ' ')
+                .split(/\s+/)
+                .filter(p => p.length > 2);
+
             if (palabras.length > 0) {
                 const condiciones = palabras.map(() => `r.ingredientes LIKE ?`).join(' AND ');
-                query += ` WHERE ${condiciones}`;
+                whereClause = ` WHERE ${condiciones}`;
                 palabras.forEach(p => params.push(`%${p}%`));
             }
         }
-        query += ` ORDER BY r.fecha_publicacion DESC`;
-        const [rows]: any = await db.query(query, params);
-        res.json({ status: "success", count: rows.length, data: rows });
+
+        // 3. Consulta para obtener el TOTAL de resultados (necesario para la paginación)
+        const countQuery = `SELECT COUNT(*) as total FROM TReceta r ${whereClause}`;
+        const [totalRows]: any = await db.query(countQuery, params);
+        const totalRecetas = totalRows[0].total;
+        const totalPages = Math.ceil(totalRecetas / limit);
+
+        // 4. Consulta principal con LIMIT y OFFSET
+        let query = `
+            SELECT r.*, u.nombre_usuario as autor 
+            FROM TReceta r 
+            JOIN TUsuario u ON r.id_usuario = u.id_usuario
+            ${whereClause}
+            ORDER BY r.fecha_publicacion DESC
+            LIMIT ? OFFSET ?`;
+
+        // Añadimos limit y offset al array de parámetros
+        const [rows]: any = await db.query(query, [...params, limit, offset]);
+
+        // 5. Inyectamos la nutrición (Semáforo) en cada resultado encontrado
+        const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
+            const nutricion = await obtenerNutricionDesdeAPI(
+                receta.ingredientes,
+                receta.tipo_receta,
+                receta.descripcion
+            );
+
+            return {
+                ...receta,
+                consumo_habitual: nutricion.consumo_recomendado,
+                semaforo: nutricion.semaforo
+            };
+        }));
+
+        res.json({
+            status: "success",
+            data: recetasProcesadas,
+            paginacion: {
+                total_recetas: totalRecetas,
+                total_paginas: totalPages,
+                pagina_actual: page,
+                recetas_por_pagina: limit
+            }
+        });
     } catch (error: any) {
+        console.error(error);
         res.status(500).json({ status: "error", message: "Error en el buscador." });
     }
 };
