@@ -35,11 +35,11 @@ const normalizar = (str: string) =>
 const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem: string, pesoPorUnidad: number): number | null => {
     const texto = normalizar(nombreItem);
     
-    // Si no hay número, pero es una medida coloquial, permitimos el cálculo
     if (texto.includes('pizca')) return 2;
     if (texto.includes('chorrito')) return 8;
+    if (texto.includes('punado')) return 30;
 
-    // 🟢 CAMBIO: Si no se especifica cantidad numérica, devolvemos null
+    // 🟢 ESTRICTO: Si no detectamos número, devolvemos null
     if (!cantidadStr || cantidadStr.trim() === "") return null;
 
     let n = 1;
@@ -66,11 +66,8 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         let advertencias = new Set<string>();
 
         const textoCompleto = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
-        
-        // DETECTOR DE FRITURA MEJORADO
         const esFritura = /(frit|frie|frii|freir|rebozad|empanad|tempura)/i.test(textoCompleto);
 
-        // RACIONES
         let numRaciones = 1;
         const matchRaciones = ingredientesStr.match(/para\s+(\d+)/i);
         if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
@@ -85,22 +82,18 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             if (match) {
                 const nombreLimpio = normalizar(match[3] || "");
 
-                // FILTRO DE ACEITE: Si es fritura e indica > 50ml, ignoramos
-                if (esFritura && nombreLimpio.includes('aceite')) {
-                    const cantidadDetectada = parseFloat(match[1] || "0");
-                    if (cantidadDetectada > 50) continue; 
-                }
-
                 const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
                     dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
                 );
 
                 if (alimentoDB) {
-                    // 🟢 LLAMADA AL CONVERSOR ESTRICTO
+                    // Obtención estricta de gramos
                     const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
                     
-                    // 🟢 SI NO HAY CANTIDAD (gramos es null), NO CALCULAMOS
                     if (gramos !== null) {
+                        // Filtro de aceite para frituras
+                        if (esFritura && nombreLimpio.includes('aceite') && gramos > 50) continue;
+
                         kcalTotales += (gramos / 100) * alimentoDB.kcal100g;
                         if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
                     }
@@ -108,17 +101,24 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             }
         }
 
-        // ABSORCIÓN REALISTA
-        if (esFritura && kcalTotales > 0) {
-            kcalTotales *= 1.30; 
-            advertencias.add("Fritura profunda");
-        }
+        if (esFritura && kcalTotales > 0) kcalTotales *= 1.30;
 
         const kcalFinal = Math.round(kcalTotales / numRaciones);
 
+        // 🟢 LÓGICA DE CONSUMO ACTUALIZADA
+        let consumo = "Consumo habitual";
+        
+        if (kcalFinal === 0) {
+            consumo = "Indeterminado (Faltan cantidades)";
+        } else if (kcalFinal > 800 || advertencias.has('Fritura profunda')) {
+            consumo = "Consumo ocasional";
+        } else if (kcalFinal > 500) {
+            consumo = "Consumo moderado";
+        }
+
         return {
             calorias: kcalFinal,
-            consumo_recomendado: kcalFinal > 800 ? "Consumo ocasional" : kcalFinal > 500 ? "Consumo moderado" : "Consumo habitual"
+            consumo_recomendado: consumo
         };
 
     } catch (error) {
