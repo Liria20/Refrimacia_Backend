@@ -36,16 +36,12 @@ const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem:
     const texto = normalizar(nombreItem);
     if (texto.includes('pizca')) return 2;
     if (texto.includes('chorrito')) return 8;
-    if (texto.includes('punado')) return 30;
 
     let n = 1;
     if (cantidadStr) {
-        if (cantidadStr.includes('/')) {
-            const parts = cantidadStr.split('/');
-            n = parseFloat(parts[0]) / parseFloat(parts[1]);
-        } else {
-            n = parseFloat(cantidadStr.replace(',', '.'));
-        }
+        n = cantidadStr.includes('/') 
+            ? (parseFloat(cantidadStr.split('/')[0]) / parseFloat(cantidadStr.split('/')[1]))
+            : parseFloat(cantidadStr.replace(',', '.'));
     }
 
     const u = normalizar(unidadStr || "");
@@ -65,9 +61,10 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
 
         const textoCompleto = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
         
-        // 🟢 MEJORA: Detección de fritura mucho más amplia (incluye frie, frito, fritura, friendo)
+        // 🟢 DETECTOR DE FRITURA MEJORADO
         const esFritura = /(frit|frie|frii|freir|rebozad|empanad|tempura)/i.test(textoCompleto);
 
+        // 🟢 RACIONES (Solo si dice "para X")
         let numRaciones = 1;
         const matchRaciones = ingredientesStr.match(/para\s+(\d+)/i);
         if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
@@ -79,29 +76,28 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             if (!item || normalizar(item).startsWith("para")) continue;
 
             const match = item.match(regexParser);
-            if (!match) continue;
+            if (match) {
+                const nombreLimpio = normalizar(match[3] || "");
 
-            const nombreLimpio = normalizar(match[3] || "");
+                // 🟢 FILTRO DE ACEITE: Si es fritura e indica > 50ml, ignoramos el ingrediente
+                if (esFritura && nombreLimpio.includes('aceite')) {
+                    const cantidadDetectada = parseFloat(match[1] || "0");
+                    if (cantidadDetectada > 50) continue; 
+                }
 
-            // 🟢 EL FIX DEL ACEITE: Si detectamos fritura en cualquier parte, ignoramos volúmenes grandes de aceite
-            if (esFritura && nombreLimpio.includes('aceite')) {
-                const cantidadDetectada = parseFloat(match[1] || "0");
-                if (cantidadDetectada > 50) continue; 
-            }
+                const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
+                    dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
+                );
 
-            const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
-                dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
-            );
-
-            if (alimentoDB) {
-                const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
-                const kcalItem = (gramos / 100) * alimentoDB.kcal100g;
-                kcalTotales += kcalItem;
-                if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
+                if (alimentoDB) {
+                    const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
+                    kcalTotales += (gramos / 100) * alimentoDB.kcal100g;
+                    if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
+                }
             }
         }
 
-        // 🟢 ABSORCIÓN DE ACEITE: Si es frito, sumamos un 30% extra de energía al total de los ingredientes
+        // 🟢 ABSORCIÓN REALISTA: Si es frito, sumamos un 30% extra del peso total de ingredientes
         if (esFritura) {
             kcalTotales *= 1.30; 
             advertencias.add("Fritura profunda");

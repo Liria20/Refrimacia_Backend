@@ -27,11 +27,11 @@ export const listarRecetas = async (req: Request, res: Response) => {
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
-            
+
         const [rows] = await db.query(query, [limit, offset]);
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             data: rows,
             paginacion: {
                 total_recetas: totalRecetas,
@@ -56,9 +56,9 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             FROM TReceta r
             LEFT JOIN TUsuario u ON r.id_usuario = u.id_usuario
             WHERE r.id_receta = ?`;
-            
+
         const [recetaRows]: any = await db.query(queryReceta, [id]);
-        
+
         if (recetaRows.length === 0) {
             return res.status(404).json({ status: "error", message: "La receta no existe." });
         }
@@ -68,17 +68,18 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             `SELECT c.*, u.nombre_usuario, u.imagen_perfil 
              FROM TComentario c 
              JOIN TUsuario u ON c.id_usuario = u.id_usuario 
-             WHERE c.id_receta = ? ORDER BY c.fecha_comentario DESC`, 
+             WHERE c.id_receta = ? ORDER BY c.fecha_comentario DESC`,
             [id]
         );
 
         const receta = recetaRows[0];
 
         // 🟢 MAGIA: Llamamos a Edamam al vuelo para obtener la nutrición real
-        const datosNutricionales = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta);
+        // 🟢 CAMBIO: Añadimos 'receta.descripcion' como tercer argumento
+        const datosNutricionales = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta, receta.descripcion);
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             data: {
                 ...receta,
                 // 🟢 Inyectamos lo que nos ha devuelto Edamam
@@ -103,9 +104,9 @@ export const crearReceta = async (req: Request, res: Response) => {
 
     // --- 🟢 NUEVO: Validación estricta del tipo de receta ---
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
-        return res.status(400).json({ 
-            status: "error", 
-            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}` 
+        return res.status(400).json({
+            status: "error",
+            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}`
         });
     }
 
@@ -119,13 +120,13 @@ export const crearReceta = async (req: Request, res: Response) => {
             VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
         const [result]: any = await db.query(query, [
-            titulo_receta, 
-            descripcion || null, 
-            ingredientes, 
+            titulo_receta,
+            descripcion || null,
+            ingredientes,
             tipo_receta || 'Almuerzo', // Cambiado 'General' por 'Almuerzo' para respetar el ENUM
             tiempo_preparacion || 0,
-            imagen_final, 
-            id_usuario_token 
+            imagen_final,
+            id_usuario_token
         ]);
 
         res.status(201).json({
@@ -145,9 +146,9 @@ export const modificarReceta = async (req: Request, res: Response) => {
 
     // --- 🟢 NUEVO: Validación estricta del tipo de receta al modificar ---
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
-        return res.status(400).json({ 
-            status: "error", 
-            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}` 
+        return res.status(400).json({
+            status: "error",
+            message: `Tipo de receta no válido. Usa: ${TIPOS_VALIDOS.join(', ')}`
         });
     }
 
@@ -211,7 +212,7 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
         const query = `SELECT r.*, u.nombre_usuario FROM TReceta r JOIN TUsuario u ON r.id_usuario = u.id_usuario WHERE r.id_receta = ?`;
         const [rows]: any = await db.query(query, [id]);
         if (rows.length === 0) return res.status(404).json({ status: "error", message: "No encontrada." });
-        
+
         const receta = rows[0];
         res.json({
             status: "success",
@@ -242,12 +243,12 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
 
         // 2. Disparamos las 7 consultas a la vez (en paralelo)
         const [
-            [desayunos], 
-            [almuerzos], 
-            [comidas], 
-            [meriendas], 
-            [cenas], 
-            [postres], 
+            [desayunos],
+            [almuerzos],
+            [comidas],
+            [meriendas],
+            [cenas],
+            [postres],
             [snacks]
         ]: any = await Promise.all([
             db.query(baseQuery, ['Desayuno']),
