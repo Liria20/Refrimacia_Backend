@@ -79,7 +79,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
 
         // REGEX RACIONES MEJORADO (Detecta: "para 2", "para 2 personas", "2 personas")
         let numRaciones = 1;
-        const regexRaciones = /(?:para\s+)?(\d+)\s*(?:persona|comensal)?/i;
+        const regexRaciones = /para\s+(\d+)/i;
         const matchRaciones = ingredientesStr.match(regexRaciones);
         if (matchRaciones && matchRaciones[1]) numRaciones = parseInt(matchRaciones[1]);
 
