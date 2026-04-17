@@ -20,11 +20,11 @@ const BASE_DATOS_INGREDIENTES: IngredienteDB[] = [
     { palabras: ['harina', 'maicena', 'pan rallado'], kcal100g: 360, pesoPorUnidad: 10 },
     { palabras: ['patata', 'boniato', 'papa'], kcal100g: 80, pesoPorUnidad: 200 },
     { palabras: ['queso', 'mozzarella', 'parmesano', 'cheddar'], kcal100g: 350, pesoPorUnidad: 30, advertencia: 'Grasas saturadas' },
-    { palabras: ['leche', 'yogur'], kcal100g: 60, pesoPorUnidad: 200 },
+    { palabras: ['leche', 'yogur', 'kefir'], kcal100g: 60, pesoPorUnidad: 125 }, // Peso unidad ajustado a un yogur estándar
     { palabras: ['huevo', 'huevos'], kcal100g: 155, pesoPorUnidad: 55 },
     { palabras: ['nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], kcal100g: 600, pesoPorUnidad: 30, advertencia: 'Grasas saludables' },
-    { palabras: ['aguacate'], kcal100g: 160, pesoPorUnidad: 150, advertencia: 'Grasas saludables' },
-    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao'], kcal100g: 450, pesoPorUnidad: 15, advertencia: 'Alto en azucares' },
+    { palabras: ['aguacate'], kcal100g: 160, pesoPorUnidad: 150 },
+    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope'], kcal100g: 320, pesoPorUnidad: 15 }, // Miel ajustada
     { palabras: ['limon', 'manzana', 'platano', 'naranja', 'pera', 'fresa', 'uva', 'pina'], kcal100g: 50, pesoPorUnidad: 150 },
     { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena'], kcal100g: 25, pesoPorUnidad: 100 }
 ].sort((a, b) => b.palabras[0].length - a.palabras[0].length);
@@ -34,12 +34,10 @@ const normalizar = (str: string) =>
 
 const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem: string, pesoPorUnidad: number): number | null => {
     const texto = normalizar(nombreItem);
-    
     if (texto.includes('pizca')) return 2;
     if (texto.includes('chorrito')) return 8;
     if (texto.includes('punado')) return 30;
 
-    // 🟢 ESTRICTO: Si no detectamos número, devolvemos null
     if (!cantidadStr || cantidadStr.trim() === "") return null;
 
     let n = 1;
@@ -73,41 +71,55 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
         if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
 
         const listaIngredientes = ingredientesStr.split(/,| y /i).map(i => i.trim());
-        const regexParser = /^([\d.,\/]+)?\s*(kg|kilos?|g|gr|gramos|ml|l|litros?|cucharadas?|cda|cucharaditas?|cdta|tazas?|dientes?|pz|piezas?|unidades?)?\s*(?:de\s+)?(.*)$/i;
+        
+        // Unidades válidas para los regex
+        const unidadesRegex = "kg|kilos?|g|gr|gramos|ml|l|litros?|cucharadas?|cda|cucharaditas?|cdta|tazas?|dientes?|pz|piezas?|unidades?";
 
         for (const item of listaIngredientes) {
             if (!item || normalizar(item).startsWith("para")) continue;
 
-            const match = item.match(regexParser);
-            if (match) {
-                const nombreLimpio = normalizar(match[3] || "");
+            let cantidadRaw = "";
+            let unidadRaw = "";
+            let nombreAnalizar = "";
 
-                const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
-                    dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
-                );
+            // 🟢 ESTRATEGIA DE MATCH DOBLE
+            const matchInicio = item.match(new RegExp(`^([\\d.,\\/]+)?\\s*(${unidadesRegex})?\\s*(?:de\\s+)?(.*)$`, "i"));
+            const matchParentesis = item.match(new RegExp(`^(.*?)\\s*\\(([\\d.,\\/]+)\\s*(${unidadesRegex})?\\)`, "i"));
 
-                if (alimentoDB) {
-                    // Obtención estricta de gramos
-                    const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
-                    
-                    if (gramos !== null) {
-                        // Filtro de aceite para frituras
-                        if (esFritura && nombreLimpio.includes('aceite') && gramos > 50) continue;
+            if (matchInicio && matchInicio[1]) {
+                // Caso: "125g de Yogur"
+                cantidadRaw = matchInicio[1];
+                unidadRaw = matchInicio[2] || "";
+                nombreAnalizar = matchInicio[3];
+            } else if (matchParentesis) {
+                // Caso: "Yogur natural (125 g)"
+                cantidadRaw = matchParentesis[2];
+                unidadRaw = matchParentesis[3] || "";
+                nombreAnalizar = matchParentesis[1];
+            } else {
+                nombreAnalizar = item;
+            }
 
-                        kcalTotales += (gramos / 100) * alimentoDB.kcal100g;
-                        if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
-                    }
+            const nombreLimpio = normalizar(nombreAnalizar);
+            const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
+                dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
+            );
+
+            if (alimentoDB) {
+                const gramos = obtenerGramosReales(cantidadRaw, unidadRaw, nombreLimpio, alimentoDB.pesoPorUnidad);
+                
+                if (gramos !== null) {
+                    if (esFritura && nombreLimpio.includes('aceite') && gramos > 50) continue;
+                    kcalTotales += (gramos / 100) * alimentoDB.kcal100g;
+                    if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
                 }
             }
         }
 
         if (esFritura && kcalTotales > 0) kcalTotales *= 1.30;
-
         const kcalFinal = Math.round(kcalTotales / numRaciones);
 
-        // 🟢 LÓGICA DE CONSUMO ACTUALIZADA
         let consumo = "Consumo habitual";
-        
         if (kcalFinal === 0) {
             consumo = "Indeterminado (Faltan cantidades)";
         } else if (kcalFinal > 800 || advertencias.has('Fritura profunda')) {
@@ -116,10 +128,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
             consumo = "Consumo moderado";
         }
 
-        return {
-            calorias: kcalFinal,
-            consumo_recomendado: consumo
-        };
+        return { calorias: kcalFinal, consumo_recomendado: consumo };
 
     } catch (error) {
         return { calorias: 0, consumo_recomendado: "Error de cálculo" };
