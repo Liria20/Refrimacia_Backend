@@ -45,13 +45,9 @@ const BASE_DATOS_INGREDIENTES: IngredienteDB[] = [
 
 // 2. NORMALIZADOR
 const normalizar = (str: string) =>
-    str
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-// 3. GRAMOS REALES
+// 3. CONVERSOR DE GRAMOS
 const obtenerGramosReales = (
     cantidadStr: string,
     unidadStr: string,
@@ -85,7 +81,7 @@ const obtenerGramosReales = (
     return n * pesoPorUnidad;
 };
 
-// 4. DETECCIÓN DE FRITURA
+// 4. FRITURA
 const detectarFritura = (texto: string) =>
     /(frit|freir|freír|rebozad|empanad|tempura)/i.test(texto);
 
@@ -138,12 +134,12 @@ export const obtenerNutricionDesdeAPI = async (
                 continue;
             }
 
-            // ✅ FIX: usar pesoPorUnidad correctamente
+            // 🔥 AQUÍ ESTÁ EL FIX REAL
             const gramos = obtenerGramosReales(
                 match[1] || "",
                 match[2] || "",
                 nombreLimpio,
-                alimentoDB.pesoPorUnidad
+                alimentoDB.pesoPorUnidad   // <-- FIX
             );
 
             const kcalItem = (gramos / 100) * alimentoDB.kcal100g;
@@ -159,7 +155,6 @@ export const obtenerNutricionDesdeAPI = async (
             if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
         }
 
-        // 🔥 Fritura
         if (esFritura) {
             kcalTotales *= 1.30;
             advertencias.add("Fritura profunda");
@@ -170,11 +165,9 @@ export const obtenerNutricionDesdeAPI = async (
         return {
             calorias: kcalFinal,
             consumo_recomendado:
-                kcalFinal > 800
-                    ? "Consumo ocasional"
-                    : kcalFinal > 500
-                        ? "Consumo moderado"
-                        : "Consumo habitual",
+                kcalFinal > 800 ? "Consumo ocasional"
+                : kcalFinal > 500 ? "Consumo moderado"
+                : "Consumo habitual",
 
             meta: {
                 raciones: numRaciones,
