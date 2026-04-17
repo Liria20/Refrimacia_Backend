@@ -9,6 +9,7 @@ const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.pn
 export type TipoReceta = 'Desayuno' | 'Almuerzo' | 'Comida' | 'Merienda' | 'Cena' | 'Postre' | 'Snack';
 export const TIPOS_VALIDOS: TipoReceta[] = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
 
+
 export const listarRecetas = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -19,7 +20,6 @@ export const listarRecetas = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // Añadimos una subconsulta para traer la media de estrellas en el listado
         const query = `
             SELECT r.*, u.nombre_usuario,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
@@ -27,12 +27,28 @@ export const listarRecetas = async (req: Request, res: Response) => {
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
+            
+        const [rows]: any = await db.query(query, [limit, offset]);
 
-        const [rows] = await db.query(query, [limit, offset]);
+        // 🟢 MAGIA: Procesamos cada receta de la lista para añadirle la nutrición
+        // Usamos Promise.all para que todas las consultas al motor se hagan a la vez y no una por una
+        const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
+            const nutricion = await obtenerNutricionDesdeAPI(
+                receta.ingredientes, 
+                receta.tipo_receta, 
+                receta.descripcion
+            );
 
-        res.json({
-            status: "success",
-            data: rows,
+            return {
+                ...receta,
+                consumo_habitual: nutricion.consumo_recomendado,
+                semaforo: nutricion.semaforo
+            };
+        }));
+
+        res.json({ 
+            status: "success", 
+            data: recetasProcesadas, // Enviamos las recetas con el semáforo inyectado
             paginacion: {
                 total_recetas: totalRecetas,
                 total_paginas: totalPages,
