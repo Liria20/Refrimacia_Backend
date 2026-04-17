@@ -1,16 +1,13 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
-// 🟢 NUEVO: Importamos nuestra conexión a la API de Edamam
+// 🟢 Importamos nuestra conexión a la API de nutrición
 import { obtenerNutricionDesdeAPI } from '../helpers/ApiNutricion.js';
 
 const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.png";
 
-// --- 🟢 NUEVO: Definimos los tipos válidos para que TypeScript y el Frontend lo sepan ---
+// --- Tipos válidos ---
 export type TipoReceta = 'Desayuno' | 'Almuerzo' | 'Comida' | 'Merienda' | 'Cena' | 'Postre' | 'Snack';
 export const TIPOS_VALIDOS: TipoReceta[] = ['Desayuno', 'Almuerzo', 'Comida', 'Merienda', 'Cena', 'Postre', 'Snack'];
-
-
-// controllers/recetaController.ts
 
 export const listarRecetas = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
@@ -22,11 +19,9 @@ export const listarRecetas = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // 1. En la SQL seguimos pidiendo ingredientes y descripción 
-        // porque el motor obtenerNutricionDesdeAPI los necesita para calcular el color.
         const query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.tipo_receta, r.ingredientes, r.descripcion, u.nombre_usuario,
+                   r.tipo_receta, r.fecha_publicacion, r.ingredientes, r.descripcion, u.nombre_usuario,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -42,13 +37,13 @@ export const listarRecetas = async (req: Request, res: Response) => {
                 receta.descripcion
             );
 
-            // 2. 🟢 AQUÍ ESTÁ EL TRUCO: Construimos el objeto de retorno 
-            // omitiendo los campos pesados (ingredientes y descripción)
             return {
                 id_receta: receta.id_receta,
                 titulo_receta: receta.titulo_receta,
                 imagen_receta: receta.imagen_receta,
                 tiempo_preparacion: receta.tiempo_preparacion,
+                tipo_receta: receta.tipo_receta,
+                fecha_publicacion: receta.fecha_publicacion,
                 nombre_usuario: receta.nombre_usuario,
                 media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
                 consumo_habitual: nutricion.consumo_recomendado,
@@ -71,7 +66,6 @@ export const listarRecetas = async (req: Request, res: Response) => {
         res.status(500).json({ status: "error", message: "Error al obtener recetas" });
     }
 };
-
 
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -116,14 +110,12 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
 
 export const crearReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
-    // Recuperamos tiempo_preparacion del body
     const { titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion } = req.body;
 
     if (!titulo_receta || !ingredientes) {
         return res.status(400).json({ status: "error", message: "Faltan campos obligatorios" });
     }
 
-    // --- 🟢 NUEVO: Validación estricta del tipo de receta ---
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
         return res.status(400).json({
             status: "error",
@@ -131,7 +123,6 @@ export const crearReceta = async (req: Request, res: Response) => {
         });
     }
 
-    // 🟢 CAMBIO: Usamos la imagen por defecto si no viene archivo
     const imagen_final = req.file ? req.file.path : IMAGEN_POR_DEFECTO;
 
     try {
@@ -144,7 +135,7 @@ export const crearReceta = async (req: Request, res: Response) => {
             titulo_receta,
             descripcion || null,
             ingredientes,
-            tipo_receta || 'Almuerzo', // Cambiado 'General' por 'Almuerzo' para respetar el ENUM
+            tipo_receta || 'Almuerzo',
             tiempo_preparacion || 0,
             imagen_final,
             id_usuario_token
@@ -165,7 +156,6 @@ export const modificarReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
     const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, tiempo_preparacion } = req.body;
 
-    // --- 🟢 NUEVO: Validación estricta del tipo de receta al modificar ---
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
         return res.status(400).json({
             status: "error",
@@ -179,7 +169,6 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(403).json({ status: "error", message: "No tienes permiso o no existe" });
         }
 
-        // 🟢 CAMBIO: Si no hay archivo nuevo, usamos la imagen vieja, pero si es null, usamos la por defecto
         const imagen_final = req.file ? req.file.path : (imagen_receta || IMAGEN_POR_DEFECTO);
 
         const query = `
@@ -206,11 +195,8 @@ export const eliminarReceta = async (req: Request, res: Response) => {
     }
 };
 
-// controllers/recetaController.ts
-
 export const buscarPorIngredientes = async (req: Request, res: Response) => {
     const { ingredientes } = req.query;
-
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
@@ -238,10 +224,9 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // 1. Pedimos los datos necesarios para el motor, pero limitamos los campos de la tabla
         let query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.ingredientes, r.descripcion, r.tipo_receta, u.nombre_usuario as autor 
+                   r.tipo_receta, r.fecha_publicacion, r.ingredientes, r.descripcion, u.nombre_usuario as autor 
             FROM TReceta r 
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ${whereClause}
@@ -250,7 +235,6 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
 
         const [rows]: any = await db.query(query, [...params, limit, offset]);
 
-        // 2. Procesamos la nutrición y LIMPIAMOS los objetos (Lightweight)
         const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
             const nutricion = await obtenerNutricionDesdeAPI(
                 receta.ingredientes,
@@ -258,12 +242,13 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
                 receta.descripcion
             );
 
-            // Devolvemos solo lo necesario para la lista de búsqueda
             return {
                 id_receta: receta.id_receta,
                 titulo_receta: receta.titulo_receta,
                 imagen_receta: receta.imagen_receta,
                 tiempo_preparacion: receta.tiempo_preparacion,
+                tipo_receta: receta.tipo_receta,
+                fecha_publicacion: receta.fecha_publicacion,
                 autor: receta.autor,
                 consumo_habitual: nutricion.consumo_recomendado,
                 semaforo: nutricion.semaforo
@@ -311,11 +296,9 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
 
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
-        // 1. La consulta sigue pidiendo ingredientes/descripción para el motor, 
-        // pero solo traeremos lo justo de la tabla.
         const baseQuery = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.ingredientes, r.descripcion, r.tipo_receta, u.nombre_usuario,
+                   r.ingredientes, r.descripcion, r.tipo_receta, r.fecha_publicacion, u.nombre_usuario,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -323,7 +306,6 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             ORDER BY RAND() LIMIT 1
         `;
 
-        // Ejecutamos las 7 consultas en paralelo
         const [
             [desayunos], [almuerzos], [comidas], [meriendas], [cenas], [postres], [snacks]
         ]: any = await Promise.all([
@@ -336,24 +318,23 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             db.query(baseQuery, ['Snack'])
         ]);
 
-        // 2. 🟢 Función para limpiar y enriquecer la receta
         const enriquecerRecetaLigera = async (lista: any[]) => {
             if (!lista || lista.length === 0) return null;
             const receta = lista[0];
             
-            // Calculamos la nutrición internamente
             const nutricion = await obtenerNutricionDesdeAPI(
                 receta.ingredientes, 
                 receta.tipo_receta, 
                 receta.descripcion
             );
 
-            // Devolvemos SOLO los campos necesarios para la card del móvil
             return {
                 id_receta: receta.id_receta,
                 titulo_receta: receta.titulo_receta,
                 imagen_receta: receta.imagen_receta,
                 tiempo_preparacion: receta.tiempo_preparacion,
+                tipo_receta: receta.tipo_receta,
+                fecha_publicacion: receta.fecha_publicacion,
                 nombre_usuario: receta.nombre_usuario,
                 media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
                 consumo_habitual: nutricion.consumo_recomendado,
@@ -361,7 +342,6 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             };
         };
 
-        // 3. Procesamos las 7 categorías en paralelo
         const [
             menuDesayuno, menuAlmuerzo, menuComida, 
             menuMerienda, menuCena, menuPostre, menuSnack
