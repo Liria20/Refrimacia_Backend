@@ -46,12 +46,10 @@ export const listarRecetas = async (req: Request, res: Response) => {
     }
 };
 
-// controllers/recetaController.ts
 
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        // 1. Obtenemos los datos de la receta y la media de estrellas
         const queryReceta = `
             SELECT r.*, u.nombre_usuario as autor,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
@@ -65,7 +63,6 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             return res.status(404).json({ status: "error", message: "La receta no existe." });
         }
 
-        // 2. Obtenemos los comentarios de esta receta
         const [comentarios]: any = await db.query(
             `SELECT c.*, u.nombre_usuario, u.imagen_perfil 
              FROM TComentario c 
@@ -75,23 +72,18 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
         );
 
         const receta = recetaRows[0];
-
-        // 🟢 LLAMADA AL MOTOR DE CALIDAD NUTRICIONAL (Sin calorías)
         const nutricion = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta, receta.descripcion);
 
         res.json({
             status: "success",
             data: {
                 ...receta,
-                // 🟢 Inyectamos solo la calidad nutricional
                 consumo_habitual: nutricion.consumo_recomendado,
-                semaforo: nutricion.semaforo, // 'verde', 'amarillo' o 'rojo'
-                alertas_nutricionales: nutricion.detalles, // Ejemplo: ["Fritura", "Procesados"]
+                semaforo: nutricion.semaforo,
                 comentarios: comentarios
             }
         });
     } catch (error: any) {
-        console.error(error);
         res.status(500).json({ status: "error", message: "Error al obtener los detalles." });
     }
 };
