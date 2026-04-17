@@ -2,135 +2,92 @@
 
 interface IngredienteDB {
     palabras: string[];
-    kcal100g: number;
-    pesoPorUnidad: number;
+    categoria: 'Sano' | 'Neutro' | 'Moderado' | 'Procesado';
     advertencia?: string;
 }
 
+// 1. BASE DE DATOS BASADA EN CALIDAD (NO EN KCAL)
 const BASE_DATOS_INGREDIENTES: IngredienteDB[] = [
-    { palabras: ['aceite', 'mantequilla', 'margarina', 'manteca'], kcal100g: 890, pesoPorUnidad: 15, advertencia: 'Grasas añadidas' },
-    { palabras: ['nata', 'crema de leche'], kcal100g: 340, pesoPorUnidad: 15 },
-    { palabras: ['pollo', 'pavo', 'pechuga'], kcal100g: 165, pesoPorUnidad: 150 },
-    { palabras: ['ternera', 'cerdo', 'carne picada', 'lomo', 'costilla', 'hamburguesa'], kcal100g: 220, pesoPorUnidad: 150 },
-    { palabras: ['chorizo', 'panceta', 'bacon', 'salchicha', 'morcilla', 'salami'], kcal100g: 400, pesoPorUnidad: 50, advertencia: 'Ultraprocesado' },
-    { palabras: ['salmon', 'atun', 'sardina'], kcal100g: 200, pesoPorUnidad: 150 },
-    { palabras: ['merluza', 'bacalao', 'calamar', 'pulpo', 'gamba', 'langostino', 'sepia'], kcal100g: 90, pesoPorUnidad: 150 },
-    { palabras: ['pan', 'baguette', 'barra', 'tostada'], kcal100g: 270, pesoPorUnidad: 120 },
-    { palabras: ['arroz', 'pasta', 'fideo', 'macarron', 'espagueti', 'quinoa', 'avena'], kcal100g: 130, pesoPorUnidad: 150 },
-    { palabras: ['harina', 'maicena', 'pan rallado'], kcal100g: 360, pesoPorUnidad: 10 },
-    { palabras: ['patata', 'boniato', 'papa'], kcal100g: 80, pesoPorUnidad: 200 },
-    { palabras: ['queso', 'mozzarella', 'parmesano', 'cheddar'], kcal100g: 350, pesoPorUnidad: 30, advertencia: 'Grasas saturadas' },
-    { palabras: ['leche', 'yogur', 'kefir'], kcal100g: 60, pesoPorUnidad: 125 }, // Peso unidad ajustado a un yogur estándar
-    { palabras: ['huevo', 'huevos'], kcal100g: 155, pesoPorUnidad: 55 },
-    { palabras: ['nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], kcal100g: 600, pesoPorUnidad: 30, advertencia: 'Grasas saludables' },
-    { palabras: ['aguacate'], kcal100g: 160, pesoPorUnidad: 150 },
-    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope'], kcal100g: 320, pesoPorUnidad: 15 }, // Miel ajustada
-    { palabras: ['limon', 'manzana', 'platano', 'naranja', 'pera', 'fresa', 'uva', 'pina'], kcal100g: 50, pesoPorUnidad: 150 },
-    { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena'], kcal100g: 25, pesoPorUnidad: 100 }
-].sort((a, b) => b.palabras[0].length - a.palabras[0].length);
+    // 🟢 SALUDABLES (Base de la pirámide)
+    { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena', 'verdura'], categoria: 'Sano' },
+    { palabras: ['manzana', 'platano', 'naranja', 'pera', 'fresa', 'limon', 'uva', 'pina', 'fruta', 'arandano', 'frambuesa'], categoria: 'Sano' },
+    { palabras: ['pollo', 'pavo', 'pechuga', 'merluza', 'bacalao', 'pulpo', 'sepia', 'clara'], categoria: 'Sano' },
+    { palabras: ['arroz', 'pasta', 'quinoa', 'avena', 'legumbre', 'lenteja', 'garbanzo', 'ubia'], categoria: 'Sano' },
+
+    // 🟡 NEUTROS / MODERADOS (Saludables pero calóricos o con grasas)
+    { palabras: ['aceite', 'aguacate', 'nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], categoria: 'Moderado', advertencia: 'Grasas saludables pero calóricas' },
+    { palabras: ['huevo', 'huevos', 'salmon', 'atun', 'sardina', 'ternera', 'cerdo', 'cordero'], categoria: 'Moderado' },
+    { palabras: ['pan', 'baguette', 'barra', 'tostada', 'queso', 'leche', 'yogur'], categoria: 'Moderado' },
+
+    // 🔴 PROCESADOS O ALTOS EN AZÚCAR/GRASA SATURADA
+    { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope', 'caramelo'], categoria: 'Procesado', advertencia: 'Alto en azúcares' },
+    { palabras: ['chorizo', 'panceta', 'bacon', 'salchicha', 'morcilla', 'salami', 'fuet', 'hamburguesa'], categoria: 'Procesado', advertencia: 'Carne procesada' },
+    { palabras: ['mantequilla', 'margarina', 'nata', 'manteca'], categoria: 'Procesado', advertencia: 'Grasas saturadas' }
+];
 
 const normalizar = (str: string) =>
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem: string, pesoPorUnidad: number): number | null => {
-    const texto = normalizar(nombreItem);
-    if (texto.includes('pizca')) return 2;
-    if (texto.includes('chorrito')) return 8;
-    if (texto.includes('punado')) return 30;
-
-    if (!cantidadStr || cantidadStr.trim() === "") return null;
-
-    let n = 1;
-    if (cantidadStr.includes('/')) {
-        const parts = cantidadStr.split('/');
-        n = parseFloat(parts[0]) / parseFloat(parts[1]);
-    } else {
-        n = parseFloat(cantidadStr.replace(',', '.'));
-    }
-
-    const u = normalizar(unidadStr || "");
-    if (['kg', 'kilos', 'l', 'litros'].includes(u)) return n * 1000;
-    if (['g', 'gr', 'gramos', 'ml', 'mililitros'].includes(u)) return n;
-    if (['cucharada', 'cda'].includes(u)) return n * 15;
-    if (['cucharadita', 'cdta'].includes(u)) return n * 5;
-    if (['taza'].includes(u)) return n * 200;
-
-    return n * pesoPorUnidad;
-};
-
 export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoReceta: string, descripcion?: string) => {
     try {
-        let kcalTotales = 0;
-        let advertencias = new Set<string>();
-
         const textoCompleto = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
+        
+        // 1. DETECTAR TÉCNICA (Fritura es el "Red Flag" principal)
         const esFritura = /(frit|frie|frii|freir|rebozad|empanad|tempura)/i.test(textoCompleto);
-
-        let numRaciones = 1;
-        const matchRaciones = ingredientesStr.match(/para\s+(\d+)/i);
-        if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
-
+        
         const listaIngredientes = ingredientesStr.split(/,| y /i).map(i => i.trim());
         
-        // Unidades válidas para los regex
-        const unidadesRegex = "kg|kilos?|g|gr|gramos|ml|l|litros?|cucharadas?|cda|cucharaditas?|cdta|tazas?|dientes?|pz|piezas?|unidades?";
+        let conteoCategorias = { Sano: 0, Neutro: 0, Moderado: 0, Procesado: 0 };
+        let advertenciasFinales = new Set<string>();
 
-        for (const item of listaIngredientes) {
-            if (!item || normalizar(item).startsWith("para")) continue;
-
-            let cantidadRaw = "";
-            let unidadRaw = "";
-            let nombreAnalizar = "";
-
-            // 🟢 ESTRATEGIA DE MATCH DOBLE
-            const matchInicio = item.match(new RegExp(`^([\\d.,\\/]+)?\\s*(${unidadesRegex})?\\s*(?:de\\s+)?(.*)$`, "i"));
-            const matchParentesis = item.match(new RegExp(`^(.*?)\\s*\\(([\\d.,\\/]+)\\s*(${unidadesRegex})?\\)`, "i"));
-
-            if (matchInicio && matchInicio[1]) {
-                // Caso: "125g de Yogur"
-                cantidadRaw = matchInicio[1];
-                unidadRaw = matchInicio[2] || "";
-                nombreAnalizar = matchInicio[3];
-            } else if (matchParentesis) {
-                // Caso: "Yogur natural (125 g)"
-                cantidadRaw = matchParentesis[2];
-                unidadRaw = matchParentesis[3] || "";
-                nombreAnalizar = matchParentesis[1];
-            } else {
-                nombreAnalizar = item;
-            }
-
-            const nombreLimpio = normalizar(nombreAnalizar);
-            const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
-                dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
+        // 2. ANALIZAR CALIDAD DE INGREDIENTES
+        listaIngredientes.forEach(item => {
+            const nombreLimpio = normalizar(item);
+            const alimento = BASE_DATOS_INGREDIENTES.find(db => 
+                db.palabras.some(p => nombreLimpio.includes(normalizar(p)))
             );
 
-            if (alimentoDB) {
-                const gramos = obtenerGramosReales(cantidadRaw, unidadRaw, nombreLimpio, alimentoDB.pesoPorUnidad);
-                
-                if (gramos !== null) {
-                    if (esFritura && nombreLimpio.includes('aceite') && gramos > 50) continue;
-                    kcalTotales += (gramos / 100) * alimentoDB.kcal100g;
-                    if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
-                }
+            if (alimento) {
+                conteoCategorias[alimento.categoria]++;
+                if (alimento.advertencia) advertenciasFinales.add(alimento.advertencia);
             }
+        });
+
+        // 3. LÓGICA DE CONSUMO (EL SEMÁFORO)
+        let consumo = "Consumo habitual (Diario)";
+        let color = "verde";
+
+        // REGLA 1: Si es frito -> Siempre ocasional
+        if (esFritura) {
+            consumo = "Consumo ocasional (Máx. 1 vez/semana)";
+            color = "rojo";
+        } 
+        // REGLA 2: Si tiene ingredientes procesados (embutidos, azúcares...)
+        else if (conteoCategorias.Procesado > 0) {
+            consumo = "Consumo ocasional (Por ingredientes procesados)";
+            color = "rojo";
+        }
+        // REGLA 3: Si es equilibrado pero tiene ingredientes que requieren moderación (quesos, carnes rojas)
+        else if (conteoCategorias.Moderado > 2) {
+            consumo = "Consumo moderado (3-4 veces/semana)";
+            color = "amarillo";
+        }
+        // REGLA 4: Si es mayoritariamente sano
+        else if (conteoCategorias.Sano >= conteoCategorias.Moderado) {
+            consumo = "Consumo habitual (Recomendado)";
+            color = "verde";
         }
 
-        if (esFritura && kcalTotales > 0) kcalTotales *= 1.30;
-        const kcalFinal = Math.round(kcalTotales / numRaciones);
-
-        let consumo = "Consumo habitual";
-        if (kcalFinal === 0) {
-            consumo = "Indeterminado (Faltan cantidades)";
-        } else if (kcalFinal > 800 || advertencias.has('Fritura profunda')) {
-            consumo = "Consumo ocasional";
-        } else if (kcalFinal > 500) {
-            consumo = "Consumo moderado";
-        }
-
-        return { calorias: kcalFinal, consumo_recomendado: consumo };
+        // Devolvemos una "estimación" de calorías muy genérica para no dejar el campo vacío, 
+        // pero avisamos que es orientativa.
+        return {
+            calorias: "Ver desglose", 
+            consumo_recomendado: consumo,
+            semaforo: color,
+            detalles: Array.from(advertenciasFinales)
+        };
 
     } catch (error) {
-        return { calorias: 0, consumo_recomendado: "Error de cálculo" };
+        return { calorias: "---", consumo_recomendado: "Indeterminado" };
     }
 };

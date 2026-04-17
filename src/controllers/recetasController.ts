@@ -46,6 +46,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
     }
 };
 
+// controllers/recetaController.ts
+
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
@@ -74,21 +76,22 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
 
         const receta = recetaRows[0];
 
-        // 🟢 MAGIA: Llamamos a Edamam al vuelo para obtener la nutrición real
-        // 🟢 CAMBIO: Añadimos 'receta.descripcion' como tercer argumento
-        const datosNutricionales = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta, receta.descripcion);
+        // 🟢 LLAMADA AL MOTOR DE CALIDAD NUTRICIONAL (Sin calorías)
+        const nutricion = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta, receta.descripcion);
 
         res.json({
             status: "success",
             data: {
                 ...receta,
-                // 🟢 Inyectamos lo que nos ha devuelto Edamam
-                calorias_estimadas: datosNutricionales.calorias,
-                consumo_habitual: datosNutricionales.consumo_recomendado,
+                // 🟢 Inyectamos solo la calidad nutricional
+                consumo_habitual: nutricion.consumo_recomendado,
+                semaforo: nutricion.semaforo, // 'verde', 'amarillo' o 'rojo'
+                alertas_nutricionales: nutricion.detalles, // Ejemplo: ["Fritura", "Procesados"]
                 comentarios: comentarios
             }
         });
     } catch (error: any) {
+        console.error(error);
         res.status(500).json({ status: "error", message: "Error al obtener los detalles." });
     }
 };
