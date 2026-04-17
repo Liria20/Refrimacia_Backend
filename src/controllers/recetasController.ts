@@ -295,9 +295,10 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
     }
 };
 
+// controllers/recetaController.ts
+
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
-        // 1. La consulta base (con joins, medias de estrellas y al azar)
         const baseQuery = `
             SELECT r.*, u.nombre_usuario as autor,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
@@ -307,15 +308,9 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             ORDER BY RAND() LIMIT 1
         `;
 
-        // 2. Disparamos las 7 consultas a la vez (en paralelo)
+        // 1. Disparamos las 7 consultas a la base de datos
         const [
-            [desayunos],
-            [almuerzos],
-            [comidas],
-            [meriendas],
-            [cenas],
-            [postres],
-            [snacks]
+            [desayunos], [almuerzos], [comidas], [meriendas], [cenas], [postres], [snacks]
         ]: any = await Promise.all([
             db.query(baseQuery, ['Desayuno']),
             db.query(baseQuery, ['Almuerzo']),
@@ -326,21 +321,51 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             db.query(baseQuery, ['Snack'])
         ]);
 
-        // 3. Devolvemos el menú estructurado y ordenado exactamente como pediste
+        // 2. Función interna para procesar la nutrición si la receta existe
+        const enriquecerReceta = async (lista: any[]) => {
+            if (!lista || lista.length === 0) return null;
+            const receta = lista[0];
+            
+            const nutricion = await obtenerNutricionDesdeAPI(
+                receta.ingredientes, 
+                receta.tipo_receta, 
+                receta.descripcion
+            );
+
+            return {
+                ...receta,
+                consumo_habitual: nutricion.consumo_recomendado,
+                semaforo: nutricion.semaforo
+            };
+        };
+
+        // 3. Procesamos las 7 recetas en paralelo para ir a la velocidad del rayo
+        const [
+            menuDesayuno, menuAlmuerzo, menuComida, menuMerienda, menuCena, menuPostre, menuSnack
+        ] = await Promise.all([
+            enriquecerReceta(desayunos),
+            enriquecerReceta(almuerzos),
+            enriquecerReceta(comidas),
+            enriquecerReceta(meriendas),
+            enriquecerReceta(cenas),
+            enriquecerReceta(postres),
+            enriquecerReceta(snacks)
+        ]);
+
         res.json({
             status: "success",
             data: {
-                desayuno: desayunos.length > 0 ? desayunos[0] : null,
-                almuerzo: almuerzos.length > 0 ? almuerzos[0] : null,
-                comida: comidas.length > 0 ? comidas[0] : null,
-                merienda: meriendas.length > 0 ? meriendas[0] : null,
-                cena: cenas.length > 0 ? cenas[0] : null,
-                postre: postres.length > 0 ? postres[0] : null,
-                snack: snacks.length > 0 ? snacks[0] : null
+                desayuno: menuDesayuno,
+                almuerzo: menuAlmuerzo,
+                comida: menuComida,
+                merienda: menuMerienda,
+                cena: menuCena,
+                postre: menuPostre,
+                snack: menuSnack
             }
         });
     } catch (error: any) {
-        console.error("Error en el Menú del Día completo:", error);
+        console.error("Error en el Menú del Día:", error);
         res.status(500).json({ status: "error", message: "Error al generar el menú del día." });
     }
 };
