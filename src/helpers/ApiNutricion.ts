@@ -51,7 +51,7 @@ const obtenerGramosReales = (cantidadStr: string, unidadStr: string, nombreItem:
     const u = normalizar(unidadStr || "");
     if (['kg', 'kilos', 'l', 'litros'].includes(u)) return n * 1000;
     if (['g', 'gr', 'gramos', 'ml', 'mililitros'].includes(u)) return n;
-    if (['cucharada', 'cda', 'cucharadas'].includes(u)) return n * 15;
+    if (['cucharada', 'cda'].includes(u)) return n * 15;
     if (['cucharadita', 'cdta'].includes(u)) return n * 5;
     if (['taza'].includes(u)) return n * 200;
     if (['diente', 'dientes'].includes(u)) return n * 5;
@@ -63,13 +63,11 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
     try {
         let kcalTotales = 0;
         let advertencias = new Set<string>();
-        let desglose: any[] = [];
-        let desconocidos: string[] = [];
 
-        const textoParaFritura = normalizar(ingredientesStr + " " + (descripcion || ""));
-        const esFritura = /(frit|freir|rebozad|empanad|tempura)/i.test(textoParaFritura);
+        const textoParaFritura = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
+        const esFritura = /(frit|freir|freír|rebozad|empanad|tempura)/i.test(textoParaFritura);
 
-        // 🟢 FIX RACIONES: Solo si dice "para X". Evita confundir "200g" con raciones.
+        // 🟢 FIX RACIONES: Solo si dice explícitamente "para X". Así 200g no cuenta como 200 personas.
         let numRaciones = 1;
         const matchRaciones = ingredientesStr.match(/para\s+(\d+)/i);
         if (matchRaciones) numRaciones = parseInt(matchRaciones[1]);
@@ -85,36 +83,29 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
 
             const nombreLimpio = normalizar(match[3] || "");
 
-            // 🟢 FILTRO ACEITE: En frituras, el aceite de más de 50ml no se suma directo (se calcula absorción)
+            // 🟢 EL GRAN FIX DEL ACEITE: 
+            // Si es una fritura e indica más de 50ml de aceite, ignoramos el ingrediente 
+            // porque sumaremos la absorción (grasas) al final del proceso.
             if (esFritura && nombreLimpio.includes('aceite')) {
-                const cant = parseFloat(match[1] || "0");
-                if (cant > 50) continue;
+                const cantidadDetectada = parseFloat(match[1] || "0");
+                if (cantidadDetectada > 50) continue; 
             }
 
             const alimentoDB = BASE_DATOS_INGREDIENTES.find(dbItem =>
-                dbItem.palabras.some(p => {
-                    const base = normalizar(p);
-                    // Match flexible: calamares -> calamar
-                    return nombreLimpio.includes(base);
-                })
+                dbItem.palabras.some(p => nombreLimpio.includes(normalizar(p)))
             );
 
-            if (!alimentoDB) {
-                if (nombreLimpio.length > 2) desconocidos.push(item);
-                continue;
+            if (alimentoDB) {
+                const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
+                const kcalItem = (gramos / 100) * alimentoDB.kcal100g;
+                kcalTotales += kcalItem;
+                if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
             }
-
-            const gramos = obtenerGramosReales(match[1] || "", match[2] || "", nombreLimpio, alimentoDB.pesoPorUnidad);
-            const kcalItem = (gramos / 100) * alimentoDB.kcal100g;
-
-            kcalTotales += kcalItem;
-            desglose.push({ nombre: match[3], gramos: Math.round(gramos), kcal: Math.round(kcalItem) });
-            if (alimentoDB.advertencia) advertencias.add(alimentoDB.advertencia);
         }
 
-        // 🟢 ABSORCIÓN DE ACEITE: Un 30% extra del peso total si es frito
+        // 🟢 ABSORCIÓN DE ACEITE EN FRITURA (Factor realista 1.30)
         if (esFritura) {
-            kcalTotales *= 1.30;
+            kcalTotales *= 1.30; 
             advertencias.add("Fritura profunda");
         }
 
@@ -122,11 +113,10 @@ export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoRece
 
         return {
             calorias: kcalFinal,
-            consumo_recomendado: kcalFinal > 800 ? "Consumo ocasional" : kcalFinal > 500 ? "Consumo moderado" : "Consumo habitual",
-            meta: { raciones: numRaciones, precision: desglose.length / (desglose.length + desconocidos.length || 1), desglose }
+            consumo_recomendado: kcalFinal > 800 ? "Consumo ocasional" : kcalFinal > 500 ? "Consumo moderado" : "Consumo habitual"
         };
 
     } catch (error) {
-        return { calorias: 0, meta: { error: "Fallo en el motor" } };
+        return { calorias: 0, consumo_recomendado: "Error de cálculo" };
     }
 };
