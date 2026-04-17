@@ -6,20 +6,14 @@ interface IngredienteDB {
     advertencia?: string;
 }
 
-// 1. BASE DE DATOS BASADA EN CALIDAD (NO EN KCAL)
 const BASE_DATOS_INGREDIENTES: IngredienteDB[] = [
-    // 🟢 SALUDABLES (Base de la pirámide)
     { palabras: ['tomate', 'cebolla', 'ajo', 'pimiento', 'lechuga', 'zanahoria', 'calabacin', 'champinon', 'berenjena', 'verdura'], categoria: 'Sano' },
-    { palabras: ['manzana', 'platano', 'naranja', 'pera', 'fresa', 'limon', 'uva', 'pina', 'fruta', 'arandano', 'frambuesa'], categoria: 'Sano' },
+    { palabras: ['manzana', 'platano', 'naranja', 'pera', 'fresa', 'limon', 'uva', 'pina', 'fruta', 'arandano', 'frambuesa', 'mora', 'kiwi'], categoria: 'Sano' },
     { palabras: ['pollo', 'pavo', 'pechuga', 'merluza', 'bacalao', 'pulpo', 'sepia', 'clara'], categoria: 'Sano' },
-    { palabras: ['arroz', 'pasta', 'quinoa', 'avena', 'legumbre', 'lenteja', 'garbanzo', 'ubia'], categoria: 'Sano' },
-
-    // 🟡 NEUTROS / MODERADOS (Saludables pero calóricos o con grasas)
-    { palabras: ['aceite', 'aguacate', 'nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], categoria: 'Moderado', advertencia: 'Grasas saludables pero calóricas' },
+    { palabras: ['arroz', 'pasta', 'quinoa', 'avena', 'legumbre', 'lenteja', 'garbanzo', 'judia'], categoria: 'Sano' },
+    { palabras: ['aceite', 'aguacate', 'nuez', 'almendra', 'cacahuete', 'pistacho', 'nueces'], categoria: 'Moderado', advertencia: 'Grasas saludables' },
     { palabras: ['huevo', 'huevos', 'salmon', 'atun', 'sardina', 'ternera', 'cerdo', 'cordero'], categoria: 'Moderado' },
-    { palabras: ['pan', 'baguette', 'barra', 'tostada', 'queso', 'leche', 'yogur'], categoria: 'Moderado' },
-
-    // 🔴 PROCESADOS O ALTOS EN AZÚCAR/GRASA SATURADA
+    { palabras: ['pan', 'baguette', 'barra', 'tostada', 'queso', 'leche', 'yogur', 'kefir'], categoria: 'Moderado' },
     { palabras: ['azucar', 'miel', 'chocolate', 'galleta', 'cacao', 'sirope', 'caramelo'], categoria: 'Procesado', advertencia: 'Alto en azúcares' },
     { palabras: ['chorizo', 'panceta', 'bacon', 'salchicha', 'morcilla', 'salami', 'fuet', 'hamburguesa'], categoria: 'Procesado', advertencia: 'Carne procesada' },
     { palabras: ['mantequilla', 'margarina', 'nata', 'manteca'], categoria: 'Procesado', advertencia: 'Grasas saturadas' }
@@ -31,63 +25,70 @@ const normalizar = (str: string) =>
 export const obtenerNutricionDesdeAPI = async (ingredientesStr: string, tipoReceta: string, descripcion?: string) => {
     try {
         const textoCompleto = normalizar(ingredientesStr + " " + (descripcion || "") + " " + tipoReceta);
-        
-        // 1. DETECTAR TÉCNICA (Fritura es el "Red Flag" principal)
         const esFritura = /(frit|frie|frii|freir|rebozad|empanad|tempura)/i.test(textoCompleto);
         
         const listaIngredientes = ingredientesStr.split(/,| y /i).map(i => i.trim());
         
         let conteoCategorias = { Sano: 0, Neutro: 0, Moderado: 0, Procesado: 0 };
         let advertenciasFinales = new Set<string>();
+        let ingredientesConCantidad = 0;
 
-        // 2. ANALIZAR CALIDAD DE INGREDIENTES
+        // 1. ANALIZAR CALIDAD E INTENCIÓN DE CANTIDADES
         listaIngredientes.forEach(item => {
-            const nombreLimpio = normalizar(item);
+            const itemNorm = normalizar(item);
+            
+            // Verificamos si el ingrediente tiene algún número o medida coloquial
+            // Detecta: "100g", "1/2", "(125g)", "pizca", "chorrito"
+            const tieneCantidad = /[\d]/.test(itemNorm) || /(pizca|chorrito|punado)/i.test(itemNorm);
+            
             const alimento = BASE_DATOS_INGREDIENTES.find(db => 
-                db.palabras.some(p => nombreLimpio.includes(normalizar(p)))
+                db.palabras.some(p => itemNorm.includes(normalizar(p)))
             );
 
             if (alimento) {
                 conteoCategorias[alimento.categoria]++;
                 if (alimento.advertencia) advertenciasFinales.add(alimento.advertencia);
+                if (tieneCantidad) ingredientesConCantidad++;
             }
         });
 
-        // 3. LÓGICA DE CONSUMO (EL SEMÁFORO)
-        let consumo = "Consumo habitual (Diario)";
-        let color = "verde";
+        // 2. LÓGICA DE CONSUMO (CON FILTRO DE CANTIDADES)
+        let consumo = "";
+        let color = "";
 
-        // REGLA 1: Si es frito -> Siempre ocasional
-        if (esFritura) {
-            consumo = "Consumo ocasional (Máx. 1 vez/semana)";
+        // 🔴 CASO ESPECIAL: Si no se detectan cantidades en la mayoría de ingredientes
+        if (ingredientesConCantidad === 0) {
+            consumo = "Indeterminado (Faltan cantidades)";
+            color = "gris";
+        } 
+        // 🔴 REGLA 1: Fritura
+        else if (esFritura) {
+            consumo = "Consumo ocasional (Técnica de fritura)";
             color = "rojo";
         } 
-        // REGLA 2: Si tiene ingredientes procesados (embutidos, azúcares...)
+        // 🔴 REGLA 2: Procesados
         else if (conteoCategorias.Procesado > 0) {
-            consumo = "Consumo ocasional (Por ingredientes procesados)";
+            consumo = "Consumo ocasional (Ingredientes procesados)";
             color = "rojo";
         }
-        // REGLA 3: Si es equilibrado pero tiene ingredientes que requieren moderación (quesos, carnes rojas)
+        // 🟡 REGLA 3: Moderación
         else if (conteoCategorias.Moderado > 2) {
-            consumo = "Consumo moderado (3-4 veces/semana)";
+            consumo = "Consumo moderado (Ingredientes calóricos)";
             color = "amarillo";
         }
-        // REGLA 4: Si es mayoritariamente sano
-        else if (conteoCategorias.Sano >= conteoCategorias.Moderado) {
-            consumo = "Consumo habitual (Recomendado)";
+        // 🟢 REGLA 4: Saludable
+        else {
+            consumo = "Consumo habitual (Ingredientes saludables)";
             color = "verde";
         }
 
-        // Devolvemos una "estimación" de calorías muy genérica para no dejar el campo vacío, 
-        // pero avisamos que es orientativa.
         return {
-            calorias: "Ver desglose", 
             consumo_recomendado: consumo,
             semaforo: color,
             detalles: Array.from(advertenciasFinales)
         };
 
     } catch (error) {
-        return { calorias: "---", consumo_recomendado: "Indeterminado" };
+        return { consumo_recomendado: "Indeterminado", semaforo: "gris", detalles: [] };
     }
 };
