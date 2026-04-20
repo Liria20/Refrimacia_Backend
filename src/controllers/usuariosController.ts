@@ -183,12 +183,12 @@ export const listarUsuarios = async (req: Request, res: Response) => {
             FROM TUsuario 
             ORDER BY id_usuario DESC 
             LIMIT ? OFFSET ?`;
-            
+
         const [rows]: any = await db.query(query, [limit, offset]);
 
         // 4. Devolvemos los datos junto con el bloque de paginación
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             data: rows,
             paginacion: {
                 total_usuarios: totalUsuarios,
@@ -226,7 +226,7 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
         await db.query('UPDATE TUsuario SET codigo_verificacion = ? WHERE correo_electronico = ?', [codigo, correo_electronico]);
 
         // 🟢 Lógica de Brevo integrada y segura
-        const apiKey = process.env.BREVO_API_KEY; 
+        const apiKey = process.env.BREVO_API_KEY;
         const senderEmail = "tu-correo-verificado@dominio.com"; // DEBE estar verificado en Brevo
 
         await axios.post('https://api.brevo.com/v3/smtp/email', {
@@ -253,9 +253,34 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
     } catch (error: any) {
         // 🔴 IMPORTANTE: Loguea el error para ver qué dice Brevo en la consola de Render
         console.error("Error en Brevo/DB:", error.response?.data || error.message);
-        res.status(500).json({ 
-            status: "error", 
-            message: "No se pudo enviar el correo. Revisa la configuración del servidor." 
+        res.status(500).json({
+            status: "error",
+            message: "No se pudo enviar el correo. Revisa la configuración del servidor."
         });
     }
+};
+
+export const cambiarContrasena = async (req: Request, res: Response) => {
+
+    const { correo_electronico, codigo, nueva_contrasena } = req.body;
+
+    try {
+        const [rows]: any = await db.query('SELECT id_usuario FROM TUsuario WHERE correo_electronico = ? AND codigo_verificacion = ?', [correo_electronico, codigo]);
+
+        if (rows.length === 0) return res.status(400).json({ status: "error", message: "Código inválido" });
+
+        const salt = await bcrypt.genSalt(10);
+
+        const hash = await bcrypt.hash(nueva_contrasena, salt);
+
+        await db.query('UPDATE TUsuario SET contrasena = ?, codigo_verificacion = NULL WHERE correo_electronico = ?', [hash, correo_electronico]);
+
+        res.json({ status: "success", message: "Contraseña actualizada" });
+
+    } catch (error: any) {
+
+        res.status(500).json({ status: "error", message: error.message });
+
+    }
+
 };
