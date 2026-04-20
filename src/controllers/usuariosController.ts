@@ -227,7 +227,7 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
 
         // 🟢 Lógica de Brevo integrada y segura
         const apiKey = process.env.BREVO_API_KEY;
-        const senderEmail = "tu-correo-verificado@dominio.com"; // DEBE estar verificado en Brevo
+        const senderEmail = "evagr4121@gmail.com"; // DEBE estar verificado en Brevo
 
         await axios.post('https://api.brevo.com/v3/smtp/email', {
             sender: { email: senderEmail, name: "RefriMancia App" },
