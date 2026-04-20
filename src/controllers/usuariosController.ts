@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../../db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 // 🟢 NUEVO: Definimos el avatar por defecto para los usuarios sin foto
 const IMAGEN_PERFIL_POR_DEFECTO = "https://images.icon-icons.com/1603/PNG/512/kitchen-coock-chef-hat_108594.png";
@@ -224,24 +225,37 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
         const codigo = Math.floor(100000 + Math.random() * 900000).toString();
         await db.query('UPDATE TUsuario SET codigo_verificacion = ? WHERE correo_electronico = ?', [codigo, correo_electronico]);
 
-        // (Lógica de envío de Brevo omitida para brevedad)
-        res.json({ status: "success", message: "Código enviado" });
-    } catch (error: any) {
-        res.status(500).json({ status: "error", message: error.message });
-    }
-};
+        // 🟢 Lógica de Brevo integrada y segura
+        const apiKey = process.env.BREVO_API_KEY; 
+        const senderEmail = "tu-correo-verificado@dominio.com"; // DEBE estar verificado en Brevo
 
-export const cambiarContrasena = async (req: Request, res: Response) => {
-    const { correo_electronico, codigo, nueva_contrasena } = req.body;
-    try {
-        const [rows]: any = await db.query('SELECT id_usuario FROM TUsuario WHERE correo_electronico = ? AND codigo_verificacion = ?', [correo_electronico, codigo]);
-        if (rows.length === 0) return res.status(400).json({ status: "error", message: "Código inválido" });
+        await axios.post('https://api.brevo.com/v3/smtp/email', {
+            sender: { email: senderEmail, name: "RefriMancia App" },
+            to: [{ email: correo_electronico }],
+            subject: "Código de recuperación - RefriMancia",
+            htmlContent: `
+                <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px;">
+                    <h2>Recuperación de contraseña</h2>
+                    <p>Has solicitado un código para cambiar tu contraseña en RefriMancia.</p>
+                    <h1 style="color: #4CAF50; letter-spacing: 5px;">${codigo}</h1>
+                    <p>Este código es de un solo uso. Si no has sido tú, ignora este correo.</p>
+                </div>
+            `
+        }, {
+            headers: {
+                'api-key': apiKey,
+                'Content-Type': 'application/json'
+            }
+        });
 
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(nueva_contrasena, salt);
-        await db.query('UPDATE TUsuario SET contrasena = ?, codigo_verificacion = NULL WHERE correo_electronico = ?', [hash, correo_electronico]);
-        res.json({ status: "success", message: "Contraseña actualizada" });
+        res.json({ status: "success", message: "Código enviado correctamente" });
+
     } catch (error: any) {
-        res.status(500).json({ status: "error", message: error.message });
+        // 🔴 IMPORTANTE: Loguea el error para ver qué dice Brevo en la consola de Render
+        console.error("Error en Brevo/DB:", error.response?.data || error.message);
+        res.status(500).json({ 
+            status: "error", 
+            message: "No se pudo enviar el correo. Revisa la configuración del servidor." 
+        });
     }
 };
