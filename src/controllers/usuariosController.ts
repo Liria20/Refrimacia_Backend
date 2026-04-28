@@ -134,7 +134,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
             const token = jwt.sign(
                 { id_usuario: usuario.id_usuario, nombre: usuario.nombre_usuario },
                 process.env.JWT_SECRET as string,
-                { expiresIn: '2h' }
+                { expiresIn: '24h' }
             );
             await db.query('UPDATE TUsuario SET ultimo_token = ? WHERE id_usuario = ?', [token, usuario.id_usuario]);
             delete usuario.contrasena;
