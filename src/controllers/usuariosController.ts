@@ -11,6 +11,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idUsuarioToken = (req as any).user.id_usuario;
 
+    // 1. Verificamos que el usuario solo pueda editar su propio perfil
     if (String(id) !== String(idUsuarioToken)) {
         return res.status(403).json({
             status: "error",
@@ -20,24 +21,23 @@ export const modificarUsuario = async (req: Request, res: Response) => {
 
     const {
         nombre_usuario,
-        imagen_perfil, // Este vendrá del body si no se sube archivo nuevo
+        imagen_perfil, // URL antigua o la que viene por defecto
         nombre_completo,
-        fecha_nac,
-        correo_electronico
+        fecha_nac
+        // 🟢 Eliminamos correo_electronico de aquí
     } = req.body;
 
     try {
-        // 🚀 CAMBIO CLOUDINARY: Usamos la URL pública o la imagen que ya tenía. 
-        // 🟢 NUEVO: Si viene vacío/null, le ponemos la de por defecto.
+        // 🚀 Lógica de imagen: Prioridad al archivo subido, luego a la URL enviada, luego al avatar por defecto
         const imagenFinal = req.file ? req.file.path : (imagen_perfil || IMAGEN_PERFIL_POR_DEFECTO);
 
+        // 🟢 SQL actualizado: Eliminamos la columna correo_electronico del SET
         const query = `
             UPDATE TUsuario 
             SET nombre_usuario = ?, 
                 imagen_perfil = ?, 
                 nombre_completo = ?, 
-                fecha_nac = ?, 
-                correo_electronico = ? 
+                fecha_nac = ?
             WHERE id_usuario = ?`;
 
         const [result]: any = await db.query(query, [
@@ -45,8 +45,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
             imagenFinal,
             nombre_completo,
             fecha_nac,
-            correo_electronico,
-            id
+            id // ID del usuario que pasamos en la URL
         ]);
 
         if (result.affectedRows === 0) {
@@ -55,12 +54,12 @@ export const modificarUsuario = async (req: Request, res: Response) => {
 
         res.json({
             status: "success",
-            message: "Datos de usuario actualizados correctamente",
+            message: "Perfil actualizado correctamente",
             foto: imagenFinal
         });
     } catch (error: any) {
         console.error("❌ Error SQL:", error);
-        res.status(500).json({ error: "Error al actualizar el usuario" });
+        res.status(500).json({ status: "error", message: "Error al actualizar el usuario" });
     }
 };
 

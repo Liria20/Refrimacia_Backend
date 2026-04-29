@@ -1,22 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const validarUsuarioModificar = (req: Request, res: Response, next: NextFunction) => {
-    const { nombre_usuario, correo_electronico, nombre_completo, fecha_nac } = req.body;
+    const { nombre_usuario, nombre_completo, fecha_nac } = req.body;
 
-    // Validamos que si envían los campos, no estén vacíos
-    if (nombre_usuario === "" || nombre_completo === "" || correo_electronico === "") {
+    // 1. 🟢 Eliminamos 'correo_electronico' de aquí porque ya no lo editamos en esta ruta.
+
+    // 2. 🛡️ Validación más robusta (comprobamos que no sea solo espacios en blanco)
+    // Usamos .trim() para evitar que alguien ponga " " como nombre.
+    if (nombre_usuario !== undefined && nombre_usuario.trim() === "") {
         return res.status(400).json({
             status: "error",
-            message: "Los campos obligatorios no pueden estar vacíos."
+            message: "El nombre de usuario no puede estar vacío."
         });
     }
 
-    if (correo_electronico) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(correo_electronico)) {
+    if (nombre_completo !== undefined && nombre_completo.trim() === "") {
+        return res.status(400).json({
+            status: "error",
+            message: "El nombre completo no puede estar vacío."
+        });
+    }
+
+    // 3. 📅 Validación opcional de fecha (solo si viene en el body)
+    if (fecha_nac) {
+        const fecha = new Date(fecha_nac);
+        if (isNaN(fecha.getTime())) {
             return res.status(400).json({
                 status: "error",
-                message: "Formato de correo inválido."
+                message: "La fecha de nacimiento no es válida."
             });
         }
     }
