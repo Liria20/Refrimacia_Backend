@@ -1,29 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const validarReceta = (req: Request, res: Response, next: NextFunction) => {
-    // Usamos 'descripcion' que es como está en tu DB
     const { titulo_receta, ingredientes, tiempo_preparacion } = req.body;
 
-    if (!titulo_receta || !ingredientes || titulo_receta.trim() === "" ) {
-        return res.status(400).json({
-            status: "error",
-            message: "El título y los ingredientes son obligatorios."
-        });
+    // Validar título solo si se envía
+    if (titulo_receta !== undefined) {
+        if (titulo_receta.trim() === "" || titulo_receta.length < 5) {
+            return res.status(400).json({
+                status: "error",
+                message: "El título debe tener al menos 5 caracteres y no puede estar vacío."
+            });
+        }
     }
 
-    if (titulo_receta.length < 5) {
-        return res.status(400).json({
-            status: "error",
-            message: "El título debe tener al menos 5 caracteres."
-        });
+    // Validar ingredientes solo si se envían
+    if (ingredientes !== undefined) {
+        if (ingredientes.trim() === "") {
+            return res.status(400).json({
+                status: "error",
+                message: "Los ingredientes no pueden estar vacíos."
+            });
+        }
     }
 
-    // El tiempo en form-data llega como string, Number() lo arregla
-    if (tiempo_preparacion && isNaN(Number(tiempo_preparacion))) {
-        return res.status(400).json({
-            status: "error",
-            message: "El tiempo de preparación debe ser un número."
-        });
+    // Validar tiempo solo si se envía
+    if (tiempo_preparacion !== undefined) {
+        if (isNaN(Number(tiempo_preparacion))) {
+            return res.status(400).json({
+                status: "error",
+                message: "El tiempo de preparación debe ser un número válido."
+            });
+        }
     }
 
     next();

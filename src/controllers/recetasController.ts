@@ -156,6 +156,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
     const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, tiempo_preparacion } = req.body;
 
+    // Validación de tipos permitidos si se envía el campo
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
         return res.status(400).json({
             status: "error",
@@ -164,22 +165,55 @@ export const modificarReceta = async (req: Request, res: Response) => {
     }
 
     try {
+        // 1. Verificar existencia y propiedad
         const [receta]: any = await db.query('SELECT id_usuario FROM TReceta WHERE id_receta = ?', [id]);
-        if (receta.length === 0 || receta[0].id_usuario !== id_usuario_token) {
-            return res.status(403).json({ status: "error", message: "No tienes permiso o no existe" });
+        if (receta.length === 0) return res.status(404).json({ status: "error", message: "La receta no existe" });
+        
+        if (receta[0].id_usuario !== id_usuario_token) {
+            return res.status(403).json({ status: "error", message: "No tienes permiso para editar esta receta" });
         }
 
-        const imagen_final = req.file ? req.file.path : (imagen_receta || IMAGEN_POR_DEFECTO);
+        // 2. Construcción dinámica de campos
+        let campos = [];
+        let valores = [];
 
-        const query = `
-            UPDATE TReceta 
-            SET titulo_receta = ?, descripcion = ?, ingredientes = ?, tipo_receta = IFNULL(?, tipo_receta), imagen_receta = ?, tiempo_preparacion = ? 
-            WHERE id_receta = ?`;
+        if (titulo_receta) { campos.push("titulo_receta = ?"); valores.push(titulo_receta); }
+        if (descripcion !== undefined) { campos.push("descripcion = ?"); valores.push(descripcion); }
+        if (ingredientes) { campos.push("ingredientes = ?"); valores.push(ingredientes); }
+        if (tipo_receta) { campos.push("tipo_receta = ?"); valores.push(tipo_receta); }
+        if (tiempo_preparacion !== undefined) { campos.push("tiempo_preparacion = ?"); valores.push(tiempo_preparacion); }
 
-        await db.query(query, [titulo_receta, descripcion, ingredientes, tipo_receta || null, imagen_final, tiempo_preparacion || 0, id]);
-        res.json({ status: "success", message: "Receta actualizada correctamente" });
+        // 3. Lógica de imagen (Igual que en Usuario)
+        if (req.file) {
+            // Sube archivo nuevo
+            campos.push("imagen_receta = ?");
+            valores.push(req.file.path);
+        } else if (imagen_receta === null || imagen_receta === "null") {
+            // Resetea a imagen por defecto
+            campos.push("imagen_receta = ?");
+            valores.push(IMAGEN_POR_DEFECTO);
+        }
+
+        // 4. ¿Hay algo que actualizar?
+        if (campos.length === 0) {
+            return res.status(400).json({ status: "error", message: "No se enviaron campos para modificar" });
+        }
+
+        // 5. Ejecutar Update
+        const query = `UPDATE TReceta SET ${campos.join(", ")} WHERE id_receta = ?`;
+        valores.push(id);
+
+        await db.query(query, valores);
+
+        res.json({ 
+            status: "success", 
+            message: "Receta actualizada correctamente",
+            foto: req.file ? req.file.path : (imagen_receta === "null" || imagen_receta === null ? "Default" : "Mantenida")
+        });
+
     } catch (error: any) {
-        res.status(500).json({ status: "error", message: error.message });
+        console.error("❌ Error en modificarReceta:", error);
+        res.status(500).json({ status: "error", message: "Error interno al modificar la receta" });
     }
 };
 
