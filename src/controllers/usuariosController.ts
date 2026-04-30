@@ -11,7 +11,6 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idUsuarioToken = (req as any).user.id_usuario;
 
-    // 1. Verificamos que el usuario solo pueda editar su propio perfil
     if (String(id) !== String(idUsuarioToken)) {
         return res.status(403).json({
             status: "error",
@@ -19,44 +18,58 @@ export const modificarUsuario = async (req: Request, res: Response) => {
         });
     }
 
-    const {
-        nombre_usuario,
-        imagen_perfil, // URL antigua o la que viene por defecto
-        nombre_completo,
-        fecha_nac
-        // 🟢 Eliminamos correo_electronico de aquí
-    } = req.body;
+    const { nombre_usuario, nombre_completo, fecha_nac } = req.body;
 
     try {
-        // 🚀 Lógica de imagen: Prioridad al archivo subido, luego a la URL enviada, luego al avatar por defecto
-        const imagenFinal = req.file ? req.file.path : (imagen_perfil || IMAGEN_PERFIL_POR_DEFECTO);
+        // 1. Construcción dinámica de la consulta
+        let campos = [];
+        let valores = [];
 
-        // 🟢 SQL actualizado: Eliminamos la columna correo_electronico del SET
-        const query = `
-            UPDATE TUsuario 
-            SET nombre_usuario = ?, 
-                imagen_perfil = ?, 
-                nombre_completo = ?, 
-                fecha_nac = ?
-            WHERE id_usuario = ?`;
+        if (nombre_usuario) {
+            campos.push("nombre_usuario = ?");
+            valores.push(nombre_usuario);
+        }
+        if (nombre_completo) {
+            campos.push("nombre_completo = ?");
+            valores.push(nombre_completo);
+        }
+        if (fecha_nac) {
+            campos.push("fecha_nac = ?");
+            valores.push(fecha_nac);
+        }
 
-        const [result]: any = await db.query(query, [
-            nombre_usuario,
-            imagenFinal,
-            nombre_completo,
-            fecha_nac,
-            id // ID del usuario que pasamos en la URL
-        ]);
+        // 2. Gestión de la imagen: Solo si hay un archivo nuevo (Cloudinary)
+        // Si no hay req.file, no añadimos nada a 'campos', por lo que SQL no toca la columna.
+        if (req.file) {
+            campos.push("imagen_perfil = ?");
+            valores.push(req.file.path);
+        }
+
+        // Si no se envió nada para actualizar
+        if (campos.length === 0) {
+            return res.status(400).json({ 
+                status: "error", 
+                message: "No se enviaron campos para actualizar." 
+            });
+        }
+
+        // 3. Ejecución de la query
+        const query = `UPDATE TUsuario SET ${campos.join(", ")} WHERE id_usuario = ?`;
+        valores.push(id);
+
+        const [result]: any = await db.query(query, valores);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+            return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
         }
 
         res.json({
             status: "success",
             message: "Perfil actualizado correctamente",
-            foto: imagenFinal
+            // Devolvemos la nueva imagen si se subió, o indicamos que se mantuvo la anterior
+            foto: req.file ? req.file.path : "Sin cambios"
         });
+
     } catch (error: any) {
         console.error("❌ Error SQL:", error);
         res.status(500).json({ status: "error", message: "Error al actualizar el usuario" });
