@@ -11,7 +11,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idUsuarioToken = (req as any).user.id_usuario;
 
-    // Seguridd: Solo el dueño del perfil puede editarlo
+    // Seguridad: Solo el dueño del perfil puede editarlo
     if (String(id) !== String(idUsuarioToken)) {
         return res.status(403).json({
             status: "error",
@@ -25,7 +25,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
         let campos = [];
         let valores = [];
 
-        // Construcción dinámica de la Query
+        // Construcción dinámica de la Query para campos de texto
         if (nombre_usuario) {
             campos.push("nombre_usuario = ?");
             valores.push(nombre_usuario);
@@ -39,26 +39,34 @@ export const modificarUsuario = async (req: Request, res: Response) => {
             valores.push(fecha_nac);
         }
 
-        // Lógica de Imagen inteligente
+        // --- 🟢 LÓGICA DE IMAGEN CORREGIDA 🟢 ---
         if (req.file) {
-            // Caso: Subida de archivo nuevo
+            // Caso 1: Se subió un archivo real (Cloudinary)
             campos.push("imagen_perfil = ?");
             valores.push(req.file.path);
-        } else if (imagen_perfil === null) {
-            // Caso: El usuario quiere quitar su foto (manda null)
+        } 
+        else if (req.body.hasOwnProperty('imagen_perfil')) {
+            /**
+             * Caso 2: El campo existe en la petición pero no hay archivo.
+             * Esto captura:
+             * - imagen_perfil: null
+             * - imagen_perfil: "" (campo de Postman vacío)
+             * - imagen_perfil: "null"
+             */
             campos.push("imagen_perfil = ?");
             valores.push(IMAGEN_PERFIL_POR_DEFECTO);
         }
-        // Si no se cumple ninguna, 'imagen_perfil' no entra en la query y se mantiene la actual en la DB
+        // Si no se envía el campo 'imagen_perfil' en absoluto, no se toca en la DB.
 
+        // Si después de procesar todo no hay cambios, ahora sí lanzamos el 400
         if (campos.length === 0) {
             return res.status(400).json({ 
                 status: "error", 
-                message: "No hay cambios que aplicar." 
+                message: "No se detectaron cambios para actualizar." 
             });
         }
 
-        // Unimos los campos con comas para el SET
+        // Unimos los campos para el UPDATE
         const query = `UPDATE TUsuario SET ${campos.join(", ")} WHERE id_usuario = ?`;
         valores.push(id);
 
@@ -71,13 +79,13 @@ export const modificarUsuario = async (req: Request, res: Response) => {
         res.json({
             status: "success",
             message: "Perfil actualizado correctamente",
-            // Feedback para el frontend sobre qué pasó con la foto
-            foto: req.file ? req.file.path : (imagen_perfil === null ? "Default" : "Mantenida")
+            // Informamos qué imagen quedó
+            foto: req.file ? req.file.path : (req.body.hasOwnProperty('imagen_perfil') ? "Default" : "Mantenida")
         });
 
     } catch (error: any) {
         console.error("❌ Error SQL:", error);
-        res.status(500).json({ status: "error", message: "Error interno al actualizar." });
+        res.status(500).json({ status: "error", message: "Error interno al actualizar el perfil." });
     }
 };
 
