@@ -9,83 +9,84 @@ const IMAGEN_PERFIL_POR_DEFECTO = "https://images.icon-icons.com/1603/PNG/512/ki
 
 export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const idUsuarioToken = (req as any).user.id_usuario;
+    const idUsuarioToken = (req as any).user?.id_usuario; // Usamos ?. por seguridad
 
-    // Seguridad: Solo el dueño del perfil puede editarlo
-    if (String(id) !== String(idUsuarioToken)) {
+    // 1. Seguridad: Solo el dueño del perfil puede editarlo
+    if (!idUsuarioToken || String(id) !== String(idUsuarioToken)) {
         return res.status(403).json({
             status: "error",
             message: "No tienes permiso para modificar este perfil."
         });
     }
 
+    // Extraemos los campos del body
     const { nombre_usuario, nombre_completo, fecha_nac, imagen_perfil } = req.body;
 
     try {
         let campos = [];
         let valores = [];
 
-        // Construcción dinámica de la Query para campos de texto
-        if (nombre_usuario) {
+        // 2. Construcción dinámica (Comprobamos undefined para que campos opcionales funcionen)
+        if (nombre_usuario !== undefined) {
             campos.push("nombre_usuario = ?");
             valores.push(nombre_usuario);
         }
-        if (nombre_completo) {
+        if (nombre_completo !== undefined) {
             campos.push("nombre_completo = ?");
             valores.push(nombre_completo);
         }
-        if (fecha_nac) {
+        if (fecha_nac !== undefined) {
             campos.push("fecha_nac = ?");
             valores.push(fecha_nac);
         }
 
-        // --- 🟢 LÓGICA DE IMAGEN CORREGIDA 🟢 ---
+        // 3. Lógica de Imagen (Caso null, texto "null" o archivo vacío)
         if (req.file) {
-            // Caso 1: Se subió un archivo real (Cloudinary)
+            // Se subió un archivo nuevo
             campos.push("imagen_perfil = ?");
             valores.push(req.file.path);
-        } 
-        else if (req.body.hasOwnProperty('imagen_perfil')) {
-            /**
-             * Caso 2: El campo existe en la petición pero no hay archivo.
-             * Esto captura:
-             * - imagen_perfil: null
-             * - imagen_perfil: "" (campo de Postman vacío)
-             * - imagen_perfil: "null"
-             */
+        }
+        else if (imagen_perfil === null || imagen_perfil === "null") {
+            // Se quiere resetear la imagen (enviando null o el texto "null" de Postman)
             campos.push("imagen_perfil = ?");
             valores.push(IMAGEN_PERFIL_POR_DEFECTO);
         }
-        // Si no se envía el campo 'imagen_perfil' en absoluto, no se toca en la DB.
 
-        // Si después de procesar todo no hay cambios, ahora sí lanzamos el 400
+        // 4. Verificamos si realmente hay algo que actualizar
         if (campos.length === 0) {
-            return res.status(400).json({ 
-                status: "error", 
-                message: "No se detectaron cambios para actualizar." 
+            return res.status(400).json({
+                status: "error",
+                message: "No se enviaron datos para actualizar."
             });
         }
 
-        // Unimos los campos para el UPDATE
+        // 5. Ejecución de la Query
         const query = `UPDATE TUsuario SET ${campos.join(", ")} WHERE id_usuario = ?`;
-        valores.push(id);
+        valores.push(id); // El ID es el último parámetro
 
         const [result]: any = await db.query(query, valores);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ status: "error", message: "Usuario no encontrado" });
+            return res.status(404).json({ status: "error", message: "Usuario no encontrado en la base de datos." });
         }
 
         res.json({
             status: "success",
             message: "Perfil actualizado correctamente",
-            // Informamos qué imagen quedó
-            foto: req.file ? req.file.path : (req.body.hasOwnProperty('imagen_perfil') ? "Default" : "Mantenida")
+            data: {
+                foto_actualizada: req.file ? "Nueva imagen" : (imagen_perfil === "null" || imagen_perfil === null ? "Reseteada a default" : "Sin cambios")
+            }
         });
 
     } catch (error: any) {
-        console.error("❌ Error SQL:", error);
-        res.status(500).json({ status: "error", message: "Error interno al actualizar el perfil." });
+        // 🚨 MUY IMPORTANTE: Este log te dirá en tu terminal por qué da el 500
+        console.error("❌ ERROR CRÍTICO EN MODIFICAR_USUARIO:", error);
+
+        res.status(500).json({
+            status: "error",
+            message: "Error interno al actualizar el perfil.",
+            details: error.message // Te lo pongo aquí para que lo veas en Postman (quítalo en producción)
+        });
     }
 };
 
