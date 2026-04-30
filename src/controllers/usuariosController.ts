@@ -11,6 +11,7 @@ export const modificarUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idUsuarioToken = (req as any).user.id_usuario;
 
+    // Seguridd: Solo el dueño del perfil puede editarlo
     if (String(id) !== String(idUsuarioToken)) {
         return res.status(403).json({
             status: "error",
@@ -18,13 +19,13 @@ export const modificarUsuario = async (req: Request, res: Response) => {
         });
     }
 
-    const { nombre_usuario, nombre_completo, fecha_nac } = req.body;
+    const { nombre_usuario, nombre_completo, fecha_nac, imagen_perfil } = req.body;
 
     try {
-        // 1. Construcción dinámica de la consulta
         let campos = [];
         let valores = [];
 
+        // Construcción dinámica de la Query
         if (nombre_usuario) {
             campos.push("nombre_usuario = ?");
             valores.push(nombre_usuario);
@@ -38,22 +39,26 @@ export const modificarUsuario = async (req: Request, res: Response) => {
             valores.push(fecha_nac);
         }
 
-        // 2. Gestión de la imagen: Solo si hay un archivo nuevo (Cloudinary)
-        // Si no hay req.file, no añadimos nada a 'campos', por lo que SQL no toca la columna.
+        // Lógica de Imagen inteligente
         if (req.file) {
+            // Caso: Subida de archivo nuevo
             campos.push("imagen_perfil = ?");
             valores.push(req.file.path);
+        } else if (imagen_perfil === null) {
+            // Caso: El usuario quiere quitar su foto (manda null)
+            campos.push("imagen_perfil = ?");
+            valores.push(IMAGEN_PERFIL_POR_DEFECTO);
         }
+        // Si no se cumple ninguna, 'imagen_perfil' no entra en la query y se mantiene la actual en la DB
 
-        // Si no se envió nada para actualizar
         if (campos.length === 0) {
             return res.status(400).json({ 
                 status: "error", 
-                message: "No se enviaron campos para actualizar." 
+                message: "No hay cambios que aplicar." 
             });
         }
 
-        // 3. Ejecución de la query
+        // Unimos los campos con comas para el SET
         const query = `UPDATE TUsuario SET ${campos.join(", ")} WHERE id_usuario = ?`;
         valores.push(id);
 
@@ -66,13 +71,13 @@ export const modificarUsuario = async (req: Request, res: Response) => {
         res.json({
             status: "success",
             message: "Perfil actualizado correctamente",
-            // Devolvemos la nueva imagen si se subió, o indicamos que se mantuvo la anterior
-            foto: req.file ? req.file.path : "Sin cambios"
+            // Feedback para el frontend sobre qué pasó con la foto
+            foto: req.file ? req.file.path : (imagen_perfil === null ? "Default" : "Mantenida")
         });
 
     } catch (error: any) {
         console.error("❌ Error SQL:", error);
-        res.status(500).json({ status: "error", message: "Error al actualizar el usuario" });
+        res.status(500).json({ status: "error", message: "Error interno al actualizar." });
     }
 };
 
