@@ -23,6 +23,12 @@ CREATE TABLE TReceta (
     fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     tiempo_preparacion INT,
     id_usuario INT NOT NULL,
+    -- Campos nutricionales calculados por IA
+    kcal FLOAT DEFAULT 0,
+    proteinas FLOAT DEFAULT 0,
+    carbohidratos FLOAT DEFAULT 0,
+    fibra FLOAT DEFAULT 0,
+    grasas FLOAT DEFAULT 0,
 
     CONSTRAINT fk_receta_usuario
         FOREIGN KEY (id_usuario)

@@ -141,13 +141,46 @@ export const crearReceta = async (req: Request, res: Response) => {
             id_usuario_token
         ]);
 
+        const id_nueva_receta = result.insertId;
+
+        // 1. ⚡ RESPUESTA INSTANTÁNEA: El usuario recibe el OK aquí mismo
         res.status(201).json({
             status: "success",
-            id_receta: result.insertId,
+            id_receta: id_nueva_receta,
             foto: imagen_final
         });
+
+        // 2. 🧠 PROCESO EN SEGUNDO PLANO: Se ejecuta sin hacer esperar al usuario
+        // No ponemos "await" antes de esta función para que no bloquee
+        (async () => {
+            try {
+                // Forzamos el tipo a 'any' para evitar que TypeScript se queje de los campos nuevos
+                const nutricion: any = await obtenerNutricionDesdeAPI(ingredientes, tipo_receta, descripcion);
+                
+                const updateQuery = `
+                    UPDATE TReceta 
+                    SET kcal = ?, proteinas = ?, carbohidratos = ?, fibra = ?, grasas = ? 
+                    WHERE id_receta = ?`;
+
+                await db.query(updateQuery, [
+                    nutricion.kcal || 0,
+                    nutricion.proteinas || 0,
+                    nutricion.carbohidratos || 0,
+                    nutricion.fibra || 0,
+                    nutricion.grasas || 0,
+                    id_nueva_receta
+                ]);
+                console.log(`✅ Nutrición calculada para la receta ${id_nueva_receta}`);
+            } catch (errorIA) {
+                console.error("❌ Error al calcular nutrición en segundo plano:", errorIA);
+            }
+        })();
+
     } catch (error: any) {
-        res.status(500).json({ status: "error", message: error.message });
+        // Solo enviamos error si no se ha enviado la respuesta de éxito todavía
+        if (!res.headersSent) {
+            res.status(500).json({ status: "error", message: error.message });
+        }
     }
 };
 
