@@ -1,17 +1,22 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
 
-// 🔍 Protección: Si la clave no carga, lo verás en la consola de Render
-if (!process.env.GOOGLE_AI_KEY) {
-    console.error("⚠️ CRÍTICO: La variable GOOGLE_AI_KEY no está llegando al servidor.");
+// 1. FORZAMOS la lectura del archivo .env aquí mismo
+dotenv.config();
+
+const apiKey = process.env.GOOGLE_AI_KEY;
+
+// 2. Comprobación de seguridad
+if (!apiKey) {
+    console.error("⚠️ ERROR GRAVE: La clave GOOGLE_AI_KEY está vacía o no se encuentra el archivo .env");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
+const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 🛠️ AJUSTE 2026: Usamos el nombre de modelo de este año: "gemini-3-flash"
-        // Este modelo reemplaza a los antiguos 1.5 y soluciona el error 404.
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+        // 3. Usamos el modelo exacto y soportado por la v0.24.1
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
@@ -45,6 +50,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         
         console.log("🤖 [IA RAW RESPONSE]:", text);
 
+        // Limpieza de formato markdown
         const cleanJson = text.replace(/```json|```/g, "").trim();
         const data = JSON.parse(cleanJson);
 
@@ -55,7 +61,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
     } catch (error: any) {
         console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
         
-        // Devolvemos 'gris' para que sepa que está pendiente o hubo un fallo
+        // Devolvemos el color 'gris' para evitar que la app explote mientras se soluciona
         return { 
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
             consumo_recomendado: "Servicio temporalmente no disponible", 
