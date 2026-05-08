@@ -4,7 +4,11 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY as string);
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // 🛠️ Forzamos la apiVersion a 'v1' para evitar el error 404 de la v1beta
+        const model = genAI.getGenerativeModel(
+            { model: "gemini-1.5-flash" },
+            { apiVersion: "v1" }
+        );
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
