@@ -1,14 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY as string);
+// 🔍 Protección: Si la clave no carga, lo verás en la consola de Render
+if (!process.env.GOOGLE_AI_KEY) {
+    console.error("⚠️ CRÍTICO: La variable GOOGLE_AI_KEY no está llegando al servidor.");
+}
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 🛠️ CAMBIO CLAVE: Forzamos la apiVersion a 'v1' para evitar el 404 de la v1beta
-        const model = genAI.getGenerativeModel(
-            { model: "gemini-1.5-flash" },
-            { apiVersion: "v1" }
-        );
+        // 🛠️ CAMBIO DEFINITIVO: Usamos 'gemini-1.5-flash' sin forzar versiones de API.
+        // Si este sigue dando 404, cambia el texto de abajo a "gemini-1.0-pro"
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
@@ -52,9 +55,10 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
     } catch (error: any) {
         console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
         
+        // Si hay error, devolvemos el objeto gris para que la base de datos no falle
         return { 
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
-            consumo_recomendado: "Servicio temporalmente no disponible", 
+            consumo_recomendado: "Servicio no disponible", 
             semaforo: "gris" 
         };
     }

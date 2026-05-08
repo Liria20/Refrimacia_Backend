@@ -11,6 +11,7 @@ import recetasRoutes from './src/routes/recetasRoutes.js';
 import comentariosRoutes from './src/routes/comentariosRoutes.js';
 import valoracionesRoutes from './src/routes/valoracionesRoutes.js';
 import seedRoutes from './src/routes/seedRoutes.js';
+import 'dotenv/config';
 
 dotenv.config();
 
