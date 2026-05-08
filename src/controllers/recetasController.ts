@@ -151,7 +151,6 @@ export const crearReceta = async (req: Request, res: Response) => {
         });
 
         // 2. 🧠 PROCESO EN SEGUNDO PLANO: Se ejecuta sin hacer esperar al usuario
-        // No ponemos "await" antes de esta función para que no bloquee
         (async () => {
             try {
                 // Forzamos el tipo a 'any' para evitar que TypeScript se queje de los campos nuevos
@@ -159,7 +158,8 @@ export const crearReceta = async (req: Request, res: Response) => {
                 
                 const updateQuery = `
                     UPDATE TReceta 
-                    SET kcal = ?, proteinas = ?, carbohidratos = ?, fibra = ?, grasas = ? 
+                    SET kcal = ?, proteinas = ?, carbohidratos = ?, fibra = ?, grasas = ?,
+                        semaforo = ?, consumo_habitual = ? 
                     WHERE id_receta = ?`;
 
                 await db.query(updateQuery, [
@@ -168,6 +168,8 @@ export const crearReceta = async (req: Request, res: Response) => {
                     nutricion.carbohidratos || 0,
                     nutricion.fibra || 0,
                     nutricion.grasas || 0,
+                    nutricion.semaforo || 'amarillo',
+                    nutricion.consumo_recomendado || 'No disponible',
                     id_nueva_receta
                 ]);
                 console.log(`✅ Nutrición calculada para la receta ${id_nueva_receta}`);
