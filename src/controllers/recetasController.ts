@@ -21,8 +21,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
 
         const query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.tipo_receta, r.fecha_publicacion, r.nombre_usuario,
-                   r.semaforo, r.consumo_habitual, -- 👈 Traemos los datos ya guardados
+                   r.tipo_receta, r.fecha_publicacion, u.nombre_usuario, -- 👈 CAMBIO AQUÍ: de "r." a "u."
+                   r.semaforo, r.consumo_habitual,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -31,8 +31,6 @@ export const listarRecetas = async (req: Request, res: Response) => {
             
         const [rows]: any = await db.query(query, [limit, offset]);
 
-        // Ya no necesitamos el Promise.all con la IA. 
-        // Solo formateamos los datos que ya tenemos de la DB.
         const recetasProcesadas = rows.map((receta: any) => ({
             id_receta: receta.id_receta,
             titulo_receta: receta.titulo_receta,
@@ -42,7 +40,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
             fecha_publicacion: receta.fecha_publicacion,
             nombre_usuario: receta.nombre_usuario,
             media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
-            semaforo: receta.semaforo || 'gris', // Valor por defecto si es nulo
+            semaforo: receta.semaforo || 'gris',
             consumo_habitual: receta.consumo_habitual || 'No disponible'
         }));
 
