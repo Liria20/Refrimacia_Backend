@@ -21,7 +21,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
 
         const query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.tipo_receta, r.fecha_publicacion, r.ingredientes, r.descripcion, u.nombre_usuario,
+                   r.tipo_receta, r.fecha_publicacion, r.nombre_usuario,
+                   r.semaforo, r.consumo_habitual, -- 👈 Traemos los datos ya guardados
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -30,25 +31,19 @@ export const listarRecetas = async (req: Request, res: Response) => {
             
         const [rows]: any = await db.query(query, [limit, offset]);
 
-        const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
-            const nutricion = await obtenerNutricionDesdeAPI(
-                receta.ingredientes, 
-                receta.tipo_receta, 
-                receta.descripcion
-            );
-
-            return {
-                id_receta: receta.id_receta,
-                titulo_receta: receta.titulo_receta,
-                imagen_receta: receta.imagen_receta,
-                tiempo_preparacion: receta.tiempo_preparacion,
-                tipo_receta: receta.tipo_receta,
-                fecha_publicacion: receta.fecha_publicacion,
-                nombre_usuario: receta.nombre_usuario,
-                media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
-                consumo_habitual: nutricion.consumo_recomendado,
-                semaforo: nutricion.semaforo
-            };
+        // Ya no necesitamos el Promise.all con la IA. 
+        // Solo formateamos los datos que ya tenemos de la DB.
+        const recetasProcesadas = rows.map((receta: any) => ({
+            id_receta: receta.id_receta,
+            titulo_receta: receta.titulo_receta,
+            imagen_receta: receta.imagen_receta,
+            tiempo_preparacion: receta.tiempo_preparacion,
+            tipo_receta: receta.tipo_receta,
+            fecha_publicacion: receta.fecha_publicacion,
+            nombre_usuario: receta.nombre_usuario,
+            media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
+            semaforo: receta.semaforo || 'gris', // Valor por defecto si es nulo
+            consumo_habitual: receta.consumo_habitual || 'No disponible'
         }));
 
         res.json({ 
@@ -62,7 +57,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
             }
         });
     } catch (error: any) {
-        console.error(error);
+        console.error("Error al listar recetas:", error);
         res.status(500).json({ status: "error", message: "Error al obtener recetas" });
     }
 };
@@ -70,6 +65,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
+        // 1. Al hacer r.* ya estás trayendo TODAS las columnas, 
+        // incluyendo las nutricionales (kcal, grasas, semaforo...) que guardó la IA al crearla.
         const queryReceta = `
             SELECT r.*, u.nombre_usuario as autor,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
@@ -92,18 +89,22 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
         );
 
         const receta = recetaRows[0];
-        const nutricion = await obtenerNutricionDesdeAPI(receta.ingredientes, receta.tipo_receta, receta.descripcion);
+
+        // ❌ ELIMINADO: La llamada en vivo a la IA (obtenerNutricionDesdeAPI)
+        // Ya no la necesitamos aquí porque los datos ya vienen dentro de 'receta'
 
         res.json({
             status: "success",
             data: {
-                ...receta,
-                consumo_habitual: nutricion.consumo_recomendado,
-                semaforo: nutricion.semaforo,
+                ...receta, 
+                // Ya no hace falta re-mapear semaforo y consumo_habitual si se llaman igual en la BD, 
+                // pero si quieres asegurarte de que estén en la raíz del JSON, puedes dejarlos o 
+                // confiar en el ...receta que ya los incluye.
                 comentarios: comentarios
             }
         });
     } catch (error: any) {
+        console.error("Error al obtener la receta:", error);
         res.status(500).json({ status: "error", message: "Error al obtener los detalles." });
     }
 };
@@ -191,7 +192,6 @@ export const modificarReceta = async (req: Request, res: Response) => {
     const id_usuario_token = (req as any).user.id_usuario;
     const { titulo_receta, descripcion, ingredientes, tipo_receta, imagen_receta, tiempo_preparacion } = req.body;
 
-    // Validación de tipos permitidos si se envía el campo
     if (tipo_receta && !TIPOS_VALIDOS.includes(tipo_receta as TipoReceta)) {
         return res.status(400).json({
             status: "error",
@@ -201,10 +201,10 @@ export const modificarReceta = async (req: Request, res: Response) => {
 
     try {
         // 1. Verificar existencia y propiedad
-        const [receta]: any = await db.query('SELECT id_usuario FROM TReceta WHERE id_receta = ?', [id]);
-        if (receta.length === 0) return res.status(404).json({ status: "error", message: "La receta no existe" });
+        const [recetaOriginal]: any = await db.query('SELECT * FROM TReceta WHERE id_receta = ?', [id]);
+        if (recetaOriginal.length === 0) return res.status(404).json({ status: "error", message: "La receta no existe" });
         
-        if (receta[0].id_usuario !== id_usuario_token) {
+        if (recetaOriginal[0].id_usuario !== id_usuario_token) {
             return res.status(403).json({ status: "error", message: "No tienes permiso para editar esta receta" });
         }
 
@@ -218,31 +218,68 @@ export const modificarReceta = async (req: Request, res: Response) => {
         if (tipo_receta) { campos.push("tipo_receta = ?"); valores.push(tipo_receta); }
         if (tiempo_preparacion !== undefined) { campos.push("tiempo_preparacion = ?"); valores.push(tiempo_preparacion); }
 
-        // 3. Lógica de imagen (Igual que en Usuario)
         if (req.file) {
-            // Sube archivo nuevo
             campos.push("imagen_receta = ?");
             valores.push(req.file.path);
         } else if (imagen_receta === null || imagen_receta === "null") {
-            // Resetea a imagen por defecto
             campos.push("imagen_receta = ?");
             valores.push(IMAGEN_POR_DEFECTO);
         }
 
-        // 4. ¿Hay algo que actualizar?
         if (campos.length === 0) {
             return res.status(400).json({ status: "error", message: "No se enviaron campos para modificar" });
         }
 
-        // 5. Ejecutar Update
+        // 3. Ejecutar Update de los campos básicos
         const query = `UPDATE TReceta SET ${campos.join(", ")} WHERE id_receta = ?`;
         valores.push(id);
-
         await db.query(query, valores);
+
+        // 4. ¿NECESITAMOS RECALCULAR NUTRICIÓN?
+        // Si cambió el título, descripción, ingredientes o tipo, la nutrición vieja ya no vale.
+        const necesitaRecalculo = ingredientes || tipo_receta || descripcion || titulo_receta;
+
+        if (necesitaRecalculo) {
+            console.log(`🔄 Receta ${id} modificada. Recalculando nutrición en segundo plano...`);
+            
+            // Ponemos el semáforo en gris mientras se calcula para avisar al usuario
+            await db.query("UPDATE TReceta SET semaforo = 'gris' WHERE id_receta = ?", [id]);
+
+            // Lanzamos el proceso en segundo plano (sin await para no bloquear la respuesta)
+            (async () => {
+                try {
+                    // Cogemos los datos actualizados de la receta
+                    const [recetaActualizada]: any = await db.query('SELECT * FROM TReceta WHERE id_receta = ?', [id]);
+                    const r = recetaActualizada[0];
+
+                    const nutricion = await obtenerNutricionDesdeAPI(r.ingredientes, r.tipo_receta, r.descripcion);
+
+                    await db.query(`
+                        UPDATE TReceta 
+                        SET kcal = ?, proteinas = ?, carbohidratos = ?, grasas = ?, fibra = ?, 
+                            semaforo = ?, consumo_habitual = ? 
+                        WHERE id_receta = ?`, 
+                        [
+                            nutricion.kcal || 0, 
+                            nutricion.proteinas || 0, 
+                            nutricion.carbohidratos || 0, 
+                            nutricion.grasas || 0, 
+                            nutricion.fibra || 0, 
+                            nutricion.semaforo || 'gris', 
+                            nutricion.consumo_recomendado || 'No disponible',
+                            id
+                        ]
+                    );
+                    console.log(`✅ Nutrición actualizada para receta editada: ${id}`);
+                } catch (error) {
+                    console.error(`❌ Error recalculando nutrición de la receta ${id}:`, error);
+                }
+            })();
+        }
 
         res.json({ 
             status: "success", 
-            message: "Receta actualizada correctamente",
+            message: "Receta actualizada correctamente. La nutrición se está recalculando.",
             foto: req.file ? req.file.path : (imagen_receta === "null" || imagen_receta === null ? "Default" : "Mantenida")
         });
 
@@ -293,9 +330,11 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
+        // 1. Modificamos la QUERY para traer los campos que ya calculó la IA
         let query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.tipo_receta, r.fecha_publicacion, r.ingredientes, r.descripcion, u.nombre_usuario as autor 
+                   r.tipo_receta, r.fecha_publicacion, u.nombre_usuario as autor,
+                   r.semaforo, r.consumo_habitual -- 👈 Leemos de la BD
             FROM TReceta r 
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ${whereClause}
@@ -304,24 +343,18 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
 
         const [rows]: any = await db.query(query, [...params, limit, offset]);
 
-        const recetasProcesadas = await Promise.all(rows.map(async (receta: any) => {
-            const nutricion = await obtenerNutricionDesdeAPI(
-                receta.ingredientes,
-                receta.tipo_receta,
-                receta.descripcion
-            );
-
-            return {
-                id_receta: receta.id_receta,
-                titulo_receta: receta.titulo_receta,
-                imagen_receta: receta.imagen_receta,
-                tiempo_preparacion: receta.tiempo_preparacion,
-                tipo_receta: receta.tipo_receta,
-                fecha_publicacion: receta.fecha_publicacion,
-                autor: receta.autor,
-                consumo_habitual: nutricion.consumo_recomendado,
-                semaforo: nutricion.semaforo
-            };
+        // 2. Eliminamos el Promise.all y la llamada a obtenerNutricionDesdeAPI.
+        // Ahora es un map simple y súper rápido.
+        const recetasProcesadas = rows.map((receta: any) => ({
+            id_receta: receta.id_receta,
+            titulo_receta: receta.titulo_receta,
+            imagen_receta: receta.imagen_receta,
+            tiempo_preparacion: receta.tiempo_preparacion,
+            tipo_receta: receta.tipo_receta,
+            fecha_publicacion: receta.fecha_publicacion,
+            autor: receta.autor,
+            consumo_habitual: receta.consumo_habitual || "No disponible",
+            semaforo: receta.semaforo || "gris"
         }));
 
         res.json({
@@ -335,7 +368,7 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
             }
         });
     } catch (error: any) {
-        console.error(error);
+        console.error("❌ Error en buscador:", error);
         res.status(500).json({ status: "error", message: "Error en el buscador." });
     }
 };
@@ -365,9 +398,11 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
 
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
+        // 1. Añadimos semaforo y consumo_habitual a la consulta SQL
         const baseQuery = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
-                   r.ingredientes, r.descripcion, r.tipo_receta, r.fecha_publicacion, u.nombre_usuario,
+                   r.tipo_receta, r.fecha_publicacion, u.nombre_usuario,
+                   r.semaforo, r.consumo_habitual, -- 👈 Leemos de la BD
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -375,6 +410,7 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             ORDER BY RAND() LIMIT 1
         `;
 
+        // Ejecutamos las consultas a la base de datos (son muy rápidas)
         const [
             [desayunos], [almuerzos], [comidas], [meriendas], [cenas], [postres], [snacks]
         ]: any = await Promise.all([
@@ -387,16 +423,11 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
             db.query(baseQuery, ['Snack'])
         ]);
 
-        const enriquecerRecetaLigera = async (lista: any[]) => {
+        // 2. Simplificamos la función: ya no es async porque no llama a la IA
+        const formatearReceta = (lista: any[]) => {
             if (!lista || lista.length === 0) return null;
             const receta = lista[0];
             
-            const nutricion = await obtenerNutricionDesdeAPI(
-                receta.ingredientes, 
-                receta.tipo_receta, 
-                receta.descripcion
-            );
-
             return {
                 id_receta: receta.id_receta,
                 titulo_receta: receta.titulo_receta,
@@ -406,38 +437,26 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
                 fecha_publicacion: receta.fecha_publicacion,
                 nombre_usuario: receta.nombre_usuario,
                 media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
-                consumo_habitual: nutricion.consumo_recomendado,
-                semaforo: nutricion.semaforo
+                consumo_habitual: receta.consumo_habitual || "No disponible",
+                semaforo: receta.semaforo || "gris"
             };
         };
 
-        const [
-            menuDesayuno, menuAlmuerzo, menuComida, 
-            menuMerienda, menuCena, menuPostre, menuSnack
-        ] = await Promise.all([
-            enriquecerRecetaLigera(desayunos),
-            enriquecerRecetaLigera(almuerzos),
-            enriquecerRecetaLigera(comidas),
-            enriquecerRecetaLigera(meriendas),
-            enriquecerRecetaLigera(cenas),
-            enriquecerRecetaLigera(postres),
-            enriquecerRecetaLigera(snacks)
-        ]);
-
+        // 3. Construimos el menú rápidamente
         res.json({
             status: "success",
             data: {
-                desayuno: menuDesayuno,
-                almuerzo: menuAlmuerzo,
-                comida: menuComida,
-                merienda: menuMerienda,
-                cena: menuCena,
-                postre: menuPostre,
-                snack: menuSnack
+                desayuno: formatearReceta(desayunos),
+                almuerzo: formatearReceta(almuerzos),
+                comida: formatearReceta(comidas),
+                merienda: formatearReceta(meriendas),
+                cena: formatearReceta(cenas),
+                postre: formatearReceta(postres),
+                snack: formatearReceta(snacks)
             }
         });
     } catch (error: any) {
-        console.error("Error en el Menú del Día:", error);
+        console.error("❌ Error en el Menú del Día:", error);
         res.status(500).json({ status: "error", message: "Error al generar el menú del día." });
     }
 };
