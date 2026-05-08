@@ -9,9 +9,9 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 🛠️ CAMBIO DEFINITIVO: Usamos 'gemini-1.5-flash' sin forzar versiones de API.
-        // Si este sigue dando 404, cambia el texto de abajo a "gemini-1.0-pro"
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // 🛠️ AJUSTE 2026: Usamos el modelo de tercera generación, que es el estándar actual.
+        // Esto soluciona el error 404 de los modelos antiguos.
+        const model = genAI.getGenerativeModel({ model: "gemini-3.0-flash" });
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
