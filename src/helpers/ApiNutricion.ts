@@ -9,9 +9,9 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 🛠️ AJUSTE 2026: Usamos el modelo de tercera generación, que es el estándar actual.
-        // Esto soluciona el error 404 de los modelos antiguos.
-        const model = genAI.getGenerativeModel({ model: "gemini-3.0-flash" });
+        // 🛠️ AJUSTE 2026: Usamos el nombre de modelo de este año: "gemini-3-flash"
+        // Este modelo reemplaza a los antiguos 1.5 y soluciona el error 404.
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
@@ -55,10 +55,10 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
     } catch (error: any) {
         console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
         
-        // Si hay error, devolvemos el objeto gris para que la base de datos no falle
+        // Devolvemos 'gris' para que sepa que está pendiente o hubo un fallo
         return { 
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
-            consumo_recomendado: "Servicio no disponible", 
+            consumo_recomendado: "Servicio temporalmente no disponible", 
             semaforo: "gris" 
         };
     }
