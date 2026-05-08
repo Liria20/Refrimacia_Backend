@@ -29,6 +29,9 @@ CREATE TABLE TReceta (
     carbohidratos FLOAT DEFAULT 0,
     fibra FLOAT DEFAULT 0,
     grasas FLOAT DEFAULT 0,
+    semaforo VARCHAR(30) DEFAULT 'gris',
+    consumo_habitual VARCHAR(255) DEFAULT 'No disponible',
+
 
     CONSTRAINT fk_receta_usuario
         FOREIGN KEY (id_usuario)

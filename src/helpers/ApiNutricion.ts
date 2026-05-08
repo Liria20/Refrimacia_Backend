@@ -58,8 +58,8 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         
         return { 
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
-            consumo_recomendado: "Error", 
-            semaforo: "amarillo" 
+            consumo_recomendado: "No disponible", 
+            semaforo: "gris" 
         };
     }
 };

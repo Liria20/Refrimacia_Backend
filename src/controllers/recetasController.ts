@@ -168,7 +168,7 @@ export const crearReceta = async (req: Request, res: Response) => {
                     nutricion.carbohidratos || 0,
                     nutricion.fibra || 0,
                     nutricion.grasas || 0,
-                    nutricion.semaforo || 'amarillo',
+                    nutricion.semaforo || 'gris',
                     nutricion.consumo_recomendado || 'No disponible',
                     id_nueva_receta
                 ]);
