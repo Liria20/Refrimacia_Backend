@@ -1,22 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
-
-// 1. FORZAMOS la lectura del archivo .env aquí mismo
-dotenv.config();
 
 const apiKey = process.env.GOOGLE_AI_KEY;
 
-// 2. Comprobación de seguridad
 if (!apiKey) {
-    console.error("⚠️ ERROR GRAVE: La clave GOOGLE_AI_KEY está vacía o no se encuentra el archivo .env");
+    console.error("⚠️ ERROR GRAVE: La clave GOOGLE_AI_KEY no se está inyectando desde Render.");
 }
 
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 3. Usamos el modelo exacto y soportado por la v0.24.1
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // 🚀 LA SOLUCIÓN: Usamos el modelo activo actual de Google
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
             Actúa como un experto nutricionista. Analiza la siguiente receta:
@@ -61,7 +56,6 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
     } catch (error: any) {
         console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
         
-        // Devolvemos el color 'gris' para evitar que la app explote mientras se soluciona
         return { 
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
             consumo_recomendado: "Servicio temporalmente no disponible", 
