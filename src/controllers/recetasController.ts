@@ -308,7 +308,6 @@ export const eliminarReceta = async (req: Request, res: Response) => {
 };
 
 export const buscarPorIngredientes = async (req: Request, res: Response) => {
-    // 1. Recogemos también el tipo_receta de la URL
     const { ingredientes, tipo_receta } = req.query;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -335,10 +334,23 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
             }
         }
 
-        // Filtro 2: Por tipo de receta (Añadido)
+        // 🟢 Filtro 2: Por múltiples tipos de receta (MODIFICADO)
         if (tipo_receta) {
-            condiciones.push(`r.tipo_receta = ?`);
-            params.push(tipo_receta);
+            let tiposArray: string[] = [];
+            
+            // Si viene como array (?tipo=Cena&tipo=Comida) o como string con comas (?tipo=Cena,Comida)
+            if (Array.isArray(tipo_receta)) {
+                tiposArray = tipo_receta as string[];
+            } else if (typeof tipo_receta === 'string') {
+                tiposArray = tipo_receta.split(',').map(t => t.trim());
+            }
+
+            if (tiposArray.length > 0) {
+                // Creamos las interrogaciones dinámicas: ?, ?, ?
+                const placeholders = tiposArray.map(() => '?').join(', ');
+                condiciones.push(`r.tipo_receta IN (${placeholders})`);
+                tiposArray.forEach(t => params.push(t));
+            }
         }
 
         // Si hay algún filtro (ingredientes, tipo o ambos), construimos el WHERE
