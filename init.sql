@@ -31,6 +31,7 @@ CREATE TABLE TReceta (
     grasas FLOAT DEFAULT 0,
     semaforo VARCHAR(30) DEFAULT 'gris',
     consumo_habitual VARCHAR(255) DEFAULT 'No disponible',
+    dificultad VARCHAR(20) DEFAULT 'No disponible'
 
 
     CONSTRAINT fk_receta_usuario

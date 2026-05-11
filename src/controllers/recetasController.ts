@@ -28,7 +28,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ORDER BY r.id_receta DESC
             LIMIT ? OFFSET ?`;
-            
+
         const [rows]: any = await db.query(query, [limit, offset]);
 
         const recetasProcesadas = rows.map((receta: any) => ({
@@ -44,8 +44,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
             consumo_habitual: receta.consumo_habitual || 'No disponible'
         }));
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             data: recetasProcesadas,
             paginacion: {
                 total_recetas: totalRecetas,
@@ -94,7 +94,7 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
         res.json({
             status: "success",
             data: {
-                ...receta, 
+                ...receta,
                 // Ya no hace falta re-mapear semaforo y consumo_habitual si se llaman igual en la BD, 
                 // pero si quieres asegurarte de que estén en la raíz del JSON, puedes dejarlos o 
                 // confiar en el ...receta que ya los incluye.
@@ -154,11 +154,12 @@ export const crearReceta = async (req: Request, res: Response) => {
             try {
                 // Forzamos el tipo a 'any' para evitar que TypeScript se queje de los campos nuevos
                 const nutricion: any = await obtenerNutricionDesdeAPI(ingredientes, tipo_receta, descripcion);
-                
+
+                // 👇 SOLO AÑADIMOS DIFICULTAD AQUÍ 👇
                 const updateQuery = `
                     UPDATE TReceta 
                     SET kcal = ?, proteinas = ?, carbohidratos = ?, fibra = ?, grasas = ?,
-                        semaforo = ?, consumo_habitual = ? 
+                        semaforo = ?, consumo_habitual = ?, dificultad = ? 
                     WHERE id_receta = ?`;
 
                 await db.query(updateQuery, [
@@ -169,8 +170,11 @@ export const crearReceta = async (req: Request, res: Response) => {
                     nutricion.grasas || 0,
                     nutricion.semaforo || 'gris',
                     nutricion.consumo_recomendado || 'No disponible',
+                    nutricion.dificultad || 'Media', // 👈 Parámetro añadido
                     id_nueva_receta
                 ]);
+                // 👆 FIN DE LOS CAMBIOS 👆
+
                 console.log(`✅ Nutrición calculada para la receta ${id_nueva_receta}`);
             } catch (errorIA) {
                 console.error("❌ Error al calcular nutrición en segundo plano:", errorIA);
@@ -201,7 +205,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
         // 1. Verificar existencia y propiedad
         const [recetaOriginal]: any = await db.query('SELECT * FROM TReceta WHERE id_receta = ?', [id]);
         if (recetaOriginal.length === 0) return res.status(404).json({ status: "error", message: "La receta no existe" });
-        
+
         if (recetaOriginal[0].id_usuario !== id_usuario_token) {
             return res.status(403).json({ status: "error", message: "No tienes permiso para editar esta receta" });
         }
@@ -239,7 +243,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
 
         if (necesitaRecalculo) {
             console.log(`🔄 Receta ${id} modificada. Recalculando nutrición en segundo plano...`);
-            
+
             // Ponemos el semáforo en gris mientras se calcula para avisar al usuario
             await db.query("UPDATE TReceta SET semaforo = 'gris' WHERE id_receta = ?", [id]);
 
@@ -256,14 +260,14 @@ export const modificarReceta = async (req: Request, res: Response) => {
                         UPDATE TReceta 
                         SET kcal = ?, proteinas = ?, carbohidratos = ?, grasas = ?, fibra = ?, 
                             semaforo = ?, consumo_habitual = ? 
-                        WHERE id_receta = ?`, 
+                        WHERE id_receta = ?`,
                         [
-                            nutricion.kcal || 0, 
-                            nutricion.proteinas || 0, 
-                            nutricion.carbohidratos || 0, 
-                            nutricion.grasas || 0, 
-                            nutricion.fibra || 0, 
-                            nutricion.semaforo || 'gris', 
+                            nutricion.kcal || 0,
+                            nutricion.proteinas || 0,
+                            nutricion.carbohidratos || 0,
+                            nutricion.grasas || 0,
+                            nutricion.fibra || 0,
+                            nutricion.semaforo || 'gris',
                             nutricion.consumo_recomendado || 'No disponible',
                             id
                         ]
@@ -275,8 +279,8 @@ export const modificarReceta = async (req: Request, res: Response) => {
             })();
         }
 
-        res.json({ 
-            status: "success", 
+        res.json({
+            status: "success",
             message: "Receta actualizada correctamente. La nutrición se está recalculando.",
             foto: req.file ? req.file.path : (imagen_receta === "null" || imagen_receta === null ? "Default" : "Mantenida")
         });
@@ -425,7 +429,7 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
         const formatearReceta = (lista: any[]) => {
             if (!lista || lista.length === 0) return null;
             const receta = lista[0];
-            
+
             return {
                 id_receta: receta.id_receta,
                 titulo_receta: receta.titulo_receta,

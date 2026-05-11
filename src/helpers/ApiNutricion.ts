@@ -14,19 +14,16 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
-            Actúa como un experto nutricionista. Analiza la siguiente receta:
+            Actúa como un experto nutricionista y chef. Analiza la siguiente receta:
             Tipo: ${tipo}
             Ingredientes: ${ingredientes}
             Descripcion: ${descripcion}
 
-            Calcula los valores nutricionales por ración y clasifica la receta.
+            Calcula los valores nutricionales por ración, clasifica la receta y evalúa su dificultad de preparación.
             
-            IMPORTANTE: Para el campo "semaforo", debes elegir ÚNICAMENTE uno de estos 5 valores:
-            - verde_oscuro
-            - verde_claro
-            - amarillo
-            - naranja
-            - rojo
+            IMPORTANTE: 
+            - Para el campo "semaforo", debes elegir ÚNICAMENTE uno de estos 5 valores: verde_oscuro, verde_claro, amarillo, naranja, rojo.
+            - Para el campo "dificultad", debes elegir ÚNICAMENTE uno de estos 3 valores: Fácil, Media, Difícil.
 
             Responde ÚNICAMENTE con un objeto JSON (sin markdown, sin texto extra) con esta estructura:
             {
@@ -36,13 +33,14 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
               "grasas": number,
               "fibra": number,
               "consumo_recomendado": "string corto",
-              "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo"
+              "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo",
+              "dificultad": "Fácil" | "Media" | "Difícil"
             }
         `;
 
         const result = await model.generateContent(prompt);
         const text = result.response.text();
-        
+
         console.log("🤖 [IA RAW RESPONSE]:", text);
 
         // Limpieza de formato markdown
@@ -55,11 +53,11 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
 
     } catch (error: any) {
         console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
-        
-        return { 
-            kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0, 
-            consumo_recomendado: "Servicio temporalmente no disponible", 
-            semaforo: "gris" 
+
+        return {
+            kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0,
+            consumo_recomendado: "Servicio temporalmente no disponible",
+            semaforo: "gris"
         };
     }
 };
