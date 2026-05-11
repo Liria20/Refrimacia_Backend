@@ -258,13 +258,32 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
         await axios.post('https://api.brevo.com/v3/smtp/email', {
             sender: { email: senderEmail, name: "RefriMancia App" },
             to: [{ email: correo_electronico }],
-            subject: "Código de recuperación - RefriMancia",
+            subject: "🔐 Tu código de recuperación - RefriMancia",
             htmlContent: `
-                <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px;">
-                    <h2>Recuperación de contraseña</h2>
-                    <p>Has solicitado un código para cambiar tu contraseña en RefriMancia.</p>
-                    <h1 style="color: #4CAF50; letter-spacing: 5px;">${codigo}</h1>
-                    <p>Este código es de un solo uso. Si no has sido tú, ignora este correo.</p>
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f7f6; padding: 40px 20px; border-radius: 10px;">
+                    <div style="background-color: #ffffff; padding: 40px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                        
+                        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px;">¡Hola, Chef! 👨‍🍳</h2>
+                        
+                        <p style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>RefriMancia</strong>. 
+                            Utiliza el siguiente código de seguridad en la aplicación para crear tu nueva contraseña:
+                        </p>
+                        
+                        <div style="background-color: #f0fdf4; border: 2px dashed #4CAF50; border-radius: 8px; padding: 20px; margin: 0 auto 30px auto; display: inline-block;">
+                            <h1 style="color: #4CAF50; letter-spacing: 10px; margin: 0; font-size: 36px; font-weight: bold;">${codigo}</h1>
+                        </div>
+                        
+                        <p style="color: #888888; font-size: 14px; line-height: 1.5;">
+                            Si no has solicitado este cambio, no te preocupes. Puedes ignorar este correo tranquilamente; tu cuenta sigue estando segura.
+                        </p>
+                        
+                        <hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;">
+                        <p style="color: #aaaaaa; font-size: 12px; line-height: 1.4;">
+                            © 2026 RefriMancia App. Todos los derechos reservados.<br>
+                            Cocinando con magia y tecnología. ✨
+                        </p>
+                    </div>
                 </div>
             `
         }, {
@@ -277,7 +296,6 @@ export const solicitarCodigoRecuperacion = async (req: Request, res: Response) =
         res.json({ status: "success", message: "Código enviado correctamente" });
 
     } catch (error: any) {
-        // 🔴 IMPORTANTE: Loguea el error para ver qué dice Brevo en la consola de Render
         console.error("Error en Brevo/DB:", error.response?.data || error.message);
         res.status(500).json({
             status: "error",
