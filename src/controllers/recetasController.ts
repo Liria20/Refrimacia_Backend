@@ -22,7 +22,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
         const query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
                    r.tipo_receta, r.fecha_publicacion, u.nombre_usuario, -- 👈 CAMBIO AQUÍ: de "r." a "u."
-                   r.semaforo, r.consumo_habitual,
+                   r.semaforo, r.consumo_habitual, r.dificultad,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -41,7 +41,8 @@ export const listarRecetas = async (req: Request, res: Response) => {
             nombre_usuario: receta.nombre_usuario,
             media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
             semaforo: receta.semaforo || 'gris',
-            consumo_habitual: receta.consumo_habitual || 'No disponible'
+            consumo_habitual: receta.consumo_habitual || 'No disponible',
+            dificultad: receta.dificultad || 'Media'
         }));
 
         res.json({
@@ -238,7 +239,6 @@ export const modificarReceta = async (req: Request, res: Response) => {
         await db.query(query, valores);
 
         // 4. ¿NECESITAMOS RECALCULAR NUTRICIÓN?
-        // Si cambió el título, descripción, ingredientes o tipo, la nutrición vieja ya no vale.
         const necesitaRecalculo = ingredientes || tipo_receta || descripcion || titulo_receta;
 
         if (necesitaRecalculo) {
@@ -256,10 +256,11 @@ export const modificarReceta = async (req: Request, res: Response) => {
 
                     const nutricion = await obtenerNutricionDesdeAPI(r.ingredientes, r.tipo_receta, r.descripcion);
 
+                    // 👇 SOLO AÑADIMOS LA DIFICULTAD AQUÍ 👇
                     await db.query(`
                         UPDATE TReceta 
                         SET kcal = ?, proteinas = ?, carbohidratos = ?, grasas = ?, fibra = ?, 
-                            semaforo = ?, consumo_habitual = ? 
+                            semaforo = ?, consumo_habitual = ?, dificultad = ? 
                         WHERE id_receta = ?`,
                         [
                             nutricion.kcal || 0,
@@ -269,9 +270,12 @@ export const modificarReceta = async (req: Request, res: Response) => {
                             nutricion.fibra || 0,
                             nutricion.semaforo || 'gris',
                             nutricion.consumo_recomendado || 'No disponible',
+                            nutricion.dificultad || 'Media', // 👈 Campo nuevo añadido
                             id
                         ]
                     );
+                    // 👆 FIN DE LOS CAMBIOS 👆
+                    
                     console.log(`✅ Nutrición actualizada para receta editada: ${id}`);
                 } catch (error) {
                     console.error(`❌ Error recalculando nutrición de la receta ${id}:`, error);
@@ -304,15 +308,18 @@ export const eliminarReceta = async (req: Request, res: Response) => {
 };
 
 export const buscarPorIngredientes = async (req: Request, res: Response) => {
-    const { ingredientes } = req.query;
+    // 1. Recogemos también el tipo_receta de la URL
+    const { ingredientes, tipo_receta } = req.query;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
 
     try {
         let whereClause = "";
+        const condiciones: string[] = []; // Array para agrupar todos los filtros
         const params: any[] = [];
 
+        // Filtro 1: Por ingredientes
         if (ingredientes) {
             const palabras = (ingredientes as string)
                 .toLowerCase()
@@ -321,10 +328,22 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
                 .filter(p => p.length > 2);
 
             if (palabras.length > 0) {
-                const condiciones = palabras.map(() => `r.ingredientes LIKE ?`).join(' AND ');
-                whereClause = ` WHERE ${condiciones}`;
+                const condIngredientes = palabras.map(() => `r.ingredientes LIKE ?`).join(' AND ');
+                // Lo ponemos entre paréntesis por seguridad al juntarlo con otros filtros
+                condiciones.push(`(${condIngredientes})`);
                 palabras.forEach(p => params.push(`%${p}%`));
             }
+        }
+
+        // Filtro 2: Por tipo de receta (Añadido)
+        if (tipo_receta) {
+            condiciones.push(`r.tipo_receta = ?`);
+            params.push(tipo_receta);
+        }
+
+        // Si hay algún filtro (ingredientes, tipo o ambos), construimos el WHERE
+        if (condiciones.length > 0) {
+            whereClause = ` WHERE ${condiciones.join(' AND ')}`;
         }
 
         const countQuery = `SELECT COUNT(*) as total FROM TReceta r ${whereClause}`;
@@ -332,11 +351,11 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
         const totalRecetas = totalRows[0].total;
         const totalPages = Math.ceil(totalRecetas / limit);
 
-        // 1. Modificamos la QUERY para traer los campos que ya calculó la IA
+        // Añadimos r.dificultad a la consulta
         let query = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
                    r.tipo_receta, r.fecha_publicacion, u.nombre_usuario as autor,
-                   r.semaforo, r.consumo_habitual -- 👈 Leemos de la BD
+                   r.semaforo, r.consumo_habitual, r.dificultad
             FROM TReceta r 
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
             ${whereClause}
@@ -345,8 +364,7 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
 
         const [rows]: any = await db.query(query, [...params, limit, offset]);
 
-        // 2. Eliminamos el Promise.all y la llamada a obtenerNutricionDesdeAPI.
-        // Ahora es un map simple y súper rápido.
+        // Mapeamos incluyendo la dificultad
         const recetasProcesadas = rows.map((receta: any) => ({
             id_receta: receta.id_receta,
             titulo_receta: receta.titulo_receta,
@@ -356,7 +374,8 @@ export const buscarPorIngredientes = async (req: Request, res: Response) => {
             fecha_publicacion: receta.fecha_publicacion,
             autor: receta.autor,
             consumo_habitual: receta.consumo_habitual || "No disponible",
-            semaforo: receta.semaforo || "gris"
+            semaforo: receta.semaforo || "gris",
+            dificultad: receta.dificultad || "Media"
         }));
 
         res.json({
@@ -400,11 +419,11 @@ export const obtenerRecetaParaCompartir = async (req: Request, res: Response) =>
 
 export const obtenerMenuDelDia = async (req: Request, res: Response) => {
     try {
-        // 1. Añadimos semaforo y consumo_habitual a la consulta SQL
+        // 1. Añadimos semaforo, consumo_habitual y dificultad a la consulta SQL
         const baseQuery = `
             SELECT r.id_receta, r.titulo_receta, r.imagen_receta, r.tiempo_preparacion, 
                    r.tipo_receta, r.fecha_publicacion, u.nombre_usuario,
-                   r.semaforo, r.consumo_habitual, -- 👈 Leemos de la BD
+                   r.semaforo, r.consumo_habitual, r.dificultad, -- 👈 Añadimos r.dificultad
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
             FROM TReceta r
             JOIN TUsuario u ON r.id_usuario = u.id_usuario
@@ -440,7 +459,8 @@ export const obtenerMenuDelDia = async (req: Request, res: Response) => {
                 nombre_usuario: receta.nombre_usuario,
                 media_puntuacion: parseFloat(receta.media_puntuacion).toFixed(2),
                 consumo_habitual: receta.consumo_habitual || "No disponible",
-                semaforo: receta.semaforo || "gris"
+                semaforo: receta.semaforo || "gris",
+                dificultad: receta.dificultad || "Media" // 👈 Lo exponemos en el JSON
             };
         };
 
