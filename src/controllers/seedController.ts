@@ -54,17 +54,28 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
             const recetaPerfecta = getRandomReceta();
 
+            // 🟢 CAMBIO AQUÍ: Añadimos todos los campos nutricionales y la dificultad al INSERT
             const [r]: any = await db.query(
-                `INSERT INTO TReceta (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO TReceta 
+                 (titulo_receta, descripcion, ingredientes, tipo_receta, tiempo_preparacion, imagen_receta, id_usuario, 
+                  kcal, proteinas, carbohidratos, grasas, fibra, semaforo, consumo_habitual, dificultad) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     recetaPerfecta.titulo,
                     recetaPerfecta.descripcion,
                     recetaPerfecta.ingredientes,
                     recetaPerfecta.tipo,
-                    tiempoAzar,
+                    recetaPerfecta.tiempo_preparacion || tiempoAzar, // Usa el del array, si no existe usa el azar
                     recetaPerfecta.imagen,
-                    idAutor
+                    idAutor,
+                    recetaPerfecta.kcal || 0,
+                    recetaPerfecta.proteinas || 0,
+                    recetaPerfecta.carbohidratos || 0,
+                    recetaPerfecta.grasas || 0,
+                    recetaPerfecta.fibra || 0,
+                    recetaPerfecta.semaforo || 'gris',
+                    recetaPerfecta.consumo_habitual || 'No disponible',
+                    recetaPerfecta.dificultad || 'Media'
                 ]
             );
             
