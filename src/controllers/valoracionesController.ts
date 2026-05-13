@@ -72,3 +72,48 @@ export const obtenerMediaReceta = async (req: Request, res: Response) => {
         res.status(500).json({ status: "error", message: "Error al calcular la valoración." });
     }
 };
+
+// 3. OBTENER LA VALORACIÓN DE UN USUARIO ESPECÍFICO (Para saber si ya votó)
+export const obtenerMiValoracion = async (req: Request, res: Response) => {
+    const { id_receta } = req.params;
+    const idUsuarioToken = (req as any).user.id_usuario; // Del Token
+
+    // Validar el ID
+    if (!id_receta || isNaN(Number(id_receta))) {
+        return res.status(400).json({ status: "error", message: "ID de receta no válido." });
+    }
+
+    try {
+        const query = `
+            SELECT puntuacion 
+            FROM TValoracion 
+            WHERE id_usuario = ? AND id_receta = ?
+        `;
+
+        const [rows]: any = await db.query(query, [idUsuarioToken, id_receta]);
+
+        // Si no hay resultados, significa que el usuario aún no ha valorado esta receta
+        if (rows.length === 0) {
+            return res.json({
+                status: "success",
+                data: {
+                    ha_valorado: false,
+                    puntuacion: 0
+                }
+            });
+        }
+
+        // Si hay resultado, devolvemos su nota
+        res.json({
+            status: "success",
+            data: {
+                ha_valorado: true,
+                puntuacion: rows[0].puntuacion
+            }
+        });
+
+    } catch (error: any) {
+        console.error("❌ Error al obtener tu valoración:", error);
+        res.status(500).json({ status: "error", message: "Error interno al obtener la valoración del usuario." });
+    }
+};
