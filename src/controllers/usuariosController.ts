@@ -159,8 +159,8 @@ export const loginUsuario = async (req: Request, res: Response) => {
 
             const token = jwt.sign(
                 { id_usuario: usuario.id_usuario, nombre: usuario.nombre_usuario },
-                process.env.JWT_SECRET as string,
-                { expiresIn: '24h' }
+                process.env.JWT_SECRET as string
+                // Sin el objeto de opciones { expiresIn }, el token no expira nunca.
             );
             await db.query('UPDATE TUsuario SET ultimo_token = ? WHERE id_usuario = ?', [token, usuario.id_usuario]);
             delete usuario.contrasena;
@@ -242,34 +242,34 @@ export const obtenerPerfilPrivado = async (req: Request, res: Response) => {
 
 export const eliminarMiCuenta = async (req: Request, res: Response) => {
     // Obtenemos el ID del usuario directamente del token de seguridad (middleware)
-    const id_usuario = (req as any).user.id_usuario; 
+    const id_usuario = (req as any).user.id_usuario;
 
     try {
         // 1. Ejecutamos el borrado. ¡MySQL hará la cascada automáticamente!
         const [resultado]: any = await db.query(
-            'DELETE FROM TUsuario WHERE id_usuario = ?', 
+            'DELETE FROM TUsuario WHERE id_usuario = ?',
             [id_usuario]
         );
 
         // 2. Verificamos si realmente se borró algo
         if (resultado.affectedRows === 0) {
-            return res.status(404).json({ 
-                status: "error", 
-                message: "No se encontró la cuenta o ya fue eliminada." 
+            return res.status(404).json({
+                status: "error",
+                message: "No se encontró la cuenta o ya fue eliminada."
             });
         }
 
         // 3. Respuesta de éxito
-        res.json({ 
-            status: "success", 
-            message: "Tu cuenta, recetas, comentarios y valoraciones han sido eliminados para siempre. ¡Hasta pronto!" 
+        res.json({
+            status: "success",
+            message: "Tu cuenta, recetas, comentarios y valoraciones han sido eliminados para siempre. ¡Hasta pronto!"
         });
 
     } catch (error: any) {
         console.error("❌ Error al eliminar la cuenta:", error);
-        res.status(500).json({ 
-            status: "error", 
-            message: "Error interno al intentar eliminar la cuenta." 
+        res.status(500).json({
+            status: "error",
+            message: "Error interno al intentar eliminar la cuenta."
         });
     }
 };
