@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { 
     loginUsuario, 
-    logoutUsuario, // <--- 1. Importamos la nueva función
+    logoutUsuario,
     modificarUsuario, 
     crearUsuario, 
     listarUsuarios, 
     solicitarCodigoRecuperacion, 
     cambiarContrasena, 
-    obtenerPerfilPrivado 
+    obtenerPerfilPrivado,
+    eliminarMiCuenta // <--- Importamos la nueva función
 } from '../controllers/usuariosController.js';
 
 import { validarToken } from '../middlewares/auth.js';
@@ -21,7 +22,7 @@ const router = Router();
 // --- RUTAS DE USUARIO ---
 
 /**
- * 2. Registro con Foto de Perfil
+ * Registro con Foto de Perfil
  * El orden es: Primero procesamos la imagen, luego validamos los textos.
  */
 router.post(
@@ -31,15 +32,15 @@ router.post(
     crearUsuario
 ); 
 
-// Login (Sigue igual, no necesita archivos)
+// Login 
 router.post('/login', validarLogin, loginUsuario);
 
-// --- NUEVA RUTA DE LOGOUT ---
+// Logout
 // Usamos POST y validarToken para saber de qué usuario borrar el token en MySQL
 router.post('/logout', validarToken, logoutUsuario);
 
 /**
- * 3. Modificar Perfil con Foto
+ * Modificar Perfil con Foto
  */
 router.put(
     '/modificar/:id', 
@@ -53,9 +54,12 @@ router.get('/listar', validarToken, listarUsuarios);
 
 router.get('/perfil', validarToken, obtenerPerfilPrivado);
 
-// 4. Recuperación de contraseña
+// Recuperación de contraseña
 router.post('/solicitar-codigo', solicitarCodigoRecuperacion);
 
 router.post('/cambiar-contrasena', cambiarContrasena);
+
+// Eliminar cuenta
+router.delete('/eliminar', validarToken, eliminarMiCuenta);
 
 export default router;
