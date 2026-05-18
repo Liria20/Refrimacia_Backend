@@ -10,22 +10,28 @@ const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
-        // 🚀 LA SOLUCIÓN: Usamos el modelo activo actual de Google
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // 🚀 METEMOS LAS INSTRUCCIONES FIJAS EN EL SISTEMA Y REBAJAMOS LA TEMPERATURA A 0
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            systemInstruction: "Actúa como un experto nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros por ración, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
+            generationConfig: {
+                responseMimeType: "application/json", // 🔥 Fuerza el modo JSON nativo (máxima velocidad)
+                temperature: 0 // 🔥 Creatividad cero = velocidad de respuesta extrema
+            }
+        });
 
+        // El prompt ahora es ligerísimo, solo contiene las variables que cambian
         const prompt = `
-            Actúa como un experto nutricionista y chef. Analiza la siguiente receta:
+            Analiza esta receta:
             Tipo: ${tipo}
             Ingredientes: ${ingredientes}
             Descripcion: ${descripcion}
 
-            Calcula los valores nutricionales por ración, clasifica la receta y evalúa su dificultad de preparación.
-            
-            IMPORTANTE: 
-            - Para el campo "semaforo", debes elegir ÚNICAMENTE uno de estos 5 valores: verde_oscuro, verde_claro, amarillo, naranja, rojo.
-            - Para el campo "dificultad", debes elegir ÚNICAMENTE uno de estos 3 valores: Fácil, Media, Difícil.
+            Reglas para campos específicos:
+            - "semaforo": elije uno de estos valores: verde_oscuro, verde_claro, amarillo, naranja, rojo.
+            - "dificultad": elije uno de estos valores: Fácil, Media, Difícil.
 
-            Responde ÚNICAMENTE con un objeto JSON (sin markdown, sin texto extra) con esta estructura:
+            Devuelve el JSON con la siguiente estructura exacta:
             {
               "kcal": number,
               "proteinas": number,
@@ -43,9 +49,8 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
 
         console.log("🤖 [IA RAW RESPONSE]:", text);
 
-        // Limpieza de formato markdown
-        const cleanJson = text.replace(/```json|```/g, "").trim();
-        const data = JSON.parse(cleanJson);
+        // 🎉 YA NO HACE FALTA LIMPIAR REGEX (```json). Gemini devuelve el JSON limpio y directo.
+        const data = JSON.parse(text);
 
         console.log("📊 [DATA OBJECT]:", data);
 
@@ -57,7 +62,8 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         return {
             kcal: 0, proteinas: 0, carbohidratos: 0, grasas: 0, fibra: 0,
             consumo_recomendado: "Servicio temporalmente no disponible",
-            semaforo: "gris"
+            semaforo: "gris",
+            dificultad: "Media"
         };
     }
 };
