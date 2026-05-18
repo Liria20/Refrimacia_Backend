@@ -14,6 +14,20 @@ export const misRecetasReales = [
         carbohidratos: 28,
         fibra: 11,
         grasas: 29,
+        azucares: 3.5,
+        grasas_saturadas: 5,
+        sal: 1.2,
+        peso_total_g: 275,
+
+        kcal_100g: 153,
+        proteinas_100g: 4.7,
+        carbohidratos_100g: 10.2,
+        azucares_100g: 1.3,
+        grasas_100g: 10.5,
+        grasas_saturadas_100g: 1.8,
+        fibra_100g: 4,
+        sal_100g: 0.44,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal para desayunos o cenas saludables entre 3 y 5 veces por semana.",
         dificultad: "Media"
@@ -30,6 +44,20 @@ export const misRecetasReales = [
         carbohidratos: 45,
         fibra: 8,
         grasas: 10,
+        azucares: 12,
+        grasas_saturadas: 2.5,
+        sal: 0.3,
+        peso_total_g: 240,
+
+        kcal_100g: 133,
+        proteinas_100g: 5,
+        carbohidratos_100g: 18.8,
+        azucares_100g: 5,
+        grasas_100g: 4.2,
+        grasas_saturadas_100g: 1,
+        fibra_100g: 3.3,
+        sal_100g: 0.13,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, ideal para desayunos o cenas saludables entre 3 y 5 veces por semana.",
         dificultad: "Fácil"
@@ -46,6 +74,20 @@ export const misRecetasReales = [
         carbohidratos: 52,
         fibra: 9,
         grasas: 8,
+        azucares: 18,
+        grasas_saturadas: 2.5,
+        sal: 0.2,
+        peso_total_g: 375,
+
+        kcal_100g: 91,
+        proteinas_100g: 3.2,
+        carbohidratos_100g: 13.9,
+        azucares_100g: 4.8,
+        grasas_100g: 2.1,
+        grasas_saturadas_100g: 0.7,
+        fibra_100g: 2.4,
+        sal_100g: 0.05,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, ideal para desayunos equilibrados y saciantes entre 4 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -62,6 +104,20 @@ export const misRecetasReales = [
         carbohidratos: 4,
         fibra: 2,
         grasas: 20,
+        azucares: 1.5,
+        grasas_saturadas: 4.5,
+        sal: 0.9,
+        peso_total_g: 235,
+
+        kcal_100g: 111,
+        proteinas_100g: 6.4,
+        carbohidratos_100g: 1.7,
+        azucares_100g: 0.6,
+        grasas_100g: 8.5,
+        grasas_saturadas_100g: 1.9,
+        fibra_100g: 0.9,
+        sal_100g: 0.38,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal para desayunos o cenas ligeras entre 4 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -78,6 +134,20 @@ export const misRecetasReales = [
         carbohidratos: 26,
         fibra: 6,
         grasas: 0,
+        azucares: 18,
+        grasas_saturadas: 0,
+        sal: 0.1,
+        peso_total_g: 320,
+
+        kcal_100g: 38,
+        proteinas_100g: 0.6,
+        carbohidratos_100g: 8.1,
+        azucares_100g: 5.6,
+        grasas_100g: 0.1,
+        grasas_saturadas_100g: 0,
+        fibra_100g: 1.9,
+        sal_100g: 0.03,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, ideal como desayuno ligero o complemento diario de 5 a 7 veces por semana.",
         dificultad: "Fácil"
@@ -94,6 +164,20 @@ export const misRecetasReales = [
         carbohidratos: 42,
         fibra: 2,
         grasas: 16,
+        azucares: 18,
+        grasas_saturadas: 7,
+        sal: 1.1,
+        peso_total_g: 285,
+
+        kcal_100g: 126,
+        proteinas_100g: 4.2,
+        carbohidratos_100g: 14.7,
+        azucares_100g: 6.3,
+        grasas_100g: 5.6,
+        grasas_saturadas_100g: 2.5,
+        fibra_100g: 0.7,
+        sal_100g: 0.39,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo ocasional recomendado, ideal para desayunos puntuales 1 a 2 veces por semana.",
         dificultad: "Fácil"
@@ -110,6 +194,20 @@ export const misRecetasReales = [
         carbohidratos: 105,
         fibra: 4,
         grasas: 42,
+        azucares: 38,
+        grasas_saturadas: 14,
+        sal: 1.5,
+        peso_total_g: 520,
+
+        kcal_100g: 163,
+        proteinas_100g: 2.3,
+        carbohidratos_100g: 20.2,
+        azucares_100g: 7.3,
+        grasas_100g: 8.1,
+        grasas_saturadas_100g: 2.7,
+        fibra_100g: 0.8,
+        sal_100g: 0.29,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal para ocasiones especiales como máximo 1 vez cada una o dos semanas.",
         dificultad: "Media"
@@ -126,6 +224,20 @@ export const misRecetasReales = [
         carbohidratos: 38,
         fibra: 4,
         grasas: 20,
+        azucares: 5,
+        grasas_saturadas: 5.5,
+        sal: 2.8,
+        peso_total_g: 310,
+
+        kcal_100g: 135,
+        proteinas_100g: 7.1,
+        carbohidratos_100g: 12.3,
+        azucares_100g: 1.6,
+        grasas_100g: 6.5,
+        grasas_saturadas_100g: 1.8,
+        fibra_100g: 1.3,
+        sal_100g: 0.9,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como desayuno ocasional o brunch 1 a 3 veces por semana.",
         dificultad: "Fácil"
@@ -142,6 +254,20 @@ export const misRecetasReales = [
         carbohidratos: 38,
         fibra: 6,
         grasas: 10,
+        azucares: 18,
+        grasas_saturadas: 2.8,
+        sal: 0.25,
+        peso_total_g: 350,
+
+        kcal_100g: 89,
+        proteinas_100g: 4,
+        carbohidratos_100g: 10.9,
+        azucares_100g: 5.1,
+        grasas_100g: 2.9,
+        grasas_saturadas_100g: 0.8,
+        fibra_100g: 1.7,
+        sal_100g: 0.07,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal para desayunos o meriendas equilibradas entre 4 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -158,6 +284,20 @@ export const misRecetasReales = [
         carbohidratos: 45,
         fibra: 1,
         grasas: 10,
+        azucares: 26,
+        grasas_saturadas: 1.7,
+        sal: 0.45,
+        peso_total_g: 95,
+
+        kcal_100g: 305,
+        proteinas_100g: 6.3,
+        carbohidratos_100g: 47.4,
+        azucares_100g: 27.4,
+        grasas_100g: 10.5,
+        grasas_saturadas_100g: 1.8,
+        fibra_100g: 1.1,
+        sal_100g: 0.47,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo ocasional recomendado, ideal para desayunos o meriendas puntuales 1 a 2 veces por semana.",
         dificultad: "Media"
@@ -176,6 +316,20 @@ export const misRecetasReales = [
         carbohidratos: 85,
         fibra: 4,
         grasas: 32,
+        azucares: 6,
+        grasas_saturadas: 6.5,
+        sal: 2.4,
+        peso_total_g: 320,
+
+        kcal_100g: 244,
+        proteinas_100g: 8.8,
+        carbohidratos_100g: 26.6,
+        azucares_100g: 1.9,
+        grasas_100g: 10,
+        grasas_saturadas_100g: 2,
+        fibra_100g: 1.3,
+        sal_100g: 0.75,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como comida puntual o capricho gastronómico 1 vez cada 2 semanas o menos.",
         dificultad: "Media"
@@ -192,6 +346,20 @@ export const misRecetasReales = [
         carbohidratos: 58,
         fibra: 4,
         grasas: 20,
+        azucares: 10,
+        grasas_saturadas: 4,
+        sal: 2.1,
+        peso_total_g: 420,
+
+        kcal_100g: 124,
+        proteinas_100g: 5.7,
+        carbohidratos_100g: 13.8,
+        azucares_100g: 2.4,
+        grasas_100g: 4.8,
+        grasas_saturadas_100g: 1,
+        fibra_100g: 1,
+        sal_100g: 0.5,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como comida principal 1 a 3 veces por semana.",
         dificultad: "Media"
@@ -208,17 +376,27 @@ export const misRecetasReales = [
         carbohidratos: 52,
         fibra: 5,
         grasas: 36,
+        azucares: 3.5,
+        grasas_saturadas: 7.5,
+        sal: 1.3,
+        peso_total_g: 380,
+
+        kcal_100g: 161,
+        proteinas_100g: 5.3,
+        carbohidratos_100g: 13.7,
+        azucares_100g: 0.9,
+        grasas_100g: 9.5,
+        grasas_saturadas_100g: 2,
+        fibra_100g: 1.3,
+        sal_100g: 0.34,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como comida o tapa 1 vez por semana o menos.",
         dificultad: "Media"
     },
     {
         titulo: "Montaditos de Lomo y Queso",
-        descripcion: "Corta los panecillos por la mitad y, si lo prefieres, tuéstalos ligeramente para que queden más crujientes.\n\n" +
-            "Calienta una sartén con un chorrito de aceite y cocina la cinta de lomo a fuego medio hasta que esté bien dorada por ambos lados.\n\n" +
-            "Cuando la carne esté casi lista, coloca encima una loncha de queso para que se funda con el calor.\n\n" +
-            "Retira el lomo con el queso y colócalo dentro de los panecillos abiertos.\n\n" +
-            "Presiona ligeramente para que el montadito quede bien montado y sirve caliente para disfrutar del queso fundido.",
+        descripcion: "Corta los panecillos por la mitad y, si lo prefieres, tuéstalos ligeramente para que queden más crujientes.\n\nCalienta una sartén con un chorrito de aceite y cocina la cinta de lomo a fuego medio hasta que esté bien dorada por ambos lados.\n\nCuando la carne esté casi lista, coloca encima una loncha de queso para que se funda con el calor.\n\nRetira el lomo con el queso y colócalo dentro de los panecillos abiertos.\n\nPresiona ligeramente para que el montadito quede bien montado y sirve caliente para disfrutar del queso fundido.",
         ingredientes: "4 panecillos, 200g de cinta de lomo, 4 lonchas de queso, 1 cucharada de aceite de oliva",
         imagen: "https://e586196ebd.cbaul-cdnwnd.com/fe613981cde9efff7999412aa1d1dc27/system_preview_detail_200000042-d512fd7074-public/montaditos%20de%20lomo%20con%20queso.jpg",
         tipo: "Almuerzo",
@@ -228,19 +406,27 @@ export const misRecetasReales = [
         carbohidratos: 46,
         fibra: 2,
         grasas: 26,
+        azucares: 3,
+        grasas_saturadas: 9,
+        sal: 2.0,
+        peso_total_g: 310,
+
+        kcal_100g: 174,
+        proteinas_100g: 10.3,
+        carbohidratos_100g: 14.8,
+        azucares_100g: 1,
+        grasas_100g: 8.4,
+        grasas_saturadas_100g: 2.9,
+        fibra_100g: 0.6,
+        sal_100g: 0.65,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como comida o tapa ocasional 1 a 3 veces por semana.",
         dificultad: "Fácil"
     },
     {
         titulo: "Patatas Bravas",
-        descripcion: "Pela las patatas y córtalas en dados medianos, intentando que sean de tamaño similar para que se cocinen de forma uniforme.\n\n" +
-            "Fríelas en abundante aceite caliente hasta que estén doradas por fuera y tiernas por dentro. Retíralas y déjalas escurrir sobre papel absorbente.\n\n" +
-            "Para la salsa brava, sofríe el ajo picado en un poco de aceite hasta que esté ligeramente dorado.\n\n" +
-            "Añade una cucharada de harina y remueve bien para cocinarla y formar una base espesa.\n\n" +
-            "Incorpora el pimentón picante con cuidado de que no se queme, y rápidamente añade el caldo poco a poco mientras remueves hasta obtener una salsa homogénea.\n\n" +
-            "Cocina unos minutos hasta que espese al gusto.\n\n" +
-            "Sirve las patatas calientes y cúbrelas con la salsa brava por encima.",
+        descripcion: "Pela las patatas y córtalas en dados medianos, intentando que sean de tamaño similar para que se cocinen de forma uniforme.\n\nFríelas en abundante aceite caliente hasta que estén doradas por fuera y tiernas por dentro. Retíralas y déjalas escurrir sobre papel absorbente.\n\nPara la salsa brava, sofríe el ajo picado en un poco de aceite hasta que esté ligeramente dorado.\n\nAñade una cucharada de harina y remueve bien para cocinarla y formar una base espesa.\n\nIncorpora el pimentón picante con cuidado de que no se queme, y rápidamente añade el caldo poco a poco mientras remueves hasta obtener una salsa homogénea.\n\nCocina unos minutos hasta que espese al gusto.\n\nSirve las patatas calientes y cúbrelas con la salsa brava por encima.",
         ingredientes: "4 patatas grandes (600g), 1 diente de ajo, 1 cucharada de harina, 1 cucharada de pimentón picante, 250ml de caldo, 300ml de aceite de oliva",
         imagen: "https://www.pequerecetas.com/wp-content/uploads/2018/06/patatas-bravas-madrid-autenticas-800x599.jpg",
         tipo: "Almuerzo",
@@ -250,18 +436,27 @@ export const misRecetasReales = [
         carbohidratos: 78,
         fibra: 7,
         grasas: 30,
+        azucares: 4,
+        grasas_saturadas: 5.5,
+        sal: 1.6,
+        peso_total_g: 480,
+
+        kcal_100g: 129,
+        proteinas_100g: 1.3,
+        carbohidratos_100g: 16.3,
+        azucares_100g: 0.8,
+        grasas_100g: 6.3,
+        grasas_saturadas_100g: 1.1,
+        fibra_100g: 1.5,
+        sal_100g: 0.33,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como tapa o acompañamiento puntual 1 vez cada 2 semanas o menos.",
         dificultad: "Media"
     },
     {
         titulo: "Tapa de Ensaladilla Rusa",
-        descripcion: "Pela las patatas y las zanahorias, córtalas en trozos medianos y cuécelas en agua con sal hasta que estén tiernas.\n\n" +
-            "En los últimos minutos de cocción, añade los guisantes para que se cocinen ligeramente.\n\n" +
-            "Escurre bien todas las verduras y deja que se enfríen por completo.\n\n" +
-            "En un bol grande, desmenuza el atún escurrido y añade las verduras cocidas ya frías.\n\n" +
-            "Incorpora el huevo duro picado y mezcla todo con mayonesa hasta obtener una textura cremosa y uniforme.\n\n" +
-            "Rectifica de sal si es necesario y deja reposar en la nevera antes de servir bien fresquita.",
+        descripcion: "Pela las patatas y las zanahorias, córtalas en trozos medianos y cuécelas en agua con sal hasta que estén tiernas.\n\nEn los últimos minutos de cocción, añade los guisantes para que se cocinen ligeramente.\n\nEscurre bien todas las verduras y deja que se enfríen por completo.\n\nEn un bol grande, desmenuza el atún escurrido y añade las verduras cocidas ya frías.\n\nIncorpora el huevo duro picado y mezcla todo con mayonesa hasta obtener una textura cremosa y uniforme.\n\nRectifica de sal si es necesario y deja reposar en la nevera antes de servir bien fresquita.",
         ingredientes: "3 patatas, 2 zanahorias, 100g de guisantes, 2 huevos, 2 latas de atún (160g), 150g de mayonesa",
         imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVY4vOXQxh5dwsVgl0wWihuNUNq7tR-Lk97Q&s",
         tipo: "Almuerzo",
@@ -271,19 +466,27 @@ export const misRecetasReales = [
         carbohidratos: 28,
         fibra: 5,
         grasas: 26,
+        azucares: 6,
+        grasas_saturadas: 5.2,
+        sal: 1.4,
+        peso_total_g: 520,
+
+        kcal_100g: 83,
+        proteinas_100g: 3.5,
+        carbohidratos_100g: 5.4,
+        azucares_100g: 1.2,
+        grasas_100g: 5,
+        grasas_saturadas_100g: 1,
+        fibra_100g: 1,
+        sal_100g: 0.27,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como tapa o entrante 1 a 3 veces por semana.",
         dificultad: "Fácil"
     },
     {
         titulo: "Croquetas de Jamón Ibérico",
-        descripcion: "Pica finamente el jamón ibérico en trocitos pequeños y resérvalo.\n\n" +
-            "En una sartén, derrite la mantequilla a fuego medio y añade la harina, removiendo constantemente para cocinarla y formar un roux sin grumos.\n\n" +
-            "Ve incorporando la leche poco a poco sin dejar de remover, hasta obtener una bechamel espesa y cremosa.\n\n" +
-            "Añade el jamón picado y mezcla bien para repartirlo de forma uniforme en la masa.\n\n" +
-            "Cocina unos minutos más hasta que la masa se despegue de las paredes de la sartén.\n\n" +
-            "Vierte la masa en una bandeja y deja enfriar completamente, preferiblemente en la nevera durante varias horas.\n\n" +
-            "Forma las croquetas, pásalas por pan rallado y fríelas en aceite caliente hasta que estén doradas y crujientes por fuera.",
+        descripcion: "Pica finamente el jamón ibérico en trocitos pequeños y resérvalo.\n\nEn una sartén, derrite la mantequilla a fuego medio y añade la harina, removiendo constantemente para cocinarla y formar un roux sin grumos.\n\nVe incorporando la leche poco a poco sin dejar de remover, hasta obtener una bechamel espesa y cremosa.\n\nAñade el jamón picado y mezcla bien para repartirlo de forma uniforme en la masa.\n\nCocina unos minutos más hasta que la masa se despegue de las paredes de la sartén.\n\nVierte la masa en una bandeja y deja enfriar completamente, preferiblemente en la nevera durante varias horas.\n\nForma las croquetas, pásalas por pan rallado y fríelas en aceite caliente hasta que estén doradas y crujientes por fuera.",
         ingredientes: "500ml de leche, 50g de mantequilla, 60g de harina, 150g de jamón ibérico, 100g de pan rallado",
         imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQi61UPJMHHk8cbliePVPHoKps-0oHYdR_UQ&s",
         tipo: "Almuerzo",
@@ -293,17 +496,27 @@ export const misRecetasReales = [
         carbohidratos: 48,
         fibra: 2,
         grasas: 42,
+        azucares: 7,
+        grasas_saturadas: 15,
+        sal: 2.3,
+        peso_total_g: 410,
+
+        kcal_100g: 166,
+        proteinas_100g: 5.4,
+        carbohidratos_100g: 11.7,
+        azucares_100g: 1.7,
+        grasas_100g: 10.2,
+        grasas_saturadas_100g: 3.7,
+        fibra_100g: 0.5,
+        sal_100g: 0.56,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como tapa o comida puntual 1 vez cada 2 semanas o menos.",
         dificultad: "Difícil"
     },
     {
         titulo: "Tostada de Sobrasada y Miel",
-        descripcion: "Corta el pan de cristal en rebanadas y tuéstalo ligeramente hasta que quede crujiente por fuera y aireado por dentro.\n\n" +
-            "Si lo deseas, puedes calentar ligeramente la sobrasada en una sartén o unos segundos en el pan caliente para que sea más fácil de untar.\n\n" +
-            "Unta una capa generosa de sobrasada sobre la tostada aún templada.\n\n" +
-            "Añade un hilo de miel por encima, distribuyéndola de forma uniforme para equilibrar el sabor salado.\n\n" +
-            "Sirve inmediatamente para disfrutar del contraste entre lo dulce y lo salado.",
+        descripcion: "Corta el pan de cristal en rebanadas y tuéstalo ligeramente hasta que quede crujiente por fuera y aireado por dentro.\n\nSi lo deseas, puedes calentar ligeramente la sobrasada en una sartén o unos segundos en el pan caliente para que sea más fácil de untar.\n\nUnta una capa generosa de sobrasada sobre la tostada aún templada.\n\nAñade un hilo de miel por encima, distribuyéndola de forma uniforme para equilibrar el sabor salado.\n\nSirve inmediatamente para disfrutar del contraste entre lo dulce y lo salado.",
         ingredientes: "2 rebanadas de pan de cristal, 80g de sobrasada, 1 cucharada de miel",
         imagen: "https://webosfritos.es/wp-content/uploads/2008/05/6419600861_53704f2151_o1-1200x900.jpg",
         tipo: "Almuerzo",
@@ -313,19 +526,27 @@ export const misRecetasReales = [
         carbohidratos: 34,
         fibra: 2,
         grasas: 30,
+        azucares: 18,
+        grasas_saturadas: 11,
+        sal: 1.9,
+        peso_total_g: 180,
+
+        kcal_100g: 256,
+        proteinas_100g: 6.7,
+        carbohidratos_100g: 18.9,
+        azucares_100g: 10,
+        grasas_100g: 16.7,
+        grasas_saturadas_100g: 6.1,
+        fibra_100g: 1.1,
+        sal_100g: 1.06,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como tapa o capricho 1 vez por semana o menos.",
         dificultad: "Fácil"
     },
     {
         titulo: "Pulpo a la Gallega",
-        descripcion: "Si el pulpo no está ya cocido, cuécelo en agua hirviendo con sal asustándolo tres veces (sumergiéndolo y sacándolo) antes de dejarlo cocer hasta que esté tierno.\n\n" +
-            "Mientras tanto, pela las patatas y córtalas en rodajas gruesas. Cuécelas en agua con sal hasta que estén tiernas pero sin deshacerse.\n\n" +
-            "Corta el pulpo en rodajas con unas tijeras de cocina.\n\n" +
-            "Coloca una base de patatas cocidas en un plato de madera o fuente.\n\n" +
-            "Encima, distribuye el pulpo cortado de forma uniforme.\n\n" +
-            "Espolvorea sal gruesa, pimentón dulce y un poco de pimentón picante al gusto.\n\n" +
-            "Finalmente, riega con un buen chorro de aceite de oliva virgen extra y sirve templado.",
+        descripcion: "Si el pulpo no está ya cocido, cuécelo en agua hirviendo con sal asustándolo tres veces (sumergiéndolo y sacándolo) antes de dejarlo cocer hasta que esté tierno.\n\nMientras tanto, pela las patatas y córtalas en rodajas gruesas. Cuécelas en agua con sal hasta que estén tiernas pero sin deshacerse.\n\nCorta el pulpo en rodajas con unas tijeras de cocina.\n\nColoca una base de patatas cocidas en un plato de madera o fuente.\n\nEncima, distribuye el pulpo cortado de forma uniforme.\n\nEspolvorea sal gruesa, pimentón dulce y un poco de pimentón picante al gusto.\n\nFinalmente, riega con un buen chorro de aceite de oliva virgen extra y sirve templado.",
         ingredientes: "1 pulpo (1.5kg), 3 patatas, 1 cucharada de pimentón dulce, 1 cucharadita de pimentón picante, sal gruesa, 3 cucharadas de aceite de oliva",
         imagen: "https://imag.bonviveur.com/pulpo-a-la-gallega-recien-hecho.jpg",
         tipo: "Almuerzo",
@@ -335,18 +556,27 @@ export const misRecetasReales = [
         carbohidratos: 42,
         fibra: 5,
         grasas: 22,
+        azucares: 3,
+        grasas_saturadas: 3.5,
+        sal: 2.2,
+        peso_total_g: 450,
+
+        kcal_100g: 116,
+        proteinas_100g: 8.4,
+        carbohidratos_100g: 9.3,
+        azucares_100g: 0.7,
+        grasas_100g: 4.9,
+        grasas_saturadas_100g: 0.8,
+        fibra_100g: 1.1,
+        sal_100g: 0.49,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Difícil"
     },
     {
         titulo: "Bocadillo de Jamón y Queso",
-        descripcion: "Corta el pan por la mitad y tuéstalo ligeramente si prefieres una textura más crujiente por fuera.\n\n" +
-            "Lava el tomate y rállalo o córtalo en rodajas finas, según tu preferencia.\n\n" +
-            "Unta una capa de tomate sobre el pan y añade un chorrito de aceite de oliva virgen extra.\n\n" +
-            "Coloca las lonchas de queso semicurado sobre la base del pan.\n\n" +
-            "Añade el jamón serrano repartido de forma uniforme para que cada bocado tenga buen equilibrio de sabores.\n\n" +
-            "Cierra el bocadillo, presiona ligeramente y sirve al momento.",
+        descripcion: "Corta el pan por la mitad y tuéstalo ligeramente si prefieres una textura más crujiente por fuera.\n\nLava el tomate y rállalo o córtalo en rodajas finas, según tu preferencia.\n\nUnta una capa de tomate sobre el pan y añade un chorrito de aceite de oliva virgen extra.\n\nColoca las lonchas de queso semicurado sobre la base del pan.\n\nAñade el jamón serrano repartido de forma uniforme para que cada bocado tenga buen equilibrio de sabores.\n\nCierra el bocadillo, presiona ligeramente y sirve al momento.",
         ingredientes: "1 pan (barra), 80g de jamón serrano, 60g de queso semicurado, 1 tomate, 1 cucharada de aceite de oliva",
         imagen: "https://cdn3.myrealfood.app/recipes%2FicUz6hhx6HPqiHUII7Xq%2Fmain_0_1739226611651.jpg?alt=media&token=8ca13d17-d5da-4d09-8875-9e44feb65551",
         tipo: "Almuerzo",
@@ -356,6 +586,20 @@ export const misRecetasReales = [
         carbohidratos: 52,
         fibra: 3,
         grasas: 22,
+        azucares: 5,
+        grasas_saturadas: 7.8,
+        sal: 2.5,
+        peso_total_g: 300,
+
+        kcal_100g: 170,
+        proteinas_100g: 9.3,
+        carbohidratos_100g: 17.3,
+        azucares_100g: 1.7,
+        grasas_100g: 7.3,
+        grasas_saturadas_100g: 2.6,
+        fibra_100g: 1,
+        sal_100g: 0.83,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como comida rápida o almuerzo 1 a 3 veces por semana.",
         dificultad: "Fácil"
@@ -364,13 +608,7 @@ export const misRecetasReales = [
     // ----------------- COMIDA (10) -----------------
     {
         titulo: "Paella Valenciana",
-        descripcion: "Calienta un buen chorro de aceite de oliva en la paellera y dora el pollo y el conejo troceados hasta que estén bien sellados por todos lados.\n\n" +
-            "Añade la judía verde y el garrofón, y sofríe unos minutos hasta que las verduras estén ligeramente tiernas.\n\n" +
-            "Incorpora el tomate rallado y cocina hasta que se reduzca y se concentre el sabor.\n\n" +
-            "Añade el arroz bomba y rehógalo ligeramente para que absorba todos los sabores del sofrito.\n\n" +
-            "Agrega el agua caliente junto con el azafrán y ajusta de sal. Reparte bien los ingredientes de forma uniforme en la paellera.\n\n" +
-            "Cocina a fuego fuerte unos minutos y luego baja el fuego hasta que el arroz absorba el caldo por completo.\n\n" +
-            "Deja reposar la paella unos minutos antes de servir para que los sabores se asienten.",
+        descripcion: "Calienta un buen chorro de aceite de oliva en la paellera y dora el pollo y el conejo troceados hasta que estén bien sellados por todos lados.\n\nAñade la judía verde y el garrofón, y sofríe unos minutos hasta que las verduras estén ligeramente tiernas.\n\nIncorpora el tomate rallado y cocina hasta que se reduzca y se concentre el sabor.\n\nAñade el arroz bomba y rehógalo ligeramente para que absorba todos los sabores del sofrito.\n\nAgrega el agua caliente junto con el azafrán y ajusta de sal. Reparte bien los ingredientes de forma uniforme en la paellera.\n\nCocina a fuego fuerte unos minutos y luego baja el fuego hasta que el arroz absorba el caldo por completo.\n\nDeja reposar la paella unos minutos antes de servir para que los sabores se asienten.",
         ingredientes: "Arroz bomba (300 g), Pollo (300 g), Conejo (300 g), Garrofón (100 g), Judía verde (150 g), Azafrán (0,2 g), Tomate (200 g)",
         imagen: "https://www.expogourmetmagazine.com/uploads/fotos_noticias/2019/09/w800px_20089-160599-hacemos-la-tradicional-paella-valenciana.jpg",
         tipo: "Comida",
@@ -380,18 +618,27 @@ export const misRecetasReales = [
         carbohidratos: 78,
         fibra: 6,
         grasas: 28,
+        azucares: 4,
+        grasas_saturadas: 6,
+        sal: 1.8,
+        peso_total_g: 650,
+
+        kcal_100g: 111,
+        proteinas_100g: 6.5,
+        carbohidratos_100g: 12,
+        azucares_100g: 0.6,
+        grasas_100g: 4.3,
+        grasas_saturadas_100g: 0.9,
+        fibra_100g: 0.9,
+        sal_100g: 0.28,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Difícil"
     },
     {
         titulo: "Macarrones a la Boloñesa",
-        descripcion: "Pica finamente la cebolla y la zanahoria. Sofríelas en una sartén con un chorrito de aceite de oliva a fuego medio hasta que estén tiernas.\n\n" +
-            "Añade la carne picada y cocínala hasta que esté bien dorada, separándola con una cuchara para que no queden grumos.\n\n" +
-            "Incorpora el tomate frito y mezcla bien. Cocina a fuego lento durante unos minutos para que la salsa espese y los sabores se integren.\n\n" +
-            "Mientras tanto, cuece los macarrones en abundante agua con sal hasta que estén al dente. Escúrrelos bien.\n\n" +
-            "Mezcla la pasta con la salsa boloñesa hasta que quede bien integrada.\n\n" +
-            "Coloca todo en una bandeja de horno, espolvorea queso rallado por encima y gratina hasta que esté dorado y burbujeante.",
+        descripcion: "Pica finamente la cebolla y la zanahoria. Sofríelas en una sartén con un chorrito de aceite de oliva a fuego medio hasta que estén tiernas.\n\nAñade la carne picada y cocínala hasta que esté bien dorada, separándola con una cuchara para que no queden grumos.\n\nIncorpora el tomate frito y mezcla bien. Cocina a fuego lento durante unos minutos para que la salsa espese y los sabores se integren.\n\nMientras tanto, cuece los macarrones en abundante agua con sal hasta que estén al dente. Escúrrelos bien.\n\nMezcla la pasta con la salsa boloñesa hasta que quede bien integrada.\n\nColoca todo en una bandeja de horno, espolvorea queso rallado por encima y gratina hasta que esté dorado y burbujeante.",
         ingredientes: "Macarrones (200 g), Carne picada (250 g), Tomate frito (200 g), Cebolla (1 ud), Zanahoria (1 ud), Queso rallado (80 g)",
         imagen: "https://laurelnatural.es/wp-content/uploads/2022/11/PASTA003.jpg",
         tipo: "Comida",
@@ -401,19 +648,27 @@ export const misRecetasReales = [
         carbohidratos: 82,
         fibra: 6,
         grasas: 30,
+        azucares: 10,
+        grasas_saturadas: 11,
+        sal: 2.2,
+        peso_total_g: 520,
+
+        kcal_100g: 150,
+        proteinas_100g: 7.3,
+        carbohidratos_100g: 15.8,
+        azucares_100g: 1.9,
+        grasas_100g: 5.8,
+        grasas_saturadas_100g: 2.1,
+        fibra_100g: 1.2,
+        sal_100g: 0.42,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Media"
     },
     {
         titulo: "Lentejas con Chorizo",
-        descripcion: "Lava las lentejas si es necesario y déjalas en remojo previamente si así lo requiere la variedad.\n\n" +
-            "En una olla grande, añade un chorrito de aceite de oliva y sofríe el pimiento, la zanahoria y la patata troceados durante unos minutos.\n\n" +
-            "Incorpora el chorizo cortado en rodajas y rehógalo ligeramente para que suelte su sabor.\n\n" +
-            "Añade las lentejas junto con una o dos hojas de laurel y cubre todo con agua o caldo caliente.\n\n" +
-            "Cocina a fuego medio durante aproximadamente 30-40 minutos, removiendo de vez en cuando para evitar que se peguen.\n\n" +
-            "Si es necesario, añade más agua durante la cocción hasta que las lentejas estén tiernas y el guiso tenga una textura cremosa.\n\n" +
-            "Rectifica de sal y deja reposar unos minutos antes de servir.",
+        descripcion: "Lava las lentejas si es necesario y déjalas en remojo previamente si así lo requiere la variedad.\n\nEn una olla grande, añade un chorrito de aceite de oliva y sofríe el pimiento, la zanahoria y la patata troceados durante unos minutos.\n\nIncorpora el chorizo cortado en rodajas y rehógalo ligeramente para que suelte su sabor.\n\nAñade las lentejas junto con una o dos hojas de laurel y cubre todo con agua o caldo caliente.\n\nCocina a fuego medio durante aproximadamente 30-40 minutos, removiendo de vez en cuando para evitar que se peguen.\n\nSi es necesario, añade más agua durante la cocción hasta que las lentejas estén tiernas y el guiso tenga una textura cremosa.\n\nRectifica de sal y deja reposar unos minutos antes de servir.",
         ingredientes: "Lentejas pardinas (250 g), Chorizo (150 g), Patata (1 ud), Zanahoria (1 ud), Pimiento (1 ud), Laurel (2 hojas)",
         imagen: "https://medias.blogosferathermomix.es/media/Posts/attachments/f1d99dccd4551999a6d1bbb5b9bc4b5f.jpg",
         tipo: "Comida",
@@ -423,19 +678,27 @@ export const misRecetasReales = [
         carbohidratos: 64,
         fibra: 12,
         grasas: 28,
+        azucares: 6,
+        grasas_saturadas: 9,
+        sal: 1.7,
+        peso_total_g: 550,
+
+        kcal_100g: 125,
+        proteinas_100g: 5.8,
+        carbohidratos_100g: 11.6,
+        azucares_100g: 1.1,
+        grasas_100g: 5.1,
+        grasas_saturadas_100g: 1.6,
+        fibra_100g: 2.2,
+        sal_100g: 0.31,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como plato único 1 vez por semana o menos.",
         dificultad: "Media"
     },
     {
         titulo: "Pollo Asado con Patatas",
-        descripcion: "Precalienta el horno a 200ºC mientras preparas el pollo.\n\n" +
-            "Limpia el pollo y colócalo en una bandeja de horno. Salpimienta bien por dentro y por fuera.\n\n" +
-            "Unta el pollo con aceite de oliva y añade ajo picado, tomillo y el zumo de limón, masajeando la piel para que se impregnen los sabores.\n\n" +
-            "Pela las patatas y córtalas en trozos grandes. Colócalas alrededor del pollo en la bandeja.\n\n" +
-            "Añade un vaso de cerveza a la bandeja para aportar jugosidad durante la cocción.\n\n" +
-            "Hornea durante aproximadamente 60-75 minutos, regando el pollo con sus propios jugos de vez en cuando para que quede dorado y jugoso.\n\n" +
-            "Deja reposar unos minutos antes de cortar y servir junto con las patatas.",
+        descripcion: "Precalienta el horno a 200ºC mientras preparas el pollo.\n\nLimpia el pollo y colócalo en una bandeja de horno. Salpimienta bien por dentro y por fuera.\n\nUnta el pollo con aceite de oliva y añade ajo picado, tomillo y el zumo de limón, masajeando la piel para que se impregnen los sabores.\n\nPela las patatas y córtalas en trozos grandes. Colócalas alrededor del pollo en la bandeja.\n\nAñade un vaso de cerveza a la bandeja para aportar jugosidad durante la cocción.\n\nHornea durante aproximadamente 60-75 minutos, regando el pollo con sus propios jugos de vez en cuando para que quede dorado y jugoso.\n\nDeja reposar unos minutos antes de cortar y servir junto con las patatas.",
         ingredientes: "Pollo entero (1,5 kg), Patatas (600 g), Ajo (4 dientes), Limón (1 ud), Tomillo (1 cdita), Aceite de oliva (3 cdas), Cerveza (330 ml)",
         imagen: "https://cdn3.myrealfood.app/recipes%2FqeA0c2wFA1KCbhdRfj13%2Fmain.jpg?alt=media&token=f071056a-1d38-4624-bc5e-c59100dd87ed",
         tipo: "Comida",
@@ -445,19 +708,27 @@ export const misRecetasReales = [
         carbohidratos: 58,
         fibra: 6,
         grasas: 38,
+        azucares: 4,
+        grasas_saturadas: 9,
+        sal: 2.3,
+        peso_total_g: 1200,
+
+        kcal_100g: 68,
+        proteinas_100g: 5.4,
+        carbohidratos_100g: 4.8,
+        azucares_100g: 0.3,
+        grasas_100g: 3.2,
+        grasas_saturadas_100g: 0.75,
+        fibra_100g: 0.5,
+        sal_100g: 0.19,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Media"
     },
     {
         titulo: "Fabada Asturiana",
-        descripcion: "Deja las fabes en remojo la noche anterior para que se hidraten correctamente.\n\n" +
-            "En una olla grande, coloca las fabes escurridas junto con el chorizo, la morcilla y la panceta troceada.\n\n" +
-            "Cubre con agua fría hasta que todo quede bien sumergido y lleva a fuego medio.\n\n" +
-            "Cuando empiece a hervir, retira la espuma que se forme en la superficie para limpiar el caldo.\n\n" +
-            "Añade una cucharadita de pimentón y unas hebras de azafrán, removiendo suavemente la olla sin romper las fabes.\n\n" +
-            "Cocina a fuego lento durante varias horas, añadiendo un poco de agua fría de vez en cuando para asustar las fabes y mantener su textura cremosa.\n\n" +
-            "Cuando las fabes estén tiernas y el caldo espeso, ajusta de sal y deja reposar antes de servir.",
+        descripcion: "Deja las fabes en remojo la noche anterior para que se hidraten correctamente.\n\nEn una olla grande, coloca las fabes escurridas junto con el chorizo, la morcilla y la panceta troceada.\n\nCubre con agua fría hasta que todo quede bien sumergido y lleva a fuego medio.\n\nCuando empiece a hervir, retira la espuma que se forme en la superficie para limpiar el caldo.\n\nAñade una cucharadita de pimentón y unas hebras de azafrán, removiendo suavemente la olla sin romper las fabes.\n\nCocina a fuego lento durante varias horas, añadiendo un poco de agua fría de vez en cuando para asustar las fabes y mantener su textura cremosa.\n\nCuando las fabes estén tiernas y el caldo espeso, ajusta de sal y deja reposar antes de servir.",
         ingredientes: "Fabes (500 g), Chorizo (150 g), Morcilla (150 g), Panceta (200 g), Azafrán (0,2 g), Pimentón (1 cda)",
         imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqgxmmDH2ncqHUylJCuIKY337ia-8CVT1t_w&s",
         tipo: "Comida",
@@ -467,19 +738,27 @@ export const misRecetasReales = [
         carbohidratos: 68,
         fibra: 14,
         grasas: 52,
+        azucares: 5,
+        grasas_saturadas: 18,
+        sal: 2.8,
+        peso_total_g: 850,
+
+        kcal_100g: 108,
+        proteinas_100g: 4.9,
+        carbohidratos_100g: 8,
+        azucares_100g: 0.6,
+        grasas_100g: 6.1,
+        grasas_saturadas_100g: 2.1,
+        fibra_100g: 1.6,
+        sal_100g: 0.33,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como plato único contundente 1 vez cada 2 semanas o menos.",
         dificultad: "Difícil"
     },
     {
         titulo: "Cocido Madrileño",
-        descripcion: "Deja los garbanzos en remojo la noche anterior para que se hidraten bien.\n\n" +
-            "En una olla grande con agua, añade el morcillo, el tocino y el chorizo. Lleva a ebullición y ve retirando la espuma que aparezca en la superficie.\n\n" +
-            "Incorpora los garbanzos escurridos y cocina a fuego medio-bajo durante varias horas hasta que estén tiernos.\n\n" +
-            "Durante la cocción, añade sal y ajusta el caldo según sea necesario, manteniendo siempre suficiente líquido para que no se sequen los ingredientes.\n\n" +
-            "En otra olla, cuece el repollo aparte con un poco de sal hasta que esté tierno.\n\n" +
-            "Cuando todo esté listo, separa el caldo para servirlo primero como sopa con fideos.\n\n" +
-            "Sirve después los garbanzos con las carnes y el repollo como segundo vuelco.",
+        descripcion: "Deja los garbanzos en remojo la noche anterior para que se hidraten bien.\n\nEn una olla grande con agua, añade el morcillo, el tocino y el chorizo. Lleva a ebullición y ve retirando la espuma que aparezca en la superficie.\n\nIncorpora los garbanzos escurridos y cocina a fuego medio-bajo durante varias horas hasta que estén tiernos.\n\nDurante la cocción, añade sal y ajusta el caldo según sea necesario, manteniendo siempre suficiente líquido para que no se sequen los ingredientes.\n\nEn otra olla, cuece el repollo aparte con un poco de sal hasta que esté tierno.\n\nCuando todo esté listo, separa el caldo para servirlo primero como sopa con fideos.\n\nSirve después los garbanzos con las carnes y el repollo como segundo vuelco.",
         ingredientes: "Garbanzos (300 g), Fideos (100 g), Morcillo de ternera (300 g), Tocino (150 g), Chorizo (150 g), Repollo (200 g)",
         imagen: "https://www.laespanolaaceites.com/wp-content/uploads/2019/06/cocido-madrileno-1080x671.jpg",
         tipo: "Comida",
@@ -489,20 +768,27 @@ export const misRecetasReales = [
         carbohidratos: 72,
         fibra: 12,
         grasas: 58,
+        azucares: 6,
+        grasas_saturadas: 20,
+        sal: 3.0,
+        peso_total_g: 950,
+
+        kcal_100g: 103,
+        proteinas_100g: 5.8,
+        carbohidratos_100g: 7.6,
+        azucares_100g: 0.6,
+        grasas_100g: 6.1,
+        grasas_saturadas_100g: 2.1,
+        fibra_100g: 1.3,
+        sal_100g: 0.32,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como plato único contundente 1 vez cada 2 semanas o menos.",
         dificultad: "Difícil"
     },
     {
         titulo: "Salmón al Horno con Espárragos",
-        descripcion: "Precalienta el horno a 200ºC mientras preparas los ingredientes.\n\n" +
-            "Lava los espárragos trigueros y córtales la parte más dura del tallo.\n\n" +
-            "Colócalos en una bandeja de horno junto con los lomos de salmón.\n\n" +
-            "Salpimienta el salmón y los espárragos al gusto, y añade un chorrito de aceite de oliva por encima.\n\n" +
-            "Corta unas rodajas de limón y colócalas sobre el salmón para aportar aroma y frescura.\n\n" +
-            "Espolvorea un poco de eneldo por encima para potenciar el sabor.\n\n" +
-            "Hornea durante unos 12-15 minutos, hasta que el salmón esté jugoso y en su punto.\n\n" +
-            "Sirve inmediatamente recién salido del horno.",
+        descripcion: "Precalienta el horno a 200ºC mientras preparas los ingredientes.\n\nLava los espárragos trigueros y córtales la parte más dura del tallo.\n\nColócalos en una bandeja de horno junto con los lomos de salmón.\n\nSalpimienta el salmón y los espárragos al gusto, y añade un chorrito de aceite de oliva por encima.\n\nCorta unas rodajas de limón y colócalas sobre el salmón para aportar aroma y frescura.\n\nEspolvorea un poco de eneldo por encima para potenciar el sabor.\n\nHornea durante unos 12-15 minutos, hasta que el salmón esté jugoso y en su punto.\n\nSirve inmediatamente recién salido del horno.",
         ingredientes: "Lomos de salmón (300 g), Espárragos trigueros (200 g), Limón (1 ud), Eneldo (1 cdita), Sal (al gusto), Pimienta (al gusto)",
         imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTICyYULF9BgcC8XjTVbnNbiocuPCd37KZ8aw&s",
         tipo: "Comida",
@@ -512,20 +798,27 @@ export const misRecetasReales = [
         carbohidratos: 10,
         fibra: 4,
         grasas: 26,
+        azucares: 2,
+        grasas_saturadas: 5,
+        sal: 1.4,
+        peso_total_g: 360,
+
+        kcal_100g: 114,
+        proteinas_100g: 9.4,
+        carbohidratos_100g: 2.8,
+        azucares_100g: 0.6,
+        grasas_100g: 7.2,
+        grasas_saturadas_100g: 1.4,
+        fibra_100g: 1.1,
+        sal_100g: 0.39,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como plato principal saludable 3 a 5 veces por semana.",
         dificultad: "Fácil"
     },
     {
         titulo: "Estofado de Ternera",
-        descripcion: "Corta la ternera en trozos medianos y salpimiéntala al gusto.\n\n" +
-            "En una cazuela grande, añade un chorrito de aceite de oliva y dora la carne a fuego fuerte hasta que esté bien sellada por todos lados.\n\n" +
-            "Retira la carne y, en la misma cazuela, sofríe la cebolla picada hasta que esté transparente.\n\n" +
-            "Añade las zanahorias en rodajas y cocina unos minutos más para que se ablanden ligeramente.\n\n" +
-            "Incorpora la carne de nuevo y añade un vaso de vino tinto, dejando que reduzca el alcohol.\n\n" +
-            "Cubre con agua o caldo y cocina a fuego lento durante al menos 1,5 o 2 horas, hasta que la carne esté muy tierna.\n\n" +
-            "Añade las patatas en trozos y los guisantes en los últimos 20-25 minutos de cocción.\n\n" +
-            "Rectifica de sal y deja reposar unos minutos antes de servir.",
+        descripcion: "Corta la ternera en trozos medianos y salpimiéntala al gusto.\n\nEn una cazuela grande, añade un chorrito de aceite de oliva y dora la carne a fuego fuerte hasta que esté bien sellada por todos lados.\n\nRetira la carne y, en la misma cazuela, sofríe la cebolla picada hasta que esté transparente.\n\nAñade las zanahorias en rodajas y cocina unos minutos más para que se ablanden ligeramente.\n\nIncorpora la carne de nuevo y añade un vaso de vino tinto, dejando que reduzca el alcohol.\n\nCubre con agua o caldo y cocina a fuego lento durante al menos 1,5 o 2 horas, hasta que la carne esté muy tierna.\n\nAñade las patatas en trozos y los guisantes en los últimos 20-25 minutos de cocción.\n\nRectifica de sal y deja reposar unos minutos antes de servir.",
         ingredientes: "Ternera para guisar (500 g), Patatas (300 g), Zanahorias (2 ud), Guisantes (150 g), Vino tinto (150 ml), Cebolla (1 ud)",
         imagen: "https://e00-xlk-cooking-elmundo.uecdn.es/files/article_main_microformat_4_3/uploads/2023/03/01/63fe9b16e9189.jpeg",
         tipo: "Comida",
@@ -535,20 +828,27 @@ export const misRecetasReales = [
         carbohidratos: 54,
         fibra: 7,
         grasas: 38,
+        azucares: 8,
+        grasas_saturadas: 12,
+        sal: 1.9,
+        peso_total_g: 720,
+
+        kcal_100g: 106,
+        proteinas_100g: 6.7,
+        carbohidratos_100g: 7.5,
+        azucares_100g: 1.1,
+        grasas_100g: 5.3,
+        grasas_saturadas_100g: 1.7,
+        fibra_100g: 1,
+        sal_100g: 0.26,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Difícil"
     },
     {
         titulo: "Risotto de Setas",
-        descripcion: "Pica finamente la cebolla y sofríela en una cazuela con mantequilla a fuego medio hasta que esté transparente.\n\n" +
-            "Añade las setas troceadas y cocínalas hasta que suelten su agua y empiecen a dorarse.\n\n" +
-            "Incorpora el arroz arborio y rehógalo durante un par de minutos para que absorba los sabores.\n\n" +
-            "Añade el caldo de pollo caliente poco a poco, removiendo constantemente para que el arroz suelte el almidón y quede cremoso.\n\n" +
-            "Continúa añadiendo caldo a medida que se va absorbiendo, durante unos 18-20 minutos aproximadamente.\n\n" +
-            "Cuando el arroz esté en su punto, retira del fuego y añade el queso parmesano rallado y una nuez de mantequilla.\n\n" +
-            "Remueve bien hasta obtener una textura cremosa y brillante.\n\n" +
-            "Deja reposar un minuto y sirve inmediatamente.",
+        descripcion: "Pica finamente la cebolla y sofríela en una cazuela con mantequilla a fuego medio hasta que esté transparente.\n\nAñade las setas troceadas y cocínalas hasta que suelten su agua y empiecen a dorarse.\n\nIncorpora el arroz arborio y rehógalo durante un par de minutos para que absorba los sabores.\n\nAñade el caldo de pollo caliente poco a poco, removiendo constantemente para que el arroz suelte el almidón y quede cremoso.\n\nContinúa añadiendo caldo a medida que se va absorbiendo, durante unos 18-20 minutos aproximadamente.\n\nCuando el arroz esté en su punto, retira del fuego y añade el queso parmesano rallado y una nuez de mantequilla.\n\nRemueve bien hasta obtener una textura cremosa y brillante.\n\nDeja reposar un minuto y sirve inmediatamente.",
         ingredientes: "Arroz arborio (250 g), Setas variadas (200 g), Caldo de pollo (1 L), Queso parmesano (80 g), Mantequilla (30 g), Cebolla (1 ud)",
         imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK6F34P0van1U0jiuDuk0thAK4p8D7mURREw&s",
         tipo: "Comida",
@@ -558,21 +858,27 @@ export const misRecetasReales = [
         carbohidratos: 78,
         fibra: 4,
         grasas: 28,
+        azucares: 5,
+        grasas_saturadas: 12,
+        sal: 2.0,
+        peso_total_g: 650,
+
+        kcal_100g: 100,
+        proteinas_100g: 2.8,
+        carbohidratos_100g: 12,
+        azucares_100g: 0.8,
+        grasas_100g: 4.3,
+        grasas_saturadas_100g: 1.8,
+        fibra_100g: 0.6,
+        sal_100g: 0.31,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como plato principal 1 a 3 veces por semana.",
         dificultad: "Media"
     },
     {
         titulo: "Lasaña de Carne",
-        descripcion: "Pica la cebolla (si deseas añadirla) y sofríela en una sartén con un poco de aceite de oliva hasta que esté transparente.\n\n" +
-            "Añade la carne picada y cocínala a fuego medio hasta que esté bien dorada y suelta.\n\n" +
-            "Incorpora el tomate y cocina a fuego lento durante unos 10-15 minutos hasta obtener una salsa espesa y sabrosa.\n\n" +
-            "Prepara la salsa bechamel o caliéntala si ya la tienes lista.\n\n" +
-            "Cuece las placas de lasaña si así lo requiere el fabricante y resérvalas.\n\n" +
-            "En una fuente de horno, monta la lasaña alternando capas de pasta, salsa de carne y bechamel.\n\n" +
-            "Repite el proceso hasta terminar los ingredientes, finalizando con bechamel y queso para gratinar.\n\n" +
-            "Hornea a 180ºC durante unos 25-30 minutos hasta que esté dorada y burbujeante por encima.\n\n" +
-            "Deja reposar unos minutos antes de cortar y servir.",
+        descripcion: "Pica la cebolla (si deseas añadirla) y sofríela en una sartén con un poco de aceite de oliva hasta que esté transparente.\n\nAñade la carne picada y cocínala a fuego medio hasta que esté bien dorada y suelta.\n\nIncorpora el tomate y cocina a fuego lento durante unos 10-15 minutos hasta obtener una salsa espesa y sabrosa.\n\nPrepara la salsa bechamel o caliéntala si ya la tienes lista.\n\nCuece las placas de lasaña si así lo requiere el fabricante y resérvalas.\n\nEn una fuente de horno, monta la lasaña alternando capas de pasta, salsa de carne y bechamel.\n\nRepite el proceso hasta terminar los ingredientes, finalizando con bechamel y queso para gratinar.\n\nHornea a 180ºC durante unos 25-30 minutos hasta que esté dorada y burbujeante por encima.\n\nDeja reposar unos minutos antes de cortar y servir.",
         ingredientes: "Placas de lasaña (12 ud), Carne picada (400 g), Tomate (300 g), Salsa bechamel (300 ml), Queso para gratinar (100 g)",
         imagen: "https://www.annarecetasfaciles.com/files/lasana-de-carne-2-1-815x458.jpg",
         tipo: "Comida",
@@ -582,6 +888,20 @@ export const misRecetasReales = [
         carbohidratos: 72,
         fibra: 6,
         grasas: 42,
+        azucares: 10,
+        grasas_saturadas: 16,
+        sal: 2.4,
+        peso_total_g: 780,
+
+        kcal_100g: 108,
+        proteinas_100g: 5.6,
+        carbohidratos_100g: 9.2,
+        azucares_100g: 1.3,
+        grasas_100g: 5.4,
+        grasas_saturadas_100g: 2.1,
+        fibra_100g: 0.8,
+        sal_100g: 0.31,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como plato único contundente 1 vez por semana o menos.",
         dificultad: "Media"
@@ -600,6 +920,20 @@ export const misRecetasReales = [
         carbohidratos: 25,
         fibra: 2,
         grasas: 11,
+        azucares: 3.5,
+        grasas_saturadas: 1.6,
+        sal: 0.9,
+        peso_total_g: 120,
+
+        kcal_100g: 183,
+        proteinas_100g: 3.3,
+        carbohidratos_100g: 20.8,
+        azucares_100g: 2.9,
+        grasas_100g: 9.2,
+        grasas_saturadas_100g: 1.3,
+        fibra_100g: 1.7,
+        sal_100g: 0.75,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como desayuno o merienda ligera entre 3 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -616,6 +950,20 @@ export const misRecetasReales = [
         carbohidratos: 42,
         fibra: 1,
         grasas: 12,
+        azucares: 18,
+        grasas_saturadas: 5,
+        sal: 0.4,
+        peso_total_g: 270,
+
+        kcal_100g: 115,
+        proteinas_100g: 3.3,
+        carbohidratos_100g: 15.6,
+        azucares_100g: 6.7,
+        grasas_100g: 4.4,
+        grasas_saturadas_100g: 1.9,
+        fibra_100g: 0.4,
+        sal_100g: 0.15,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo ocasional o moderado, recomendable no exceder varias veces por semana por su aporte de azúcares simples.",
         dificultad: "Fácil"
@@ -632,6 +980,20 @@ export const misRecetasReales = [
         carbohidratos: 58,
         fibra: 2,
         grasas: 18,
+        azucares: 28,
+        grasas_saturadas: 3.2,
+        sal: 0.6,
+        peso_total_g: 320,
+
+        kcal_100g: 131,
+        proteinas_100g: 2.5,
+        carbohidratos_100g: 18.1,
+        azucares_100g: 8.8,
+        grasas_100g: 5.6,
+        grasas_saturadas_100g: 1.0,
+        fibra_100g: 0.6,
+        sal_100g: 0.19,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como dulce de merienda 1 vez por semana o menos.",
         dificultad: "Media"
@@ -648,6 +1010,20 @@ export const misRecetasReales = [
         carbohidratos: 45,
         fibra: 2,
         grasas: 20,
+        azucares: 32,
+        grasas_saturadas: 7,
+        sal: 0.3,
+        peso_total_g: 130,
+
+        kcal_100g: 292,
+        proteinas_100g: 4.6,
+        carbohidratos_100g: 34.6,
+        azucares_100g: 24.6,
+        grasas_100g: 15.4,
+        grasas_saturadas_100g: 5.4,
+        fibra_100g: 1.5,
+        sal_100g: 0.23,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como capricho dulce 1 vez por semana o menos.",
         dificultad: "Fácil"
@@ -664,6 +1040,20 @@ export const misRecetasReales = [
         carbohidratos: 70,
         fibra: 2,
         grasas: 22,
+        azucares: 18,
+        grasas_saturadas: 9,
+        sal: 0.5,
+        peso_total_g: 320,
+
+        kcal_100g: 163,
+        proteinas_100g: 3.1,
+        carbohidratos_100g: 21.9,
+        azucares_100g: 5.6,
+        grasas_100g: 6.9,
+        grasas_saturadas_100g: 2.8,
+        fibra_100g: 0.6,
+        sal_100g: 0.16,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como dulce tradicional de merienda o desayuno 1 vez por semana o menos.",
         dificultad: "Media"
@@ -680,6 +1070,20 @@ export const misRecetasReales = [
         carbohidratos: 62,
         fibra: 2,
         grasas: 20,
+        azucares: 28,
+        grasas_saturadas: 5,
+        sal: 0.4,
+        peso_total_g: 300,
+
+        kcal_100g: 153,
+        proteinas_100g: 2.7,
+        carbohidratos_100g: 20.7,
+        azucares_100g: 9.3,
+        grasas_100g: 6.7,
+        grasas_saturadas_100g: 1.7,
+        fibra_100g: 0.7,
+        sal_100g: 0.13,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como dulce tradicional de merienda 1 vez por semana o menos.",
         dificultad: "Media"
@@ -696,6 +1100,20 @@ export const misRecetasReales = [
         carbohidratos: 30,
         fibra: 2,
         grasas: 18,
+        azucares: 4,
+        grasas_saturadas: 8,
+        sal: 1.6,
+        peso_total_g: 180,
+
+        kcal_100g: 194,
+        proteinas_100g: 10,
+        carbohidratos_100g: 16.7,
+        azucares_100g: 2.2,
+        grasas_100g: 10,
+        grasas_saturadas_100g: 4.4,
+        fibra_100g: 1.1,
+        sal_100g: 0.89,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como merienda o cena ligera 2 a 4 veces por semana.",
         dificultad: "Fácil"
@@ -712,6 +1130,20 @@ export const misRecetasReales = [
         carbohidratos: 18,
         fibra: 2,
         grasas: 15,
+        azucares: 15,
+        grasas_saturadas: 3,
+        sal: 0.2,
+        peso_total_g: 160,
+
+        kcal_100g: 150,
+        proteinas_100g: 5,
+        carbohidratos_100g: 11.3,
+        azucares_100g: 9.4,
+        grasas_100g: 9.4,
+        grasas_saturadas_100g: 1.9,
+        fibra_100g: 1.3,
+        sal_100g: 0.13,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como merienda ligera o postre saludable 3 a 6 veces por semana.",
         dificultad: "Fácil"
@@ -728,6 +1160,20 @@ export const misRecetasReales = [
         carbohidratos: 78,
         fibra: 2,
         grasas: 14,
+        azucares: 22,
+        grasas_saturadas: 5,
+        sal: 0.7,
+        peso_total_g: 420,
+
+        kcal_100g: 114,
+        proteinas_100g: 2.4,
+        carbohidratos_100g: 18.6,
+        azucares_100g: 5.2,
+        grasas_100g: 3.3,
+        grasas_saturadas_100g: 1.2,
+        fibra_100g: 0.5,
+        sal_100g: 0.17,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como dulce tradicional en celebraciones o fines de semana.",
         dificultad: "Media"
@@ -744,6 +1190,20 @@ export const misRecetasReales = [
         carbohidratos: 40,
         fibra: 1,
         grasas: 16,
+        azucares: 24,
+        grasas_saturadas: 7,
+        sal: 0.6,
+        peso_total_g: 140,
+
+        kcal_100g: 236,
+        proteinas_100g: 2.9,
+        carbohidratos_100g: 28.6,
+        azucares_100g: 17.1,
+        grasas_100g: 11.4,
+        grasas_saturadas_100g: 5,
+        fibra_100g: 0.7,
+        sal_100g: 0.43,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como merienda dulce ocasional 1 a 3 veces por semana.",
         dificultad: "Fácil"
@@ -762,6 +1222,20 @@ export const misRecetasReales = [
         carbohidratos: 28,
         fibra: 5,
         grasas: 6,
+        azucares: 6,
+        grasas_saturadas: 1.2,
+        sal: 0.9,
+        peso_total_g: 450,
+
+        kcal_100g: 40,
+        proteinas_100g: 0.9,
+        carbohidratos_100g: 6.2,
+        azucares_100g: 1.3,
+        grasas_100g: 1.3,
+        grasas_saturadas_100g: 0.3,
+        fibra_100g: 1.1,
+        sal_100g: 0.2,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera entre 4 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -778,6 +1252,20 @@ export const misRecetasReales = [
         carbohidratos: 6,
         fibra: 2,
         grasas: 18,
+        azucares: 3,
+        grasas_saturadas: 4.5,
+        sal: 0.8,
+        peso_total_g: 320,
+
+        kcal_100g: 81,
+        proteinas_100g: 6.3,
+        carbohidratos_100g: 1.9,
+        azucares_100g: 0.9,
+        grasas_100g: 5.6,
+        grasas_saturadas_100g: 1.4,
+        fibra_100g: 0.6,
+        sal_100g: 0.25,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera y proteica entre 3 y 6 veces por semana.",
         dificultad: "Fácil"
@@ -794,6 +1282,20 @@ export const misRecetasReales = [
         carbohidratos: 1,
         fibra: 0,
         grasas: 7,
+        azucares: 0.5,
+        grasas_saturadas: 1.2,
+        sal: 0.9,
+        peso_total_g: 260,
+
+        kcal_100g: 73,
+        proteinas_100g: 12.3,
+        carbohidratos_100g: 0.4,
+        azucares_100g: 0.2,
+        grasas_100g: 2.7,
+        grasas_saturadas_100g: 0.5,
+        fibra_100g: 0,
+        sal_100g: 0.35,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera o plato principal saludable 3 a 6 veces por semana.",
         dificultad: "Fácil"
@@ -810,6 +1312,20 @@ export const misRecetasReales = [
         carbohidratos: 12,
         fibra: 4,
         grasas: 20,
+        azucares: 5,
+        grasas_saturadas: 4.5,
+        sal: 1.1,
+        peso_total_g: 450,
+
+        kcal_100g: 71,
+        proteinas_100g: 4.9,
+        carbohidratos_100g: 2.7,
+        azucares_100g: 1.1,
+        grasas_100g: 4.4,
+        grasas_saturadas_100g: 1,
+        fibra_100g: 0.9,
+        sal_100g: 0.24,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera y saludable 3 a 6 veces por semana.",
         dificultad: "Fácil"
@@ -826,6 +1342,20 @@ export const misRecetasReales = [
         carbohidratos: 12,
         fibra: 5,
         grasas: 20,
+        azucares: 5,
+        grasas_saturadas: 4.5,
+        sal: 1.1,
+        peso_total_g: 450,
+
+        kcal_100g: 71,
+        proteinas_100g: 4.9,
+        carbohidratos_100g: 2.7,
+        azucares_100g: 1.1,
+        grasas_100g: 4.4,
+        grasas_saturadas_100g: 1,
+        fibra_100g: 1.1,
+        sal_100g: 0.24,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera o plato principal saludable 4 a 7 veces por semana.",
         dificultad: "Fácil"
@@ -842,6 +1372,20 @@ export const misRecetasReales = [
         carbohidratos: 32,
         fibra: 1,
         grasas: 6,
+        azucares: 2,
+        grasas_saturadas: 1.5,
+        sal: 1.2,
+        peso_total_g: 520,
+
+        kcal_100g: 40,
+        proteinas_100g: 1.3,
+        carbohidratos_100g: 6.2,
+        azucares_100g: 0.4,
+        grasas_100g: 1.2,
+        grasas_saturadas_100g: 0.3,
+        fibra_100g: 0.2,
+        sal_100g: 0.23,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera o reconfortante 4 a 7 veces por semana.",
         dificultad: "Fácil"
@@ -858,6 +1402,20 @@ export const misRecetasReales = [
         carbohidratos: 18,
         fibra: 7,
         grasas: 18,
+        azucares: 10,
+        grasas_saturadas: 3.2,
+        sal: 0.9,
+        peso_total_g: 420,
+
+        kcal_100g: 62,
+        proteinas_100g: 1.2,
+        carbohidratos_100g: 4.3,
+        azucares_100g: 2.4,
+        grasas_100g: 4.3,
+        grasas_saturadas_100g: 0.8,
+        fibra_100g: 1.7,
+        sal_100g: 0.21,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena ligera o guarnición saludable 4 a 7 veces por semana.",
         dificultad: "Fácil"
@@ -874,6 +1432,20 @@ export const misRecetasReales = [
         carbohidratos: 52,
         fibra: 5,
         grasas: 42,
+        azucares: 4,
+        grasas_saturadas: 7.8,
+        sal: 1.3,
+        peso_total_g: 650,
+
+        kcal_100g: 106,
+        proteinas_100g: 3.7,
+        carbohidratos_100g: 8,
+        azucares_100g: 0.6,
+        grasas_100g: 6.5,
+        grasas_saturadas_100g: 1.2,
+        fibra_100g: 0.8,
+        sal_100g: 0.2,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como cena o plato principal 1 a 3 veces por semana.",
         dificultad: "Media"
@@ -890,6 +1462,20 @@ export const misRecetasReales = [
         carbohidratos: 42,
         fibra: 2,
         grasas: 28,
+        azucares: 6,
+        grasas_saturadas: 10,
+        sal: 1.6,
+        peso_total_g: 380,
+
+        kcal_100g: 137,
+        proteinas_100g: 5.8,
+        carbohidratos_100g: 11.1,
+        azucares_100g: 1.6,
+        grasas_100g: 7.4,
+        grasas_saturadas_100g: 2.6,
+        fibra_100g: 0.5,
+        sal_100g: 0.42,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como cena o tapa 1 vez por semana o menos.",
         dificultad: "Difícil"
@@ -906,6 +1492,20 @@ export const misRecetasReales = [
         carbohidratos: 28,
         fibra: 4,
         grasas: 16,
+        azucares: 3,
+        grasas_saturadas: 2.5,
+        sal: 1.2,
+        peso_total_g: 520,
+
+        kcal_100g: 79,
+        proteinas_100g: 7.3,
+        carbohidratos_100g: 5.4,
+        azucares_100g: 0.6,
+        grasas_100g: 3.1,
+        grasas_saturadas_100g: 0.5,
+        fibra_100g: 0.8,
+        sal_100g: 0.23,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como cena saludable 3 a 5 veces por semana.",
         dificultad: "Media"
@@ -914,7 +1514,7 @@ export const misRecetasReales = [
     // ----------------- POSTRE (10) -----------------
     {
         titulo: "Tarta de Queso Viña",
-        descripcion: "Precalienta el horno a 200ºC para conseguir una superficie bien tostada.\n\nEn un bol grande, bate el queso crema junto con el azúcar hasta obtener una mezcla suave y sin grumos.\n\nAñade los huevos uno a uno, mezclando bien después de cada incorporación.\n\nIncorpora la nata líquida y una pizca de sal, y mezcla hasta que la masa quede completamente homogénea.\n\nVierte la mezcla en un molde forrado con papel de horno.\n\nHornea durante 35-45 minutos hasta que la superficie esté bien dorada y el interior aún ligeramente tembloroso.\n\nDeja enfriar a temperatura ambiente y después refrigera varias horas antes de servir para que tome cuerpo.",
+        descripcion: "Precalienta el horno a 200ºC para conseguir una superficie bien tostada. En un bol grande, bate el queso crema junto con el azúcar hasta obtener una mezcla suave y sin grumos. Añade los huevos uno a uno, mezclando bien después de cada incorporación. Incorpora la nata líquida y una pizca de sal, y mezcla hasta que la masa quede completamente homogénea. Vierte la mezcla en un molde forrado con papel de horno. Hornea durante 35-45 minutos hasta que la superficie esté bien dorada y el interior aún ligeramente tembloroso. Deja enfriar a temperatura ambiente y después refrigera varias horas antes de servir para que tome cuerpo.",
         ingredientes: "Queso crema (500g), Nata líquida (200ml), Huevos (4 unidades), Azúcar (150g), Sal (1 pizca)",
         imagen: "https://lacocinadefrabisa.lavozdegalicia.es/wp-content/uploads/2023/04/TARTA-LA-VINA-2.jpg",
         tipo: "Postre",
@@ -924,13 +1524,27 @@ export const misRecetasReales = [
         carbohidratos: 28,
         fibra: 0,
         grasas: 30,
+        azucares: 24,
+        grasas_saturadas: 18,
+        sal: 0.7,
+        peso_total_g: 900,
+
+        kcal_100g: 47,
+        proteinas_100g: 1,
+        carbohidratos_100g: 3.1,
+        azucares_100g: 2.7,
+        grasas_100g: 3.3,
+        grasas_saturadas_100g: 2,
+        fibra_100g: 0,
+        sal_100g: 0.08,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en ocasiones especiales.",
         dificultad: "Media"
     },
     {
         titulo: "Flan de Huevo Casero",
-        descripcion: "Precalienta el horno a 180ºC y prepara una bandeja apta para baño maría.\n\nEn un bol, bate los huevos junto con el azúcar hasta que estén bien integrados, sin llegar a espumar en exceso.\n\nAñade la leche poco a poco mientras sigues mezclando para obtener una crema suave y homogénea.\n\nColoca caramelo líquido en el fondo de los moldes individuales o del molde grande.\n\nVierte la mezcla sobre el caramelo con cuidado.\n\nColoca los moldes dentro de la bandeja con agua caliente (baño maría) y hornea durante 40-50 minutos.\n\nComprueba la cocción pinchando con un palillo; debe salir limpio.\n\nDeja enfriar completamente y refrigera varias horas antes de desmoldar.",
+        descripcion: "Precalienta el horno a 180ºC y prepara una bandeja apta para baño maría. En un bol, bate los huevos junto con el azúcar hasta que estén bien integrados, sin llegar a espumar en exceso. Añade la leche poco a poco mientras sigues mezclando para obtener una crema suave y homogénea. Coloca caramelo líquido en el fondo de los moldes individuales o del molde grande. Vierte la mezcla sobre el caramelo con cuidado. Coloca los moldes dentro de la bandeja con agua caliente (baño maría) y hornea durante 40-50 minutos. Comprueba la cocción pinchando con un palillo; debe salir limpio. Deja enfriar completamente y refrigera varias horas antes de desmoldar.",
         ingredientes: "Leche (500ml), Huevos (4 unidades), Azúcar (120g), Caramelo líquido (al gusto)",
         imagen: "https://yhoyquecomemos.com/wp-content/uploads/2020/05/flan-de-huevo-receta.jpg",
         tipo: "Postre",
@@ -940,10 +1554,314 @@ export const misRecetasReales = [
         carbohidratos: 32,
         fibra: 0,
         grasas: 12,
+        azucares: 30,
+        grasas_saturadas: 5,
+        sal: 0.6,
+        peso_total_g: 450,
+
+        kcal_100g: 62,
+        proteinas_100g: 1.8,
+        carbohidratos_100g: 7.1,
+        azucares_100g: 6.7,
+        grasas_100g: 2.7,
+        grasas_saturadas_100g: 1.1,
+        fibra_100g: 0,
+        sal_100g: 0.13,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en celebraciones.",
         dificultad: "Media"
     },
+    {
+        titulo: "Arroz con Leche",
+        descripcion: "En una cazuela, añade la leche junto con la canela en rama y la piel de limón, y caliéntalo a fuego medio hasta que empiece a humear sin llegar a hervir.\n\nAñade el arroz y cocina a fuego lento, removiendo de vez en cuando para evitar que se pegue.\n\nContinúa la cocción durante unos 35-40 minutos, hasta que el arroz esté tierno y la mezcla haya espesado.\n\nRetira la canela y la piel de limón una vez que el arroz esté en su punto.\n\nIncorpora el azúcar y mezcla bien hasta que se disuelva completamente.\n\nCocina unos minutos más para integrar los sabores.\n\nDeja enfriar a temperatura ambiente y después refrigera.\n\nAntes de servir, espolvorea canela en polvo al gusto si lo deseas.",
+
+        ingredientes: "Arroz (100g), Leche (1L), Azúcar (120g), Canela en rama (1 unidad), Piel de limón (1 tira)",
+
+        imagen: "https://danzadefogones.com/wp-content/uploads/2025/02/como-hacer-arroz-con-leche.jpg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 50,
+
+        kcal: 310,
+        proteinas: 7,
+        carbohidratos: 58,
+        fibra: 1,
+        grasas: 8,
+
+        azucares: 34,
+        grasas_saturadas: 3.5,
+        sal: 0.2,
+
+        peso_total_g: 650,
+
+        kcal_100g: 48,
+        proteinas_100g: 1.1,
+        carbohidratos_100g: 8.9,
+        azucares_100g: 5.2,
+        grasas_100g: 1.2,
+        grasas_saturadas_100g: 0.5,
+        fibra_100g: 0.2,
+        sal_100g: 0.03,
+
+        semaforo: "amarillo",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en ocasiones especiales.",
+        dificultad: "Fácil"
+    },
+    {
+        titulo: "Coulant de Chocolate",
+        descripcion: "Precalienta el horno a 200ºC y engrasa ligeramente los moldes individuales.\n\nDerrite el chocolate fondant junto con la mantequilla al baño maría o en el microondas en intervalos cortos, mezclando hasta obtener una crema lisa.\n\nEn un bol aparte, bate los huevos con el azúcar hasta que la mezcla esté espumosa.\n\nIncorpora el chocolate derretido a la mezcla de huevos y remueve suavemente.\n\nAñade la harina tamizada y mezcla lo justo hasta integrar todos los ingredientes.\n\nRellena los moldes hasta 3/4 de su capacidad.\n\nHornea durante 8-10 minutos, lo justo para que el exterior cuaje pero el interior quede líquido.\n\nDesmolda con cuidado y sirve inmediatamente para que el corazón de chocolate siga fundido.",
+
+        ingredientes: "Chocolate fondant (150g), Mantequilla (100g), Huevos (3 unidades), Azúcar (80g), Harina (40g)",
+
+        imagen: "https://www.eladerezo.com/wp-content/uploads/2016/03/coulant-de-chocolate-3-600x400.jpg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 25,
+
+        kcal: 480,
+        proteinas: 7,
+        carbohidratos: 38,
+        fibra: 2,
+        grasas: 32,
+
+        azucares: 30,
+        grasas_saturadas: 18,
+        sal: 0.3,
+
+        peso_total_g: 360,
+
+        kcal_100g: 133,
+        proteinas_100g: 1.9,
+        carbohidratos_100g: 10.6,
+        azucares_100g: 8.3,
+        grasas_100g: 8.9,
+        grasas_saturadas_100g: 5.0,
+        fibra_100g: 0.6,
+        sal_100g: 0.08,
+
+        semaforo: "naranja",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en celebraciones.",
+        dificultad: "Media"
+    },
+    {
+        titulo: "Tiramisú Italiano",
+        descripcion: "Separa las claras y las yemas de los huevos.\n\nBate las yemas con el azúcar hasta obtener una crema suave y ligeramente espesa.\n\nAñade el queso mascarpone y mezcla hasta integrar completamente.\n\nMonta las claras a punto de nieve y añádelas suavemente a la crema con movimientos envolventes.\n\nPrepara el café y déjalo enfriar a temperatura ambiente.\n\nMoja ligeramente los bizcochos de soletilla en el café sin empaparlos en exceso.\n\nEn una fuente, coloca una capa de bizcochos y cúbrelos con una capa de crema de mascarpone.\n\nRepite el proceso alternando capas hasta terminar los ingredientes.\n\nRefrigera durante al menos 4 horas.\n\nAntes de servir, espolvorea cacao puro por encima.",
+
+        ingredientes: "Queso Mascarpone (250g), Bizcochos de soletilla (200g), Café (200ml), Cacao puro (al gusto), Huevos (3 unidades), Azúcar (100g)",
+
+        imagen: "https://recetasdecocina.elmundo.es/wp-content/uploads/2022/08/tiramisu-postre-italiano.jpg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 30,
+
+        kcal: 390,
+        proteinas: 8,
+        carbohidratos: 42,
+        fibra: 1,
+        grasas: 22,
+
+        azucares: 34,
+        grasas_saturadas: 13,
+        sal: 0.25,
+
+        peso_total_g: 650,
+
+        kcal_100g: 60,
+        proteinas_100g: 1.2,
+        carbohidratos_100g: 6.5,
+        azucares_100g: 5.2,
+        grasas_100g: 3.4,
+        grasas_saturadas_100g: 2.0,
+        fibra_100g: 0.2,
+        sal_100g: 0.04,
+
+        semaforo: "naranja",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en celebraciones.",
+        dificultad: "Media"
+    },
+    {
+        titulo: "Helado Casero de Vainilla",
+        descripcion: "Monta la nata bien fría hasta textura firme.\n\nMezcla la leche condensada con el extracto de vainilla.\n\nIncorpora la nata montada con movimientos envolventes.\n\nVierte en un recipiente apto para congelador.\n\nCongela al menos 6 horas.\n\nDeja reposar unos minutos antes de servir.",
+
+        ingredientes: "Nata para montar (400ml), Leche condensada (300g), Extracto de vainilla (1 cucharadita)",
+
+        imagen: "https://gourmet.iprospect.cl/wp-content/uploads/2016/09/Helado_Vainilla-web.jpg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 15,
+
+        kcal: 320,
+        proteinas: 5,
+        carbohidratos: 28,
+        fibra: 0,
+        grasas: 22,
+
+        azucares: 26,
+        grasas_saturadas: 14,
+        sal: 0.2,
+
+        peso_total_g: 700,
+
+        kcal_100g: 46,
+        proteinas_100g: 0.7,
+        carbohidratos_100g: 4.0,
+        azucares_100g: 3.7,
+        grasas_100g: 3.1,
+        grasas_saturadas_100g: 2.0,
+        fibra_100g: 0,
+        sal_100g: 0.03,
+
+        semaforo: "amarillo",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre en verano o celebraciones.",
+        dificultad: "Fácil"
+    },
+    {
+        titulo: "Torrijas Tradicionales",
+        descripcion: "Calienta la leche con canela y azúcar sin hervir.\n\nCorta el pan en rebanadas gruesas.\n\nEmpapa el pan en la leche aromatizada.\n\nPasa por huevo batido.\n\nFríe en aceite caliente hasta dorar.\n\nReboza en azúcar y canela.",
+
+        ingredientes: "Pan duro (1 barra), Leche (500ml), Huevos (3 unidades), Azúcar (100g), Canela (1 cucharadita), Aceite (para freír)",
+
+        imagen: "https://www.petitchef.es/imgupl/recipe/torrijas-tradicionales-caseras--lg-463304p733448.webp",
+
+        tipo: "Postre",
+        tiempo_preparacion: 25,
+
+        kcal: 410,
+        proteinas: 10,
+        carbohidratos: 58,
+        fibra: 2,
+        grasas: 16,
+
+        azucares: 35,
+        grasas_saturadas: 5,
+        sal: 0.4,
+
+        peso_total_g: 520,
+
+        kcal_100g: 79,
+        proteinas_100g: 1.9,
+        carbohidratos_100g: 11.2,
+        azucares_100g: 6.7,
+        grasas_100g: 3.1,
+        grasas_saturadas_100g: 1.0,
+        fibra_100g: 0.4,
+        sal_100g: 0.08,
+
+        semaforo: "naranja",
+        consumo_habitual: "Consumo ocasional recomendado, especialmente en celebraciones o temporadas tradicionales.",
+        dificultad: "Media"
+    },
+    {
+        titulo: "Crema Catalana",
+        descripcion: "Calienta la leche con limón y canela sin hervir.\n\nMezcla yemas, azúcar y maicena.\n\nIncorpora la leche caliente poco a poco.\n\nCocina hasta espesar sin hervir.\n\nEnfría y refrigera.\n\nQuema azúcar antes de servir.",
+
+        ingredientes: "Leche (500ml), Yemas de huevo (4 unidades), Azúcar (120g), Maicena (20g), Piel de limón (1), Canela (1 rama)",
+
+        imagen: "https://www.cuina.cat/uploads/s1/20/97/21/0/crema-catalana-2.jpeg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 20,
+
+        kcal: 290,
+        proteinas: 7,
+        carbohidratos: 34,
+        fibra: 0,
+        grasas: 14,
+
+        azucares: 28,
+        grasas_saturadas: 7,
+        sal: 0.2,
+
+        peso_total_g: 500,
+
+        kcal_100g: 58,
+        proteinas_100g: 1.4,
+        carbohidratos_100g: 6.8,
+        azucares_100g: 5.6,
+        grasas_100g: 2.8,
+        grasas_saturadas_100g: 1.4,
+        fibra_100g: 0,
+        sal_100g: 0.04,
+
+        semaforo: "amarillo",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre tradicional en celebraciones.",
+        dificultad: "Media"
+    },
+    {
+        titulo: "Mousse de Limón",
+        descripcion: "Monta la nata fría.\n\nMezcla leche condensada con zumo de limón.\n\nIncorpora la nata suavemente.\n\nRefrigera hasta que cuaje.",
+
+        ingredientes: "Zumo de limón (100ml), Leche condensada (200g), Nata para montar (300ml)",
+
+        imagen: "https://i.ytimg.com/vi/7u8jJUHW-_o/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDjIFxXLr7AON0TNAETrIwpJXGv2w",
+
+        tipo: "Postre",
+        tiempo_preparacion: 15,
+
+        kcal: 260,
+        proteinas: 5,
+        carbohidratos: 30,
+        fibra: 0,
+        grasas: 14,
+
+        azucares: 26,
+        grasas_saturadas: 9,
+        sal: 0.15,
+
+        peso_total_g: 500,
+
+        kcal_100g: 52,
+        proteinas_100g: 1.0,
+        carbohidratos_100g: 6.0,
+        azucares_100g: 5.2,
+        grasas_100g: 2.8,
+        grasas_saturadas_100g: 1.8,
+        fibra_100g: 0,
+        sal_100g: 0.03,
+
+        semaforo: "amarillo",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre fresco en verano o celebraciones.",
+        dificultad: "Fácil"
+    },
+    {
+        titulo: "Natillas con Galleta",
+        descripcion: "Calienta la leche con vainilla.\n\nMezcla yemas, azúcar y maicena.\n\nIncorpora la leche caliente.\n\nCocina hasta espesar.\n\nSirve con galleta encima.",
+
+        ingredientes: "Leche (500ml), Yemas (3 unidades), Azúcar (100g), Maicena (20g), Vainilla (1 cucharadita), Galletas María (al gusto)",
+
+        imagen: "https://okdiario.com/img/recetas/2017/05/16/natillas-caseras.jpg",
+
+        tipo: "Postre",
+        tiempo_preparacion: 20,
+
+        kcal: 270,
+        proteinas: 7,
+        carbohidratos: 38,
+        fibra: 0,
+        grasas: 10,
+
+        azucares: 32,
+        grasas_saturadas: 5,
+        sal: 0.25,
+
+        peso_total_g: 520,
+
+        kcal_100g: 52,
+        proteinas_100g: 1.3,
+        carbohidratos_100g: 7.3,
+        azucares_100g: 6.2,
+        grasas_100g: 1.9,
+        grasas_saturadas_100g: 1.0,
+        fibra_100g: 0,
+        sal_100g: 0.05,
+
+        semaforo: "amarillo",
+        consumo_habitual: "Consumo ocasional recomendado, ideal como postre tradicional 1 vez por semana.",
+        dificultad: "Fácil"
+    },
+
+    // ----------------- SNACK (10) -----------------
     {
         titulo: "Arroz con Leche",
         descripcion: "En una cazuela, añade la leche junto con la canela en rama y la piel de limón, y caliéntalo a fuego medio hasta que empiece a humear sin llegar a hervir.\n\nAñade el arroz y cocina a fuego lento, removiendo de vez en cuando para evitar que se pegue.\n\nContinúa la cocción durante unos 35-40 minutos, hasta que el arroz esté tierno y la mezcla haya espesado.\n\nRetira la canela y la piel de limón una vez que el arroz esté en su punto.\n\nIncorpora el azúcar y mezcla bien hasta que se disuelva completamente.\n\nCocina unos minutos más para integrar los sabores.\n\nDeja enfriar a temperatura ambiente y después refrigera.\n\nAntes de servir, espolvorea canela en polvo al gusto si lo deseas.",
@@ -956,138 +1874,23 @@ export const misRecetasReales = [
         carbohidratos: 58,
         fibra: 1,
         grasas: 8,
+
+        azucares: 52,
+        grasas_saturadas: 4,
+        sal: 0.1,
+        peso_total_g: 950,
+
+        kcal_100g: 33,
+        proteinas_100g: 0.7,
+        carbohidratos_100g: 6.1,
+        azucares_100g: 5.5,
+        grasas_100g: 0.8,
+        grasas_saturadas_100g: 0.4,
+        fibra_100g: 0.1,
+        sal_100g: 0.01,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en ocasiones especiales.",
-        dificultad: "Fácil"
-    },
-    {
-        titulo: "Coulant de Chocolate",
-        descripcion: "Precalienta el horno a 200ºC y engrasa ligeramente los moldes individuales.\n\nDerrite el chocolate fondant junto con la mantequilla al baño maría o en el microondas en intervalos cortos, mezclando hasta obtener una crema lisa.\n\nEn un bol aparte, bate los huevos con el azúcar hasta que la mezcla esté espumosa.\n\nIncorpora el chocolate derretido a la mezcla de huevos y remueve suavemente.\n\nAñade la harina tamizada y mezcla lo justo hasta integrar todos los ingredientes.\n\nRellena los moldes hasta 3/4 de su capacidad.\n\nHornea durante 8-10 minutos, lo justo para que el exterior cuaje pero el interior quede líquido.\n\nDesmolda con cuidado y sirve inmediatamente para que el corazón de chocolate siga fundido.",
-        ingredientes: "Chocolate fondant (150g), Mantequilla (100g), Huevos (3 unidades), Azúcar (80g), Harina (40g)",
-        imagen: "https://www.eladerezo.com/wp-content/uploads/2016/03/coulant-de-chocolate-3-600x400.jpg",
-        tipo: "Postre",
-        tiempo_preparacion: 25,
-        kcal: 480,
-        proteinas: 7,
-        carbohidratos: 38,
-        fibra: 2,
-        grasas: 32,
-        semaforo: "naranja",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en celebraciones.",
-        dificultad: "Media"
-    },
-    {
-        titulo: "Tiramisú Italiano",
-        descripcion: "Separa las claras y las yemas de los huevos.\n\nBate las yemas con el azúcar hasta obtener una crema suave y ligeramente espesa.\n\nAñade el queso mascarpone y mezcla hasta integrar completamente.\n\nMonta las claras a punto de nieve y añádelas suavemente a la crema con movimientos envolventes.\n\nPrepara el café y déjalo enfriar a temperatura ambiente.\n\nMoja ligeramente los bizcochos de soletilla en el café sin empaparlos en exceso.\n\nEn una fuente, coloca una capa de bizcochos y cúbrelos con una capa de crema de mascarpone.\n\nRepite el proceso alternando capas hasta terminar los ingredientes.\n\nRefrigera durante al menos 4 horas.\n\nAntes de servir, espolvorea cacao puro por encima.",
-        ingredientes: "Queso Mascarpone (250g), Bizcochos de soletilla (200g), Café (200ml), Cacao puro (al gusto), Huevos (3 unidades), Azúcar (100g)",
-        imagen: "https://recetasdecocina.elmundo.es/wp-content/uploads/2022/08/tiramisu-postre-italiano.jpg",
-        tipo: "Postre",
-        tiempo_preparacion: 30,
-        kcal: 390,
-        proteinas: 8,
-        carbohidratos: 42,
-        fibra: 1,
-        grasas: 22,
-        semaforo: "naranja",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre 1 vez por semana o en celebraciones.",
-        dificultad: "Media"
-    },
-    {
-        titulo: "Helado Casero de Vainilla",
-        descripcion: "Monta la nata bien fría hasta textura firme.\n\nMezcla la leche condensada con el extracto de vainilla.\n\nIncorpora la nata montada con movimientos envolventes.\n\nVierte en un recipiente apto para congelador.\n\nCongela al menos 6 horas.\n\nDeja reposar unos minutos antes de servir.",
-        ingredientes: "Nata para montar (400ml), Leche condensada (300g), Extracto de vainilla (1 cucharadita)",
-        imagen: "https://gourmet.iprospect.cl/wp-content/uploads/2016/09/Helado_Vainilla-web.jpg",
-        tipo: "Postre",
-        tiempo_preparacion: 15,
-        kcal: 320,
-        proteinas: 5,
-        carbohidratos: 28,
-        fibra: 0,
-        grasas: 22,
-        semaforo: "amarillo",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre en verano o celebraciones.",
-        dificultad: "Fácil"
-    },
-    {
-        titulo: "Torrijas Tradicionales",
-        descripcion: "Calienta la leche con canela y azúcar sin hervir.\n\nCorta el pan en rebanadas gruesas.\n\nEmpapa el pan en la leche aromatizada.\n\nPasa por huevo batido.\n\nFríe en aceite caliente hasta dorar.\n\nReboza en azúcar y canela.",
-        ingredientes: "Pan duro (1 barra), Leche (500ml), Huevos (3 unidades), Azúcar (100g), Canela (1 cucharadita), Aceite (para freír)",
-        imagen: "https://www.petitchef.es/imgupl/recipe/torrijas-tradicionales-caseras--lg-463304p733448.webp",
-        tipo: "Postre",
-        tiempo_preparacion: 25,
-        kcal: 410,
-        proteinas: 10,
-        carbohidratos: 58,
-        fibra: 2,
-        grasas: 16,
-        semaforo: "naranja",
-        consumo_habitual: "Consumo ocasional recomendado, especialmente en celebraciones o temporadas tradicionales.",
-        dificultad: "Media"
-    },
-    {
-        titulo: "Crema Catalana",
-        descripcion: "Calienta la leche con limón y canela sin hervir.\n\nMezcla yemas, azúcar y maicena.\n\nIncorpora la leche caliente poco a poco.\n\nCocina hasta espesar sin hervir.\n\nEnfría y refrigera.\n\nQuema azúcar antes de servir.",
-        ingredientes: "Leche (500ml), Yemas de huevo (4 unidades), Azúcar (120g), Maicena (20g), Piel de limón (1), Canela (1 rama)",
-        imagen: "https://www.cuina.cat/uploads/s1/20/97/21/0/crema-catalana-2.jpeg",
-        tipo: "Postre",
-        tiempo_preparacion: 20,
-        kcal: 290,
-        proteinas: 7,
-        carbohidratos: 34,
-        fibra: 0,
-        grasas: 14,
-        semaforo: "amarillo",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre tradicional en celebraciones.",
-        dificultad: "Media"
-    },
-    {
-        titulo: "Mousse de Limón",
-        descripcion: "Monta la nata fría.\n\nMezcla leche condensada con zumo de limón.\n\nIncorpora la nata suavemente.\n\nRefrigera hasta que cuaje.",
-        ingredientes: "Zumo de limón (100ml), Leche condensada (200g), Nata para montar (300ml)",
-        imagen: "https://i.ytimg.com/vi/7u8jJUHW-_o/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDjIFxXLr7AON0TNAETrIwpJXGv2w",
-        tipo: "Postre",
-        tiempo_preparacion: 15,
-        kcal: 260,
-        proteinas: 5,
-        carbohidratos: 30,
-        fibra: 0,
-        grasas: 14,
-        semaforo: "amarillo",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre fresco en verano o celebraciones.",
-        dificultad: "Fácil"
-    },
-    {
-        titulo: "Natillas con Galleta",
-        descripcion: "Calienta la leche con vainilla.\n\nMezcla yemas, azúcar y maicena.\n\nIncorpora la leche caliente.\n\nCocina hasta espesar.\n\nSirve con galleta encima.",
-        ingredientes: "Leche (500ml), Yemas (3 unidades), Azúcar (100g), Maicena (20g), Vainilla (1 cucharadita), Galletas María (al gusto)",
-        imagen: "https://okdiario.com/img/recetas/2017/05/16/natillas-caseras.jpg",
-        tipo: "Postre",
-        tiempo_preparacion: 20,
-        kcal: 270,
-        proteinas: 7,
-        carbohidratos: 38,
-        fibra: 0,
-        grasas: 10,
-        semaforo: "amarillo",
-        consumo_habitual: "Consumo ocasional recomendado, ideal como postre tradicional 1 vez por semana.",
-        dificultad: "Fácil"
-    },
-
-    // ----------------- SNACK (10) -----------------
-    {
-        titulo: "Hummus con Zanahoria",
-        descripcion: "Escurre bien los garbanzos cocidos para eliminar el exceso de líquido.\n\nIntroduce los garbanzos en una batidora junto con el tahini, el ajo, el zumo de limón, el comino y un chorrito de aceite de oliva.\n\nTritura todo hasta obtener una pasta suave y cremosa.\n\nSi la mezcla queda demasiado espesa, añade un poco de agua o el líquido de cocción de los garbanzos hasta conseguir la textura deseada.\n\nPrueba y ajusta de sal, limón o comino al gusto.\n\nSirve el hummus en un bol, haciendo un pequeño hueco en el centro y añadiendo un chorrito de aceite de oliva por encima.\n\nAcompaña con las zanahorias cortadas en tiras para mojar.",
-        ingredientes: "400g garbanzos cocidos, 2 cucharadas de tahini (30g), 1 diente de ajo, zumo de 1 limón, 1/2 cucharadita de comino, 2 zanahorias medianas",
-        imagen: "https://recetasdecocina.elmundo.es/wp-content/uploads/2024/04/hummus-de-zanahoria.jpg",
-        tipo: "Snack",
-        tiempo_preparacion: 10,
-        kcal: 260,
-        proteinas: 9,
-        carbohidratos: 28,
-        fibra: 9,
-        grasas: 12,
-        semaforo: "verde_claro",
-        consumo_habitual: "Consumo habitual recomendado, ideal como snack saludable o entrante 3 a 6 veces por semana.",
         dificultad: "Fácil"
     },
     {
@@ -1102,6 +1905,21 @@ export const misRecetasReales = [
         carbohidratos: 48,
         fibra: 12,
         grasas: 32,
+
+        azucares: 6,
+        grasas_saturadas: 6,
+        sal: 1.2,
+        peso_total_g: 300,
+
+        kcal_100g: 173,
+        proteinas_100g: 3,
+        carbohidratos_100g: 16,
+        azucares_100g: 2,
+        grasas_100g: 10.7,
+        grasas_saturadas_100g: 2,
+        fibra_100g: 4,
+        sal_100g: 0.4,
+
         semaforo: "naranja",
         consumo_habitual: "Consumo ocasional recomendado, ideal como snack o entrante 1 a 2 veces por semana debido a su densidad calórica.",
         dificultad: "Fácil"
@@ -1118,6 +1936,21 @@ export const misRecetasReales = [
         carbohidratos: 58,
         fibra: 7,
         grasas: 18,
+
+        azucares: 1,
+        grasas_saturadas: 2,
+        sal: 1.0,
+        peso_total_g: 130,
+
+        kcal_100g: 331,
+        proteinas_100g: 6.2,
+        carbohidratos_100g: 44.6,
+        azucares_100g: 0.8,
+        grasas_100g: 13.8,
+        grasas_saturadas_100g: 1.5,
+        fibra_100g: 5.4,
+        sal_100g: 0.77,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como snack ocasional o para ver películas 2 a 4 veces por semana.",
         dificultad: "Fácil"
@@ -1134,6 +1967,21 @@ export const misRecetasReales = [
         carbohidratos: 38,
         fibra: 6,
         grasas: 10,
+
+        azucares: 7,
+        grasas_saturadas: 1.5,
+        sal: 1.1,
+        peso_total_g: 320,
+
+        kcal_100g: 75,
+        proteinas_100g: 0.9,
+        carbohidratos_100g: 11.9,
+        azucares_100g: 2.2,
+        grasas_100g: 3.1,
+        grasas_saturadas_100g: 0.5,
+        fibra_100g: 1.9,
+        sal_100g: 0.34,
+
         semaforo: "verde_claro",
         consumo_habitual: "Consumo habitual recomendado, ideal como snack saludable o guarnición 3 a 6 veces por semana.",
         dificultad: "Fácil"
@@ -1150,6 +1998,21 @@ export const misRecetasReales = [
         carbohidratos: 90,
         fibra: 45,
         grasas: 225,
+
+        azucares: 12,
+        grasas_saturadas: 28,
+        sal: 1.5,
+        peso_total_g: 450,
+
+        kcal_100g: 595,
+        proteinas_100g: 20,
+        carbohidratos_100g: 20,
+        azucares_100g: 2.7,
+        grasas_100g: 50,
+        grasas_saturadas_100g: 6.2,
+        fibra_100g: 10,
+        sal_100g: 0.33,
+
         semaforo: "amarillo",
         consumo_habitual: "Consumo moderado recomendado, ideal como snack energético o aporte ocasional de grasas saludables (1 a 3 veces por semana).",
         dificultad: "Fácil"
@@ -1166,6 +2029,21 @@ export const misRecetasReales = [
         carbohidratos: 15,
         fibra: 8,
         grasas: 8,
+
+        azucares: 3,
+        grasas_saturadas: 1,
+        sal: 1.3,
+        peso_total_g: 260,
+
+        kcal_100g: 73,
+        proteinas_100g: 6.5,
+        carbohidratos_100g: 5.8,
+        azucares_100g: 1.1,
+        grasas_100g: 3.1,
+        grasas_saturadas_100g: 0.4,
+        fibra_100g: 3.1,
+        sal_100g: 0.50,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, excelente como snack proteico ligero o aperitivo saludable varias veces por semana.",
         dificultad: "Fácil"
@@ -1182,6 +2060,21 @@ export const misRecetasReales = [
         carbohidratos: 140,
         fibra: 18,
         grasas: 95,
+
+        azucares: 120,
+        grasas_saturadas: 75,
+        sal: 0.3,
+        peso_total_g: 330,
+
+        kcal_100g: 500,
+        proteinas_100g: 6.7,
+        carbohidratos_100g: 42.4,
+        azucares_100g: 36.3,
+        grasas_100g: 28.8,
+        grasas_saturadas_100g: 22.7,
+        fibra_100g: 5.5,
+        sal_100g: 0.09,
+
         semaforo: "rojo",
         consumo_habitual: "Consumo ocasional recomendado, alto en azúcares y grasas. Ideal como capricho dulce puntual (1 vez por semana o menos).",
         dificultad: "Fácil"
@@ -1198,6 +2091,21 @@ export const misRecetasReales = [
         carbohidratos: 22,
         fibra: 18,
         grasas: 14,
+
+        azucares: 9,
+        grasas_saturadas: 2,
+        sal: 0.2,
+        peso_total_g: 330,
+
+        kcal_100g: 85,
+        proteinas_100g: 2.7,
+        carbohidratos_100g: 6.7,
+        azucares_100g: 2.7,
+        grasas_100g: 4.2,
+        grasas_saturadas_100g: 0.6,
+        fibra_100g: 5.5,
+        sal_100g: 0.06,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, ideal como desayuno ligero o snack saludable diario.",
         dificultad: "Fácil"
@@ -1214,6 +2122,21 @@ export const misRecetasReales = [
         carbohidratos: 3,
         fibra: 0,
         grasas: 18,
+
+        azucares: 2,
+        grasas_saturadas: 9,
+        sal: 1.8,
+        peso_total_g: 230,
+
+        kcal_100g: 113,
+        proteinas_100g: 9.6,
+        carbohidratos_100g: 1.3,
+        azucares_100g: 0.9,
+        grasas_100g: 7.8,
+        grasas_saturadas_100g: 3.9,
+        fibra_100g: 0,
+        sal_100g: 0.78,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, ideal como snack proteico bajo en carbohidratos o aperitivo ligero varias veces por semana.",
         dificultad: "Fácil"
@@ -1230,6 +2153,21 @@ export const misRecetasReales = [
         carbohidratos: 10,
         fibra: 4,
         grasas: 16,
+
+        azucares: 3,
+        grasas_saturadas: 3,
+        sal: 0.6,
+        peso_total_g: 120,
+
+        kcal_100g: 183,
+        proteinas_100g: 6.7,
+        carbohidratos_100g: 8.3,
+        azucares_100g: 2.5,
+        grasas_100g: 13.3,
+        grasas_saturadas_100g: 2.5,
+        fibra_100g: 3.3,
+        sal_100g: 0.5,
+
         semaforo: "verde_oscuro",
         consumo_habitual: "Consumo habitual recomendado, buen snack saciante rico en grasas saludables y proteína.",
         dificultad: "Fácil"
