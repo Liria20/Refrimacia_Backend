@@ -10,15 +10,17 @@ const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
+        // 🚀 METEMOS LAS INSTRUCCIONES FIJAS EN EL SISTEMA Y REBAJAMOS LA TEMPERATURA A 0
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             systemInstruction: "Actúa como un experto nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros por ración, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
             generationConfig: {
-                responseMimeType: "application/json", 
-                temperature: 0 
+                responseMimeType: "application/json", // 🔥 Fuerza el modo JSON nativo (máxima velocidad)
+                temperature: 0 // 🔥 Creatividad cero = velocidad de respuesta extrema
             }
         });
 
+        // El prompt ahora es ligerísimo, solo contiene las variables que cambian
         const prompt = `
             Analiza esta receta:
             Tipo: ${tipo}
@@ -28,11 +30,6 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
             Reglas para campos específicos:
             - "semaforo": elije uno de estos valores: verde_oscuro, verde_claro, amarillo, naranja, rojo.
             - "dificultad": elije uno de estos valores: Fácil, Media, Difícil.
-            - "consumo_recomendado": 🔥 Elije ÚNICAMENTE una de estas 4 frases exactas (la que mejor se adapte):
-                "Ideal para consumo diario"
-                "Consumo moderado (2-3 veces por semana)"
-                "Consumo ocasional (Capricho puntual)"
-                "Incomestible (Evitar)"
 
             Devuelve el JSON con la siguiente estructura exacta:
             {
@@ -41,7 +38,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
               "carbohidratos": number,
               "grasas": number,
               "fibra": number,
-              "consumo_recomendado": "Ideal para consumo diario" | "Consumo moderado (2-3 veces por semana)" | "Consumo ocasional (Capricho puntual)" | "Incomestible (Evitar)",
+              "consumo_recomendado": "string corto",
               "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo",
               "dificultad": "Fácil" | "Media" | "Difícil"
             }
@@ -52,6 +49,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
 
         console.log("🤖 [IA RAW RESPONSE]:", text);
 
+        // 🎉 YA NO HACE FALTA LIMPIAR REGEX (```json). Gemini devuelve el JSON limpio y directo.
         const data = JSON.parse(text);
 
         console.log("📊 [DATA OBJECT]:", data);
