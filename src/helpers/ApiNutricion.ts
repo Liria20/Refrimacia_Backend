@@ -41,7 +41,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
               "carbohidratos": number,
               "grasas": number,
               "fibra": number,
-              "consumo_recomendado": "Ideal para consumo diario" | "Consumo moderado (2-3 veces por semana)" | "Consumo ocasional (Capricho puntual)" | "Ideal para antes o después de entrenar",
+              "consumo_recomendado": "Ideal para consumo diario" | "Consumo moderado (2-3 veces por semana)" | "Consumo ocasional (Capricho puntual)" | "Incomestible (Evitar)",
               "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo",
               "dificultad": "Fácil" | "Media" | "Difícil"
             }
