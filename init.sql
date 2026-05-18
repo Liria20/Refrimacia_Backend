@@ -24,11 +24,26 @@ CREATE TABLE TReceta (
     tiempo_preparacion INT,
     id_usuario INT NOT NULL,
     -- Campos nutricionales calculados por IA
+    peso_total_g INT DEFAULT 0,
+
     kcal FLOAT DEFAULT 0,
     proteinas FLOAT DEFAULT 0,
     carbohidratos FLOAT DEFAULT 0,
+    azucares FLOAT DEFAULT 0,
     fibra FLOAT DEFAULT 0,
     grasas FLOAT DEFAULT 0,
+    grasas_saturadas FLOAT DEFAULT 0,
+    sal FLOAT DEFAULT 0,
+
+    kcal_100g FLOAT DEFAULT 0,
+    proteinas_100g FLOAT DEFAULT 0,
+    carbohidratos_100g FLOAT DEFAULT 0,
+    azucares_100g FLOAT DEFAULT 0,
+    grasas_100g FLOAT DEFAULT 0,
+    grasas_saturadas_100g FLOAT DEFAULT 0,
+    fibra_100g FLOAT DEFAULT 0,
+    sal_100g FLOAT DEFAULT 0,
+
     semaforo VARCHAR(30) DEFAULT 'gris',
     consumo_habitual VARCHAR(255) DEFAULT 'No disponible',
     dificultad VARCHAR(20) DEFAULT 'No disponible'

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../../db.js';
 // 🟢 Importamos nuestra conexión a la API de nutrición
-import { obtenerNutricionDesdeAPI } from '../helpers/ApiNutricion.js';
+import { calcularValores100g, obtenerNutricionDesdeAPI } from '../helpers/ApiNutricion.js';
 
 const IMAGEN_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/857/857681.png";
 
@@ -64,8 +64,7 @@ export const listarRecetas = async (req: Request, res: Response) => {
 export const obtenerRecetaPorId = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        // 1. Al hacer r.* ya estás trayendo TODAS las columnas, 
-        // incluyendo las nutricionales (kcal, grasas, semaforo...) que guardó la IA al crearla.
+        // 1. Al hacer r.* ya estás trayendo TODAS las nuevas columnas nutricionales automáticamente
         const queryReceta = `
             SELECT r.*, u.nombre_usuario as autor,
             (SELECT IFNULL(AVG(puntuacion), 0) FROM TValoracion WHERE id_receta = r.id_receta) as media_puntuacion
@@ -79,6 +78,7 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
             return res.status(404).json({ status: "error", message: "La receta no existe." });
         }
 
+        // 2. Traemos los comentarios asociados
         const [comentarios]: any = await db.query(
             `SELECT c.*, u.nombre_usuario, u.imagen_perfil 
              FROM TComentario c 
@@ -89,22 +89,21 @@ export const obtenerRecetaPorId = async (req: Request, res: Response) => {
 
         const receta = recetaRows[0];
 
-        // ❌ ELIMINADO: La llamada en vivo a la IA (obtenerNutricionDesdeAPI)
-        // Ya no la necesitamos aquí porque los datos ya vienen dentro de 'receta'
+        // 🌟 OPTIMIZACIÓN: Redondeamos la puntuación media a 1 decimal (ej: 4.5)
+        // Esto evita que Android reciba cosas como 4.6666666667 y rompa el diseño de las estrellas
+        receta.media_puntuacion = parseFloat(Number(receta.media_puntuacion).toFixed(1));
 
+        // 3. Enviamos la respuesta
         res.json({
             status: "success",
             data: {
-                ...receta,
-                // Ya no hace falta re-mapear semaforo y consumo_habitual si se llaman igual en la BD, 
-                // pero si quieres asegurarte de que estén en la raíz del JSON, puedes dejarlos o 
-                // confiar en el ...receta que ya los incluye.
+                ...receta, // Aquí ya van: kcal, azucares, sal, kcal_100g, consumo_habitual, semaforo, etc.
                 comentarios: comentarios
             }
         });
     } catch (error: any) {
-        console.error("Error al obtener la receta:", error);
-        res.status(500).json({ status: "error", message: "Error al obtener los detalles." });
+        console.error("❌ Error al obtener la receta por ID:", error);
+        res.status(500).json({ status: "error", message: "Error al obtener los detalles de la receta." });
     }
 };
 
@@ -143,47 +142,69 @@ export const crearReceta = async (req: Request, res: Response) => {
 
         const id_nueva_receta = result.insertId;
 
-        // 1. ⚡ RESPUESTA INSTANTÁNEA: El usuario recibe el OK aquí mismo
+        // 1. ⚡ RESPUESTA INSTANTÁNEA: El usuario de Android recibe el OK al instante
         res.status(201).json({
             status: "success",
             id_receta: id_nueva_receta,
             foto: imagen_final
         });
 
-        // 2. 🧠 PROCESO EN SEGUNDO PLANO: Se ejecuta sin hacer esperar al usuario
+        // 2. 🧠 PROCESO EN SEGUNDO PLANO: Se calcula todo el bloque nutricional sin hacer esperar al móvil
         (async () => {
             try {
-                // Forzamos el tipo a 'any' para evitar que TypeScript se queje de los campos nuevos
+                // Llamamos a la IA para obtener los totales y el peso estimado del plato
                 const nutricion: any = await obtenerNutricionDesdeAPI(ingredientes, tipo_receta, descripcion);
 
-                // 👇 SOLO AÑADIMOS DIFICULTAD AQUÍ 👇
+                // Pasamos esos datos por tu función matemática para sacar el desglose por cada 100g
+                const macros100g = calcularValores100g(nutricion);
+
+                // Mapeamos el UPDATE masivo con la estructura exacta de tu tabla TReceta
                 const updateQuery = `
                     UPDATE TReceta 
-                    SET kcal = ?, proteinas = ?, carbohidratos = ?, fibra = ?, grasas = ?,
+                    SET peso_total_g = ?,
+                        kcal = ?, proteinas = ?, carbohidratos = ?, azucares = ?, fibra = ?, grasas = ?, grasas_saturadas = ?, sal = ?,
+                        kcal_100g = ?, proteinas_100g = ?, carbohidratos_100g = ?, azucares_100g = ?, grasas_100g = ?, grasas_saturadas_100g = ?, fibra_100g = ?, sal_100g = ?,
                         semaforo = ?, consumo_habitual = ?, dificultad = ? 
                     WHERE id_receta = ?`;
 
                 await db.query(updateQuery, [
+                    nutricion.peso_total_g || 0,
+                    
+                    // Totales del plato (las llaves ya no llevan el sufijo _total)
                     nutricion.kcal || 0,
                     nutricion.proteinas || 0,
                     nutricion.carbohidratos || 0,
+                    nutricion.azucares || 0,
                     nutricion.fibra || 0,
                     nutricion.grasas || 0,
+                    nutricion.grasas_saturadas || 0,
+                    nutricion.sal || 0,
+                    
+                    // Valores calculados por cada 100g
+                    macros100g.kcal_100g || 0,
+                    macros100g.proteinas_100g || 0,
+                    macros100g.carbohidratos_100g || 0,
+                    macros100g.azucares_100g || 0,
+                    macros100g.grasas_100g || 0,
+                    macros100g.grasas_saturadas_100g || 0,
+                    macros100g.fibra_100g || 0,
+                    macros100g.sal_100g || 0,
+                    
+                    // Clasificación y metadatos
                     nutricion.semaforo || 'gris',
-                    nutricion.consumo_recomendado || 'No disponible',
-                    nutricion.dificultad || 'Media', // 👈 Parámetro añadido
+                    nutricion.consumo_habitual || 'No disponible', // Cambiado para que coincida con la BD
+                    nutricion.dificultad || 'Media',
+                    
                     id_nueva_receta
                 ]);
-                // 👆 FIN DE LOS CAMBIOS 👆
 
-                console.log(`✅ Nutrición calculada para la receta ${id_nueva_receta}`);
+                console.log(`✅ Todo el bloque nutricional (Totales y 100g) guardado para la receta ${id_nueva_receta}`);
             } catch (errorIA) {
                 console.error("❌ Error al calcular nutrición en segundo plano:", errorIA);
             }
         })();
 
     } catch (error: any) {
-        // Solo enviamos error si no se ha enviado la respuesta de éxito todavía
         if (!res.headersSent) {
             res.status(500).json({ status: "error", message: error.message });
         }
@@ -203,7 +224,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
     }
 
     try {
-        // 1. Verificar existencia y propiedad
+        // 1. Verificar existencia y propiedad de la receta
         const [recetaOriginal]: any = await db.query('SELECT * FROM TReceta WHERE id_receta = ?', [id]);
         if (recetaOriginal.length === 0) return res.status(404).json({ status: "error", message: "La receta no existe" });
 
@@ -211,7 +232,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(403).json({ status: "error", message: "No tienes permiso para editar esta receta" });
         }
 
-        // 2. Construcción dinámica de campos
+        // 2. Construcción dinámica de los campos básicos modificados
         let campos = [];
         let valores = [];
 
@@ -233,7 +254,7 @@ export const modificarReceta = async (req: Request, res: Response) => {
             return res.status(400).json({ status: "error", message: "No se enviaron campos para modificar" });
         }
 
-        // 3. Ejecutar Update de los campos básicos
+        // 3. Ejecutar Update rápido de los campos de texto
         const query = `UPDATE TReceta SET ${campos.join(", ")} WHERE id_receta = ?`;
         valores.push(id);
         await db.query(query, valores);
@@ -242,47 +263,71 @@ export const modificarReceta = async (req: Request, res: Response) => {
         const necesitaRecalculo = ingredientes || tipo_receta || descripcion || titulo_receta;
 
         if (necesitaRecalculo) {
-            console.log(`🔄 Receta ${id} modificada. Recalculando nutrición en segundo plano...`);
+            console.log(`🔄 Receta ${id} modificada. Recalculando bloque nutricional en segundo plano...`);
 
-            // Ponemos el semáforo en gris mientras se calcula para avisar al usuario
+            // Cambiamos el semáforo a gris provisionalmente en lo que trabaja Gemini
             await db.query("UPDATE TReceta SET semaforo = 'gris' WHERE id_receta = ?", [id]);
 
-            // Lanzamos el proceso en segundo plano (sin await para no bloquear la respuesta)
+            // Proceso en segundo plano: no lleva await para liberar al cliente al instante
             (async () => {
                 try {
-                    // Cogemos los datos actualizados de la receta
+                    // Extraemos los datos unificados tras la edición
                     const [recetaActualizada]: any = await db.query('SELECT * FROM TReceta WHERE id_receta = ?', [id]);
                     const r = recetaActualizada[0];
 
+                    // Obtenemos los totales y peso bruto desde la API de Gemini
                     const nutricion = await obtenerNutricionDesdeAPI(r.ingredientes, r.tipo_receta, r.descripcion);
 
-                    // 👇 SOLO AÑADIMOS LA DIFICULTAD AQUÍ 👇
-                    await db.query(`
+                    // Calculamos proporcionalmente los valores por cada 100g
+                    const macros100g = calcularValores100g(nutricion);
+
+                    // Actualización masiva de todo el nuevo arsenal nutricional
+                    const updateQuery = `
                         UPDATE TReceta 
-                        SET kcal = ?, proteinas = ?, carbohidratos = ?, grasas = ?, fibra = ?, 
+                        SET peso_total_g = ?,
+                            kcal = ?, proteinas = ?, carbohidratos = ?, azucares = ?, fibra = ?, grasas = ?, grasas_saturadas = ?, sal = ?,
+                            kcal_100g = ?, proteinas_100g = ?, carbohidratos_100g = ?, azucares_100g = ?, grasas_100g = ?, grasas_saturadas_100g = ?, fibra_100g = ?, sal_100g = ?,
                             semaforo = ?, consumo_habitual = ?, dificultad = ? 
-                        WHERE id_receta = ?`,
-                        [
-                            nutricion.kcal || 0,
-                            nutricion.proteinas || 0,
-                            nutricion.carbohidratos || 0,
-                            nutricion.grasas || 0,
-                            nutricion.fibra || 0,
-                            nutricion.semaforo || 'gris',
-                            nutricion.consumo_recomendado || 'No disponible',
-                            nutricion.dificultad || 'Media', // 👈 Campo nuevo añadido
-                            id
-                        ]
-                    );
-                    // 👆 FIN DE LOS CAMBIOS 👆
+                        WHERE id_receta = ?`;
+
+                    await db.query(updateQuery, [
+                        nutricion.peso_total_g || 0,
+                        
+                        // Totales corregidos (sin sufijos según tu estructura SQL)
+                        nutricion.kcal || 0,
+                        nutricion.proteinas || 0,
+                        nutricion.carbohidratos || 0,
+                        nutricion.azucares || 0,
+                        nutricion.fibra || 0,
+                        nutricion.grasas || 0,
+                        nutricion.grasas_saturadas || 0,
+                        nutricion.sal || 0,
+                        
+                        // Tanda de 100g calculada al vuelo
+                        macros100g.kcal_100g || 0,
+                        macros100g.proteinas_100g || 0,
+                        macros100g.carbohidratos_100g || 0,
+                        macros100g.azucares_100g || 0,
+                        macros100g.grasas_100g || 0,
+                        macros100g.grasas_saturadas_100g || 0,
+                        macros100g.fibra_100g || 0,
+                        macros100g.sal_100g || 0,
+                        
+                        // Metadatos finales
+                        nutricion.semaforo || 'gris',
+                        nutricion.consumo_habitual || 'No disponible',
+                        nutricion.dificultad || 'Media',
+                        id
+                    ]);
                     
-                    console.log(`✅ Nutrición actualizada para receta editada: ${id}`);
+                    console.log(`✅ Nutrición (Totales y 100g) recalculada con éxito para la receta editada: ${id}`);
                 } catch (error) {
-                    console.error(`❌ Error recalculando nutrición de la receta ${id}:`, error);
+                    console.error(`❌ Error recalculando nutrición en edición para receta ${id}:`, error);
                 }
             })();
         }
 
+        // Respuesta inmediata al frontend
         res.json({
             status: "success",
             message: "Receta actualizada correctamente. La nutrición se está recalculando.",
