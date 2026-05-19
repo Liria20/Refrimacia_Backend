@@ -47,12 +47,15 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
 
         // --- 2. GENERAR 50 RECETAS ---
         console.log("🥘 Generando 50 recetas con mis datos reales y coherentes...");
+        const titulosUsados = new Set<string>();
 
-        for (let i = 0; i < 50; i++) {
+        while (recetasCreadas.length < 50) {
+            const recetaPerfecta = getRandomReceta();
+            if (titulosUsados.has(recetaPerfecta.titulo)) {
+                continue; 
+            }
             const idAutor = userIds[Math.floor(Math.random() * userIds.length)];
             const tiempoAzar = faker.number.int({ min: 10, max: 150 });
-
-            const recetaPerfecta = getRandomReceta();
 
             // 🟢 NUEVA LÓGICA MOCK: Asignamos peso simulado y precalculamos los 100g para el Seed
             const peso = recetaPerfecta.peso_total_g || faker.number.int({ min: 350, max: 900 });
@@ -115,7 +118,7 @@ export const ejecutarSeed = async (req: Request, res: Response) => {
                     recetaPerfecta.dificultad || 'Media'
                 ]
             );
-            
+            titulosUsados.add(recetaPerfecta.titulo);
             recetasCreadas.push({ id: r.insertId, titulo: recetaPerfecta.titulo });
         }
 
