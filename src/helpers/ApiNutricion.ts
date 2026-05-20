@@ -9,71 +9,90 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
-    try {
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            systemInstruction: "Actúa como un expertisimo nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros TOTALES de todo el plato combinados, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
-            generationConfig: {
-                responseMimeType: "application/json", 
-                temperature: 0 
+    
+    // 1. Preparamos el modelo y el prompt fuera del bucle para no re-crearlos innecesariamente
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: "Actúa como un expertisimo nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros TOTALES de todo el plato combinados, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
+        generationConfig: {
+            responseMimeType: "application/json", 
+            temperature: 0 
+        }
+    });
+
+    const prompt = `
+        Analiza esta receta:
+        Tipo: ${tipo}
+        Ingredientes: ${ingredientes}
+        Descripcion: ${descripcion}
+
+        CRÍTICO: Calcula los valores nutricionales enfocados al TOTAL DE TODO EL PLATO combinado. Estima también el peso neto aproximado del plato cocinado en gramos.
+
+        Reglas para campos específicos:
+        - "semaforo": elije uno de estos valores basándote en la calidad nutricional por 100g del plato: verde_oscuro, verde_claro, amarillo, naranja, rojo.
+        - "dificultad": elije uno de estos valores: Fácil, Media, Difícil.
+
+        Devuelve el JSON con la siguiente estructura exacta (atendiendo exactamente a los nombres de las llaves):
+        {
+          "peso_total_g": number,
+          "kcal": number,
+          "proteinas": number,
+          "carbohidratos": number,
+          "azucares": number,
+          "grasas": number,
+          "grasas_saturadas": number,
+          "fibra": number,
+          "sal": number,
+          "consumo_habitual": "string corto",
+          "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo",
+          "dificultad": "Fácil" | "Media" | "Difícil"
+        }
+    `;
+
+    // 2. 🛡️ SISTEMA DE REINTENTOS (MÁXIMO 3)
+    let intentos = 0;
+    const MAX_INTENTOS = 3;
+
+    while (intentos < MAX_INTENTOS) {
+        try {
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+
+            console.log(`🤖 [IA RAW RESPONSE - Intento ${intentos + 1}]: OK`);
+            const data = JSON.parse(text);
+
+            return data; // Si todo va bien, devolvemos los datos y salimos de la función
+
+        } catch (error: any) {
+            intentos++;
+            console.error(`⚠️ [GEMINI HELPER] Intento ${intentos}/${MAX_INTENTOS} fallido: ${error.message}`);
+
+            // Si ya consumimos todos los intentos, rompemos el bucle
+            if (intentos >= MAX_INTENTOS) {
+                console.error("❌ [GEMINI HELPER] Servidores saturados tras varios reintentos. Usando fallback.");
+                break; 
             }
-        });
 
-        const prompt = `
-            Analiza esta receta:
-            Tipo: ${tipo}
-            Ingredientes: ${ingredientes}
-            Descripcion: ${descripcion}
-
-            CRÍTICO: Calcula los valores nutricionales enfocados al TOTAL DE TODO EL PLATO combinado. Estima también el peso neto aproximado del plato cocinado en gramos.
-
-            Reglas para campos específicos:
-            - "semaforo": elije uno de estos valores basándote en la calidad nutricional por 100g del plato: verde_oscuro, verde_claro, amarillo, naranja, rojo.
-            - "dificultad": elije uno de estos valores: Fácil, Media, Difícil.
-
-            Devuelve el JSON con la siguiente estructura exacta (atendiendo exactamente a los nombres de las llaves):
-            {
-              "peso_total_g": number,
-              "kcal": number,
-              "proteinas": number,
-              "carbohidratos": number,
-              "azucares": number,
-              "grasas": number,
-              "grasas_saturadas": number,
-              "fibra": number,
-              "sal": number,
-              "consumo_habitual": "string corto",
-              "semaforo": "verde_oscuro" | "verde_claro" | "amarillo" | "naranja" | "rojo",
-              "dificultad": "Fácil" | "Media" | "Difícil"
-            }
-        `;
-
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-
-        console.log("🤖 [IA RAW RESPONSE]:", text);
-
-        const data = JSON.parse(text);
-
-        console.log("📊 [DATA OBJECT]:", data);
-
-        return data;
-
-    } catch (error: any) {
-        console.error("❌ [ERROR EN GEMINI HELPER]:", error.message);
-
-        return {
-            peso_total_g: 0, kcal: 0, proteinas: 0, carbohidratos: 0, azucares: 0, 
-            grasas: 0, grasas_saturadas: 0, fibra: 0, sal: 0,
-            consumo_habitual: "Servicio temporalmente no disponible",
-            semaforo: "gris",
-            dificultad: "Media"
-        };
+            // Calculamos el tiempo de espera exponencial: 2000ms, luego 4000ms...
+            const tiempoEspera = Math.pow(2, intentos) * 1000;
+            console.log(`⏳ Esperando ${tiempoEspera}ms antes de volver a llamar a la IA...`);
+            
+            // Pausamos la ejecución el tiempo establecido antes de la siguiente vuelta del bucle
+            await new Promise(resolve => setTimeout(resolve, tiempoEspera));
+        }
     }
+
+    // 3. FALLBACK: Si llegamos aquí, es que los 3 intentos fallaron
+    return {
+        peso_total_g: 0, kcal: 0, proteinas: 0, carbohidratos: 0, azucares: 0, 
+        grasas: 0, grasas_saturadas: 0, fibra: 0, sal: 0,
+        consumo_habitual: "Servicio temporalmente no disponible",
+        semaforo: "gris",
+        dificultad: "Media"
+    };
 };
 
 export const calcularValores100g = (datosIA: any) => {
-    // Evitamos la división por cero si la IA se equivoca con el peso
     const peso = datosIA.peso_total_g > 0 ? datosIA.peso_total_g : 100;
 
     return {
