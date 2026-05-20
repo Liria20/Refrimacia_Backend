@@ -10,7 +10,6 @@ const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     
-    // 1. Preparamos el modelo y el prompt fuera del bucle para no re-crearlos innecesariamente
     const model = genAI.getGenerativeModel({ 
         model: "gemini-2.5-flash",
         systemInstruction: "Actúa como un expertisimo nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros TOTALES de todo el plato combinados, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
@@ -49,7 +48,6 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         }
     `;
 
-    // 2. 🛡️ SISTEMA DE REINTENTOS (MÁXIMO 3)
     let intentos = 0;
     const MAX_INTENTOS = 3;
 
@@ -61,28 +59,24 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
             console.log(`🤖 [IA RAW RESPONSE - Intento ${intentos + 1}]: OK`);
             const data = JSON.parse(text);
 
-            return data; // Si todo va bien, devolvemos los datos y salimos de la función
+            return data; 
 
         } catch (error: any) {
             intentos++;
             console.error(`⚠️ [GEMINI HELPER] Intento ${intentos}/${MAX_INTENTOS} fallido: ${error.message}`);
 
-            // Si ya consumimos todos los intentos, rompemos el bucle
             if (intentos >= MAX_INTENTOS) {
                 console.error("❌ [GEMINI HELPER] Servidores saturados tras varios reintentos. Usando fallback.");
                 break; 
             }
 
-            // Calculamos el tiempo de espera exponencial: 2000ms, luego 4000ms...
-            const tiempoEspera = Math.pow(2, intentos) * 1000;
-            console.log(`⏳ Esperando ${tiempoEspera}ms antes de volver a llamar a la IA...`);
-            
-            // Pausamos la ejecución el tiempo establecido antes de la siguiente vuelta del bucle
+            // 🛑 ESPERA ESTÁTICA Y PRUDENTE DE 7 SEGUNDOS
+            const tiempoEspera = 7000; 
+            console.log(`⏳ Esperando 7 segundos antes de volver a llamar a la IA...`);
             await new Promise(resolve => setTimeout(resolve, tiempoEspera));
         }
     }
 
-    // 3. FALLBACK: Si llegamos aquí, es que los 3 intentos fallaron
     return {
         peso_total_g: 0, kcal: 0, proteinas: 0, carbohidratos: 0, azucares: 0, 
         grasas: 0, grasas_saturadas: 0, fibra: 0, sal: 0,
