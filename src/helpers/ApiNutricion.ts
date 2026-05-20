@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(apiKey || "");
 export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: string, descripcion: string) => {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             systemInstruction: "Actúa como un expertisimo nutricionista y chef de RefriMancia. Tu única tarea es analizar la receta que te pase el usuario y rellenar un esquema de datos estricto con los macros TOTALES de todo el plato combinados, la dificultad y el semáforo nutricional. Sé matemático, frío y ultra-rápido.",
             generationConfig: {
                 responseMimeType: "application/json", 
