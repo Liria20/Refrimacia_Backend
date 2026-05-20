@@ -65,7 +65,7 @@ export const obtenerNutricionDesdeAPI = async (ingredientes: string, tipo: strin
         return {
             peso_total_g: 0, kcal: 0, proteinas: 0, carbohidratos: 0, azucares: 0, 
             grasas: 0, grasas_saturadas: 0, fibra: 0, sal: 0,
-            consumo_habitual: "Servicio temporalmente no disponible",
+            consumo_habitual: "Calculando...",
             semaforo: "gris",
             dificultad: "Media"
         };
